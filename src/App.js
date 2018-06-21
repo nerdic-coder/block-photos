@@ -1,30 +1,55 @@
 import React, { Component } from 'react';
+
+import {
+  isSignInPending,
+  isUserSignedIn,
+  redirectToSignIn,
+  handlePendingSignIn,
+  signUserOut,
+} from 'blockstack';
+
 import './App.css';
+import Profile from './pages/Profile.js';
+import Signin from './pages/Signin.js';
 
 class App extends Component {
+
+  handleSignIn(e) {
+    e.preventDefault();
+    redirectToSignIn();
+  }
+
+  handleSignOut(e) {
+    e.preventDefault();
+    signUserOut(window.location.origin);
+  }
+
   render() {
     return (
       <ion-app>
         <ion-header>
           <ion-toolbar>
-            <ion-title>React Block</ion-title>
+            <ion-title>React Photos</ion-title>
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          <ion-card>
-            <ion-card-content>
-              <ion-card-title>
-                Work in progress
-              </ion-card-title>
-              <p>
-                More coming soon...
-              </p>
-            </ion-card-content>
-          </ion-card>
+        { !isUserSignedIn() ?
+            <Signin handleSignIn={ this.handleSignIn } />
+            : <Profile handleSignOut={ this.handleSignOut } />
+          }
         </ion-content>
       </ion-app>
     );
   }
+
+  componentWillMount() {
+    if (isSignInPending()) {
+      handlePendingSignIn().then((userData) => {
+        window.location = window.location.origin;
+      });
+    }
+  }
+  
 }
 
 export default App;
