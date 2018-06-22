@@ -6,6 +6,10 @@ import {
   redirectToSignIn,
   handlePendingSignIn,
   signUserOut,
+  generateAndStoreTransitKey,
+  makeAuthRequest,
+  redirectToSignInWithAuthRequest,
+  DEFAULT_SCOPE
 } from 'blockstack';
 
 import './App.css';
@@ -16,7 +20,14 @@ class App extends Component {
 
   handleSignIn(e) {
     e.preventDefault();
-    redirectToSignIn();
+    // redirectToSignIn();
+    const transitPrivateKey = generateAndStoreTransitKey();
+    const redirectURI = 'http://localhost:9876/callback';
+    const manifestURI = 'http://localhost:9876/manifest.json';
+    const scopes = DEFAULT_SCOPE;
+    const appDomain = 'http://localhost:9876';
+    var authRequest = makeAuthRequest(transitPrivateKey, redirectURI, manifestURI, scopes, appDomain);
+    redirectToSignInWithAuthRequest(authRequest);
   }
 
   handleSignOut(e) {
@@ -33,9 +44,9 @@ class App extends Component {
           </ion-toolbar>
         </ion-header>
         <ion-content>
-        { !isUserSignedIn() ?
-            <Signin handleSignIn={ this.handleSignIn } />
-            : <Profile handleSignOut={ this.handleSignOut } />
+          {!isUserSignedIn() ?
+            <Signin handleSignIn={this.handleSignIn} />
+            : <Profile handleSignOut={this.handleSignOut} />
           }
         </ion-content>
       </ion-app>
@@ -49,7 +60,7 @@ class App extends Component {
       });
     }
   }
-  
+
 }
 
 export default App;

@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Block Photos",
+  "name": "Ypur photos stored on the blockchain!",
+  "domain_name": "blockphotos://auth",
   "icons": [
     {
       "src": "favicon.ico",
