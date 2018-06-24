@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import {
   isSignInPending,
   isUserSignedIn,
-  redirectToSignIn,
   handlePendingSignIn,
   signUserOut,
   generateAndStoreTransitKey,
@@ -18,9 +17,13 @@ import Signin from './pages/Signin.js';
 
 class App extends Component {
 
+  constructor() {
+    super();
+    this.isSignedIn = isUserSignedIn();
+  }
+
   handleSignIn(e) {
     e.preventDefault();
-    // redirectToSignIn();
     const transitPrivateKey = generateAndStoreTransitKey();
     const redirectURI = 'http://localhost:9876/callback';
     const manifestURI = 'http://localhost:9876/manifest.json';
@@ -32,7 +35,9 @@ class App extends Component {
 
   handleSignOut(e) {
     e.preventDefault();
-    signUserOut(window.location.origin);
+    signUserOut();
+    this.isSignedIn = false;
+    window.location = window.location.pathname;
   }
 
   render() {
@@ -44,7 +49,7 @@ class App extends Component {
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          {!isUserSignedIn() ?
+          {!this.isSignedIn ?
             <Signin handleSignIn={this.handleSignIn} />
             : <Profile handleSignOut={this.handleSignOut} />
           }
@@ -54,9 +59,10 @@ class App extends Component {
   }
 
   componentWillMount() {
-    if (isSignInPending()) {
-      handlePendingSignIn().then((userData) => {
-        window.location = window.location.origin;
+    this.isSignedIn = isUserSignedIn();
+    if (isSignInPending() && !this.isSignedIn) {
+      handlePendingSignIn().then(() => {
+        window.location = window.location.pathname;
       });
     }
   }

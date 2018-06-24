@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  isSignInPending,
   loadUserData,
   Person,
 } from 'blockstack';
@@ -27,7 +26,6 @@ export default class Profile extends Component {
     const { handleSignOut } = this.props;
     const { person } = this.state;
     return (
-      !isSignInPending() ?
       <ion-card>
         <img src={ person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage } className="img-rounded avatar" id="avatar-image" />
 
@@ -42,7 +40,7 @@ export default class Profile extends Component {
             </ion-button>
           </p>
         </ion-card-content>
-      </ion-card> : null
+      </ion-card> 
     );
   }
 
