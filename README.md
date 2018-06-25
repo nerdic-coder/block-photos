@@ -5,6 +5,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 - Day 0: Getting React project up and running with Ionic 4. Done!
 - Day 1: Login flow to Blockstack.
 - Day 2: Profile page with Ionic elements.
+- Day 3: Converted the project to run in an [Electron](https://electronjs.org/) app.
+- Day 4: Blockstack authentication to work in the Electron app.
+- Day 5: Continued with Blockstack authentication to work in the Electron app.
+- Day 6: Implemented the [React Router](https://reacttraining.com/react-router/) to the project.
 
 Below you will find some information on how to perform common tasks.<br>
 You can find the most recent version of this guide [here](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md).

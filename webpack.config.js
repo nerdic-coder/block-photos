@@ -16,7 +16,7 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
 
 module.exports = {
   entry: './src/index.js',
-  target: 'electron',
+  target: 'web',
   output: {
     path: path.resolve('build'),
     filename: 'index_bundle.js',
@@ -29,6 +29,7 @@ module.exports = {
       "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
       "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization",
     },
+    port: 9876
   },
   module: {
     rules: [

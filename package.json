@@ -1,5 +1,5 @@
 {
-  "name": "react-photos",
+  "name": "block-photos",
   "version": "0.1.0",
   "private": true,
   "main": "main.js",
@@ -31,14 +31,15 @@
     }
   },
   "dependencies": {
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4",
     "blockstack": "17.2.0",
     "cors": "^2.8.4",
     "electron-compile": "^6.4.2",
     "electron-squirrel-startup": "^1.0.0",
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "1.1.4"
   },
   "devDependencies": {
     "@ionic/core": "4.0.0-alpha.7",
