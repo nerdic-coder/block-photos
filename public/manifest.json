@@ -1,6 +1,6 @@
 {
   "short_name": "Block Photos",
-  "name": "Ypur photos stored on the blockchain!",
+  "name": "Block Photos",
   "domain_name": "blockphotos://auth",
   "icons": [
     {

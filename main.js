@@ -1,9 +1,12 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow } = require('electron');
 import cp from 'child_process';
+const ipc = require('electron').ipcMain;
+const dialog = require('electron').dialog;
 
 // Start process to serve manifest file
 const server = cp.fork(__dirname + '/build/server.js');
+let currentAuthResponse = '';
 
 // Quit server process if main app will quit
 app.on('will-quit', () => {
@@ -72,7 +75,19 @@ app.on('activate', function () {
 
 function authCallback(authResponse) {
   // Bring app window to front
-  mainWindow.loadURL(`file://${__dirname}/build/index.html?authResponse=` + authResponse);
-  mainWindow.focus();
+  if (currentAuthResponse !== authResponse) {
+    currentAuthResponse = authResponse;
+    mainWindow.loadURL(`file://${__dirname}/build/index.html?authResponse=` + authResponse);
+    mainWindow.focus();
+  }
 
 };
+
+ipc.on('open-file-dialog', function () {
+  dialog.showOpenDialog({
+    properties: ['openFile', 'multiSelections'],
+    filters: [
+      { name: 'Images', extensions: ['jpg', 'png', 'gif'] }
+    ]
+  });
+});

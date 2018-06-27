@@ -5,6 +5,7 @@ import './App.css';
 import PictureList from './pages/PictureList.js';
 import Signin from './pages/Signin.js';
 import Profile from './pages/Profile.js';
+import Picture from './pages/Picture.js';
 
 class App extends Component {
 
@@ -13,6 +14,7 @@ class App extends Component {
       <ion-app>
         <Switch>
           <Route path="/profile" component={Profile} />
+          <Route path="/picture" component={Picture} />
           <Route path="/pictures" component={PictureList} />
           <Route path="/" component={Signin} />
         </Switch>

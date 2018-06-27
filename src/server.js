@@ -10,7 +10,7 @@ app.get('/manifest.json', function (req, res) {
 });
 
 app.get("/callback", function (req, res) {
-  process.send({ authResponse: req.query.authResponse });
+   process.send({ authResponse: req.query.authResponse });
 });
 
 process.on('message', message => {

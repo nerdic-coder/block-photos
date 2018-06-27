@@ -40,8 +40,8 @@ export default class Profile extends Component {
         <ion-header>
           <ion-toolbar>
             <ion-buttons slot="start">
-              <Link to="/">
-                <ion-back-button default-href="/"></ion-back-button>
+              <Link to="/pictures">
+                <ion-back-button default-href="/pictures"></ion-back-button>
               </Link>
             </ion-buttons>
             <ion-title>Blockstack Profile</ion-title>
@@ -49,10 +49,10 @@ export default class Profile extends Component {
         </ion-header>
         <ion-content>
           <ion-card>
-            <img src={person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage} className="img-rounded avatar" id="avatar-image" />
+            <img src={person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage} />
 
             <ion-card-content>
-              <ion-card-title>Hello, {person.name() ? person.name() : 'Nameless Person'}!</ion-card-title>
+              <ion-card-title>You are {person.name() ? person.name() : 'Nameless Person'}!</ion-card-title>
               <p>
                 <ion-button expand="block"
                   id="signout-button"

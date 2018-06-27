@@ -16,7 +16,7 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
 
 module.exports = {
   entry: './src/index.js',
-  target: 'web',
+  target: 'electron',
   output: {
     path: path.resolve('build'),
     filename: 'index_bundle.js',

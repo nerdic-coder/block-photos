@@ -10,6 +10,7 @@ import {
 } from 'blockstack';
 
 export default class Signin extends Component {
+
   constructor(props) {
     super(props);
   }
@@ -55,7 +56,7 @@ export default class Signin extends Component {
     if (isUserSignedIn()) {
       history.replace('/pictures');
     }
-    if (isSignInPending() && !isUserSignedIn()) {
+    else if (isSignInPending() && !isUserSignedIn()) {
       handlePendingSignIn().then(() => {
         history.replace('/pictures');
       });
