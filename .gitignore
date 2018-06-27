@@ -8,6 +8,8 @@
 
 # production
 /build
+/electron/app
+/out
 
 # misc
 .DS_Store

@@ -4,7 +4,6 @@ const path = require('path');
 // this will allow for the authRequest to see the file at www.example.com/manifest.json
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ManifestAssetPlugin = new CopyWebpackPlugin([{ from: 'public/manifest.json', to: 'manifest.json' }]);
-const ServerAssetPlugin = new CopyWebpackPlugin([{ from: 'src/server.js', to: 'server.js' }]);
 // const IconAssetPlugin = new CopyWebpackPlugin([ { from: 'src/images/icon-192x192.png', to: 'icon-192x192.png' } ]);
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -18,7 +17,7 @@ module.exports = {
   entry: './src/index.js',
   target: 'electron',
   output: {
-    path: path.resolve('build'),
+    path: path.resolve('electron/app'),
     filename: 'index_bundle.js',
   },
   devServer: {
@@ -37,7 +36,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        exclude: /\.(\/node_modules\/|\/build\/|\/main.js|\/src\/server.js)(\?\S*)?$/
+        exclude: /\.(\/node_modules\/|\/build\/|\/electron\/|\/src\/server.js)(\?\S*)?$/
       },
       { test: /\.jsx$/, loader: 'babel-loader', exclude: /node_modules/ },
       {
@@ -47,5 +46,5 @@ module.exports = {
       { test: /\.css$/, loader: 'style-loader!css-loader' }
     ]
   },
-  plugins: [HtmlWebpackPluginConfig, ManifestAssetPlugin, ServerAssetPlugin]
+  plugins: [HtmlWebpackPluginConfig, ManifestAssetPlugin]
 }

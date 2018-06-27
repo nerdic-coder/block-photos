@@ -5,7 +5,7 @@ const ipc = require('electron').ipcMain;
 const dialog = require('electron').dialog;
 
 // Start process to serve manifest file
-const server = cp.fork(__dirname + '/build/server.js');
+const server = cp.fork(__dirname + '/server.js');
 let currentAuthResponse = '';
 
 // Quit server process if main app will quit
@@ -34,7 +34,7 @@ const createWindow = () => {
   });
 
   // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/build/index.html`);
+  mainWindow.loadURL(`file://${__dirname}/app/index.html`);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -77,7 +77,7 @@ function authCallback(authResponse) {
   // Bring app window to front
   if (currentAuthResponse !== authResponse) {
     currentAuthResponse = authResponse;
-    mainWindow.loadURL(`file://${__dirname}/build/index.html?authResponse=` + authResponse);
+    mainWindow.loadURL(`file://${__dirname}/app/index.html?authResponse=` + authResponse);
     mainWindow.focus();
   }
 

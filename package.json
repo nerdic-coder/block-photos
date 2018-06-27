@@ -2,7 +2,7 @@
   "name": "block-photos",
   "version": "0.2.0",
   "private": false,
-  "main": "main.js",
+  "main": "electron/main.js",
   "scripts": {
     "start": "npm run build && npm run electron",
     "serve": "webpack-dev-server",
