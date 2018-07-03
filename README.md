@@ -13,6 +13,9 @@ Read my introduction article about this project: [Building a decentralized Photo
 - Day 6: Implemented the [React Router](https://reacttraining.com/react-router/) to the project.
 - Day 7: Prototype of to photos list and upload process.
 - Day 8: Upgraded Electron Forge and other related packages for more stable application.
+- Day 9: File picker dialog and show picture in app with base64.
+- Day 10: Upload pictures to Blockstack and list them in the app.
+- Day 11: Open individual picture in a new view.
 
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).

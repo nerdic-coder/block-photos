@@ -14,7 +14,7 @@ class App extends Component {
       <ion-app>
         <Switch>
           <Route path="/profile" component={Profile} />
-          <Route path="/picture" component={Picture} />
+          <Route path="/picture/:id" component={Picture} />
           <Route path="/pictures" component={PictureList} />
           <Route path="/" component={Signin} />
         </Switch>

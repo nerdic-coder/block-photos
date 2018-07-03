@@ -3,6 +3,8 @@ const { app, BrowserWindow } = require('electron');
 import cp from 'child_process';
 const ipc = require('electron').ipcMain;
 const dialog = require('electron').dialog;
+const fs = require("fs");
+const path = require("path");
 
 // Start process to serve manifest file
 const server = cp.fork(__dirname + '/server.js');
@@ -84,10 +86,21 @@ function authCallback(authResponse) {
 };
 
 ipc.on('open-file-dialog', function () {
-  dialog.showOpenDialog({
+  let files = dialog.showOpenDialog({
     properties: ['openFile', 'multiSelections'],
     filters: [
       { name: 'Images', extensions: ['jpg', 'png', 'gif'] }
     ]
   });
+
+  let filesData = [];
+  if (files) {
+    for (let file of files) {
+      var data = fs.readFileSync(file);
+      var filename = path.basename(file);
+      filesData.push({"filename": filename, "data": Buffer.from(data).toString('base64')});
+    }
+
+    mainWindow.webContents.send('upload-files', filesData);
+  }
 });
