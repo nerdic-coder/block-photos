@@ -16,6 +16,7 @@ Read my introduction article about this project: [Building a decentralized Photo
 - Day 9: File picker dialog and show picture in app with base64.
 - Day 10: Upload pictures to Blockstack and list them in the app.
 - Day 11: Open individual picture in a new view.
+- Day 12: Created service class for the Blockstack integration and added a cache for the pictures in local storage
 
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
