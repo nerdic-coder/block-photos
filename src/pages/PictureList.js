@@ -5,12 +5,16 @@ import uniqid from 'uniqid';
 import { isUserSignedIn, putFile, getFile } from 'blockstack';
 import _ from 'lodash';
 
+import PictureService from '../services/PictureService.js';
+import BlockImg from '../components/BlockImg.js';
 import Header from '../components/Header.js';
 
 export default class PictureList extends Component {
 
   constructor(props) {
     super(props);
+
+    this.pictureService = new PictureService();
   }
 
   handleUpload() {
@@ -26,23 +30,12 @@ export default class PictureList extends Component {
         "id": id,
         "uploadedDate": new Date()
       };
-      let liveMetadata = {
-        "id": id,
-        "base64": file.data,
-        "uploadedDate": new Date()
-      };
       await putFile(id, file.data);
-      this.state.pictureList.unshift(liveMetadata);
-      this.pictureList.unshift(metadata);
+      this.state.pictureList.unshift(metadata);
     }
 
-    await putFile("picture-list.json", JSON.stringify(this.pictureList));
+    await putFile("picture-list.json", JSON.stringify(this.state.pictureList));
     this.setState({ pictureList: this.state.pictureList });
-  }
-
-  async loadPicture(id) {
-    let data = await getFile(id);
-    return data;
   }
 
   render() {
@@ -61,7 +54,7 @@ export default class PictureList extends Component {
                   row.map((col) => (
                     <ion-col key={col.id}>
                       <Link to={"/picture/" + col.id}>
-                        <ion-img src={'data:image/png;base64,' + col.base64} />
+                        <BlockImg id={col.id} />
                       </Link>
                     </ion-col>
                   ))
@@ -93,18 +86,10 @@ export default class PictureList extends Component {
 
     try {
       // Get the contents of the file picture-list.json
-      let pictureList = await getFile("picture-list.json");
-      if (pictureList) {
-        this.pictureList = JSON.parse(pictureList);
-        let pictures = [];
-        for (let picture of this.pictureList) {
-          picture.base64 = await this.loadPicture(picture.id);
-          pictures.push(picture);
-        }
-        this.setState({ pictureList: pictures });
-      }
+      let pictureList = await this.pictureService.getPictures(true);
+      this.setState({ pictureList: pictureList });
     } catch (error) {
-      console.log('Blockstack error!');
+      console.log('PictureService error!');
       console.log(error);
     }
   }
