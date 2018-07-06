@@ -17,9 +17,7 @@ class BlockImg extends Component {
   }
 
   componentWillMount() {
-    console.log(this.props.id);
     this.setState({ base64: '' });
-
     this.getPicture();
   }
 

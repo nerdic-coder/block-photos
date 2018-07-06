@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
-import uniqid from 'uniqid';
-import { isUserSignedIn, putFile, getFile } from 'blockstack';
+import { isUserSignedIn } from 'blockstack';
 import _ from 'lodash';
 
 import PictureService from '../services/PictureService.js';
 import BlockImg from '../components/BlockImg.js';
 import Header from '../components/Header.js';
 
-export default class PictureList extends Component {
+export default class PicturesList extends Component {
 
   constructor(props) {
     super(props);
@@ -24,24 +23,14 @@ export default class PictureList extends Component {
 
   async uploadFiles(event, filesData) {
     ipcRenderer.removeAllListeners('upload-files');
-    for (let file of filesData) {
-      let id = uniqid() + file.filename;
-      let metadata = {
-        "id": id,
-        "uploadedDate": new Date()
-      };
-      await putFile(id, file.data);
-      this.state.pictureList.unshift(metadata);
-    }
-
-    await putFile("picture-list.json", JSON.stringify(this.state.pictureList));
-    this.setState({ pictureList: this.state.pictureList });
+    let picturesList = await this.pictureService.uploadPictures(filesData);
+    this.setState({ picturesList: picturesList });
   }
 
   render() {
     let rows = [];
-    if (this.state.pictureList && this.state.pictureList.length > 0) {
-      rows = _.chunk(this.state.pictureList, 3);
+    if (this.state.picturesList && this.state.picturesList.length > 0) {
+      rows = _.chunk(this.state.picturesList, 3);
     }
     return (
       <React.Fragment>
@@ -72,7 +61,7 @@ export default class PictureList extends Component {
     );
   }
 
-  async componentWillMount() {
+  componentWillMount() {
 
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
@@ -82,12 +71,16 @@ export default class PictureList extends Component {
     }
 
     // Init state
-    this.setState({ pictureList: [] });
+    this.setState({ picturesList: [] });
 
+    this.loadPicturesList();
+  }
+
+  async loadPicturesList() {
     try {
       // Get the contents of the file picture-list.json
-      let pictureList = await this.pictureService.getPictures(true);
-      this.setState({ pictureList: pictureList });
+      let picturesList = await this.pictureService.getPicturesList();
+      this.setState({ picturesList: picturesList });
     } catch (error) {
       console.log('PictureService error!');
       console.log(error);

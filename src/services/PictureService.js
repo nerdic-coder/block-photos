@@ -1,5 +1,6 @@
 
 import { putFile, getFile } from 'blockstack';
+import uniqid from 'uniqid';
 
 export default class PictureService {
 
@@ -7,16 +8,22 @@ export default class PictureService {
     this.storage = window.localStorage;
   }
 
-  async getPictures(sync) {
-    let cachedPicturesList = this.storage.getItem('cachedPicturesList');
+  async getPicturesList(sync) {
+    let cachedPicturesList = null;
+    try {
+      cachedPicturesList = JSON.parse(this.storage.getItem('cachedPicturesList'));
+    } catch (error) {
+      console.log(error);
+    }
+console.log(cachedPicturesList);
     if (sync || !cachedPicturesList || cachedPicturesList.length === 0) {
       try {
         // Get the contents of the file picture-list.json
-        let rawPictureList = await getFile("picture-list.json");
-        if (rawPictureList) {
-          const picturesList = JSON.parse(rawPictureList);
+        let rawPicturesList = await getFile("picture-list.json");
+        if (rawPicturesList) {
+          const picturesList = JSON.parse(rawPicturesList);
           cachedPicturesList = picturesList;
-          this.storage.setItem('cachedPicturesList', picturesList);
+          this.storage.setItem('cachedPicturesList', rawPicturesList);
         }
       } catch (error) {
         console.log('Blockstack error!');
@@ -35,7 +42,20 @@ export default class PictureService {
     return cachedPicture;
   }
 
-  addPicture(photo) {
-  }
+  async uploadPictures(filesData) {
+    let picturesList = await this.getPicturesList(true);
+    for (let file of filesData) {
+      let id = uniqid() + file.filename;
+      let metadata = {
+        "id": id,
+        "uploadedDate": new Date()
+      };
+      await putFile(id, file.data);
+      picturesList.unshift(metadata);
+    }
 
+    this.storage.setItem('cachedPicturesList', JSON.stringify(picturesList));
+    await putFile("picture-list.json", JSON.stringify(picturesList));
+    return picturesList;
+  }
 }

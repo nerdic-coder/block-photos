@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { isUserSignedIn, getFile } from 'blockstack';
+import { isUserSignedIn } from 'blockstack';
 
-export default class PictureList extends Component {
+import BlockImg from '../components/BlockImg.js';
+
+export default class PicturesList extends Component {
 
   constructor(props) {
     super(props);
-  }
-
-  async loadPicture(id) {
-    let data = await getFile(id);
-    return data;
   }
 
   render() {
@@ -28,16 +25,13 @@ export default class PictureList extends Component {
         </ion-header>
 
         <ion-content text-center class="picture-background">
-            <img src={'data:image/png;base64,' + this.state.base64} />
+          <BlockImg id={this.props.match.params.id} />
         </ion-content>
       </React.Fragment>
     );
   }
 
-  async componentWillMount() {
-    
-    // Init state
-    this.setState({ base64: '' });
+  componentWillMount() {
 
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
@@ -53,9 +47,6 @@ export default class PictureList extends Component {
       return;
     }
 
-    // Load picture data
-    const base64 = await this.loadPicture(this.props.match.params.id);
-    this.setState({ base64: base64 });
   }
 
 }
