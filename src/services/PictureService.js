@@ -15,7 +15,7 @@ export default class PictureService {
     } catch (error) {
       console.log(error);
     }
-console.log(cachedPicturesList);
+    console.log(cachedPicturesList);
     if (sync || !cachedPicturesList || cachedPicturesList.length === 0) {
       try {
         // Get the contents of the file picture-list.json
@@ -57,5 +57,33 @@ console.log(cachedPicturesList);
     this.storage.setItem('cachedPicturesList', JSON.stringify(picturesList));
     await putFile("picture-list.json", JSON.stringify(picturesList));
     return picturesList;
+  }
+
+  async deletePicture(id) {
+    let returnState = false;
+    try {
+      // put empty file, since deleteFile is yet not supported
+      await putFile(id, '');
+      returnState = true;
+    } catch (error) {
+      returnState = false;
+    }
+
+    if (!returnState) {
+      return false;
+    }
+
+    let picturesList = await this.getPicturesList(true);
+    let index = 0;
+    for (let picture of picturesList) {
+      if (id === picture.id) {
+        picturesList.splice(index, 1);
+        this.storage.setItem('cachedPicturesList', JSON.stringify(picturesList));
+        await putFile("picture-list.json", JSON.stringify(picturesList));
+        return true;
+      }
+      index++;
+    }
+    return false;
   }
 }
