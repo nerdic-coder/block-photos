@@ -70,7 +70,9 @@ export default class PicturesList extends Component {
         role: 'destructive',
         icon: 'trash',
         handler: async () => {
+          this.presentDeleteLoading();
           let result = await this.pictureService.deletePicture(this.props.match.params.id);
+          this.loadingElement.dismiss();
           if (result === true) {
             const { history } = this.props;
             history.replace('/pictures');
@@ -99,5 +101,16 @@ export default class PicturesList extends Component {
       buttons: ['OK']
     });
     return await alert.present();
+  }
+
+  async presentDeleteLoading() {
+    const loadingController = document.querySelector('ion-loading-controller');
+    await loadingController.componentOnReady();
+  
+    this.loadingElement = await loadingController.create({
+      content: 'Deleting picture...',
+      spinner: 'crescent'
+    });
+    return await this.loadingElement.present();
   }
 }

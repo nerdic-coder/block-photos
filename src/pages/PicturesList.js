@@ -23,8 +23,10 @@ export default class PicturesList extends Component {
 
   async uploadFiles(event, filesData) {
     ipcRenderer.removeAllListeners('upload-files');
+    this.presentListLoading('Pictures uploading...');
     let picturesList = await this.pictureService.uploadPictures(filesData);
     this.setState({ picturesList: picturesList });
+    this.loadingElement.dismiss();
   }
 
   render() {
@@ -78,13 +80,27 @@ export default class PicturesList extends Component {
 
   async loadPicturesList() {
     try {
+      await this.presentListLoading('Pictures loading...');
       // Get the contents of the file picture-list.json
       let picturesList = await this.pictureService.getPicturesList();
       this.setState({ picturesList: picturesList });
+      this.loadingElement.dismiss();
     } catch (error) {
       console.log('PictureService error!');
       console.log(error);
+      this.loadingElement.dismiss();
     }
+  }
+
+  async presentListLoading(content) {
+    const loadingController = document.querySelector('ion-loading-controller');
+    await loadingController.componentOnReady();
+  
+    this.loadingElement = await loadingController.create({
+      content: content,
+      spinner: 'crescent'
+    });
+    return await this.loadingElement.present();
   }
 
 }

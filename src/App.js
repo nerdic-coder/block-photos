@@ -18,6 +18,7 @@ class App extends Component {
           <Route path="/pictures" component={PicturesList} />
           <Route path="/" component={Signin} />
         </Switch>
+        <ion-loading-controller/>
       </ion-app>
     );
   }

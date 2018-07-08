@@ -17,6 +17,7 @@ export default class Signin extends Component {
 
   handleSignIn(e) {
     e.preventDefault();
+    this.presentLoading();
     const transitPrivateKey = generateAndStoreTransitKey();
     const redirectURI = 'http://localhost:9876/callback';
     const manifestURI = 'http://localhost:9876/manifest.json';
@@ -62,4 +63,17 @@ export default class Signin extends Component {
       });
     }
   }
+
+  async presentLoading() {
+    const loadingController = document.querySelector('ion-loading-controller');
+    await loadingController.componentOnReady();
+  
+    const loadingElement = await loadingController.create({
+      content: 'Waiting for authentication...',
+      spinner: 'crescent',
+      enableBackdropDismiss: true
+    });
+    return await loadingElement.present();
+  }
+
 }
