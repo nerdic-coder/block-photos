@@ -40,7 +40,7 @@ export default class PicturesList extends Component {
       let picturesList = await this.pictureService.getPicturesList();
       this.setState({ picturesList: picturesList });
     } catch (error) {
-      alert(error);
+      // TODO: Deal with error
     }
   }
 
