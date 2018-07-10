@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import {
   loadUserData,
@@ -11,19 +12,23 @@ const avatarFallbackImage = 'https://s3.amazonaws.com/onename/avatar-placeholder
 
 export default class Profile extends Component {
 
+  static propTypes = {
+    history: PropTypes.any
+  };
+
+  state = {
+    person: new Person(loadUserData().profile)
+  };
+
   constructor(props) {
     super(props);
 
-    this.state = {
-      person: {
-        name() {
-          return 'Anonymous';
-        },
-        avatarUrl() {
-          return avatarFallbackImage;
-        },
-      },
-    };
+    if (!isUserSignedIn()) {
+      const { history } = this.props;
+      history.replace('/');
+      return;
+    }
+
   }
 
   handleSignOut(e) {
@@ -68,14 +73,4 @@ export default class Profile extends Component {
     );
   }
 
-  componentWillMount() {
-    if (!isUserSignedIn()) {
-      const { history } = this.props;
-      history.replace('/');
-      return;
-    }
-    this.setState({
-      person: new Person(loadUserData().profile),
-    });
-  }
 }

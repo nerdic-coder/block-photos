@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
 import { isUserSignedIn } from 'blockstack';
@@ -10,10 +11,48 @@ import Header from '../components/Header.js';
 
 export default class PicturesList extends Component {
 
+  static propTypes = {
+    history: PropTypes.any
+  };
+
+  state = {
+    picturesList: []
+  };
+
   constructor(props) {
     super(props);
 
     this.pictureService = new PictureService();
+
+    // Go to signin page if no active session exist
+    if (!isUserSignedIn()) {
+      const { history } = this.props;
+      history.replace('/');
+      return;
+    }
+
+    this.loadPicturesList();
+  }
+
+  async loadPicturesList() {
+    try {
+      // Get the contents of the file picture-list.json
+      let picturesList = await this.pictureService.getPicturesList();
+      this.setState({ picturesList: picturesList });
+    } catch (error) {
+      alert(error);
+    }
+  }
+
+  async presentListLoading(content) {
+    const loadingController = document.querySelector('ion-loading-controller');
+    await loadingController.componentOnReady();
+
+    this.loadingElement = await loadingController.create({
+      content: content,
+      spinner: 'circles'
+    });
+    return await this.loadingElement.present();
   }
 
   handleUpload() {
@@ -61,46 +100,6 @@ export default class PicturesList extends Component {
         </ion-fab>
       </React.Fragment>
     );
-  }
-
-  componentWillMount() {
-
-    // Go to signin page if no active session exist
-    if (!isUserSignedIn()) {
-      const { history } = this.props;
-      history.replace('/');
-      return;
-    }
-
-    // Init state
-    this.setState({ picturesList: [] });
-
-    this.loadPicturesList();
-  }
-
-  async loadPicturesList() {
-    try {
-      await this.presentListLoading('Pictures loading...');
-      // Get the contents of the file picture-list.json
-      let picturesList = await this.pictureService.getPicturesList();
-      this.setState({ picturesList: picturesList });
-      this.loadingElement.dismiss();
-    } catch (error) {
-      console.log('PictureService error!');
-      console.log(error);
-      this.loadingElement.dismiss();
-    }
-  }
-
-  async presentListLoading(content) {
-    const loadingController = document.querySelector('ion-loading-controller');
-    await loadingController.componentOnReady();
-  
-    this.loadingElement = await loadingController.create({
-      content: content,
-      spinner: 'crescent'
-    });
-    return await this.loadingElement.present();
   }
 
 }

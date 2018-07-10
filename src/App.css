@@ -1,3 +1,4 @@
-.picture-background ion-scroll {
-  background-color: black;
+ion-spinner {
+  display: block;
+  margin: auto;
 }

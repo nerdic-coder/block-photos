@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   generateAndStoreTransitKey,
   makeAuthRequest,
@@ -11,8 +12,22 @@ import {
 
 export default class Signin extends Component {
 
+  static propTypes = {
+    history: PropTypes.any
+  };
+
   constructor(props) {
     super(props);
+
+    const { history } = this.props;
+    if (isUserSignedIn()) {
+      history.replace('/pictures');
+    }
+    else if (isSignInPending() && !isUserSignedIn()) {
+      handlePendingSignIn().then(() => {
+        history.replace('/pictures');
+      });
+    }
   }
 
   handleSignIn(e) {
@@ -52,25 +67,13 @@ export default class Signin extends Component {
     );
   }
 
-  componentWillMount() {
-    const { history } = this.props;
-    if (isUserSignedIn()) {
-      history.replace('/pictures');
-    }
-    else if (isSignInPending() && !isUserSignedIn()) {
-      handlePendingSignIn().then(() => {
-        history.replace('/pictures');
-      });
-    }
-  }
-
   async presentLoading() {
     const loadingController = document.querySelector('ion-loading-controller');
     await loadingController.componentOnReady();
   
     const loadingElement = await loadingController.create({
       content: 'Waiting for authentication...',
-      spinner: 'crescent',
+      spinner: 'circles',
       enableBackdropDismiss: true
     });
     return await loadingElement.present();

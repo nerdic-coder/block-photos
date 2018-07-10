@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { isUserSignedIn } from 'blockstack';
 
@@ -7,56 +8,28 @@ import BlockImg from '../components/BlockImg.js';
 
 export default class PicturesList extends Component {
 
+  static propTypes = {
+    history: PropTypes.any,
+    match: PropTypes.any
+  };
+
   constructor(props) {
     super(props);
 
     this.pictureService = new PictureService();
-  }
-
-  render() {
-    return (
-      <React.Fragment>
-        <ion-header>
-          <ion-toolbar>
-            <ion-buttons slot="start">
-              <Link to="/pictures">
-                <ion-back-button default-href="/pictures"></ion-back-button>
-              </Link>
-            </ion-buttons>
-            <ion-title>Block Photo</ion-title>
-            <ion-buttons slot="end">
-              <ion-button icon-end onClick={() => this.deletePicture()}>
-                <ion-icon name="trash"></ion-icon>
-              </ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-
-        <ion-content text-center class="picture-background">
-          <BlockImg id={this.props.match.params.id} />
-        </ion-content>
-        <ion-alert-controller />
-        <ion-action-sheet-controller />
-      </React.Fragment>
-    );
-  }
-
-  componentWillMount() {
-
+    const { history } = this.props;
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
-      const { history } = this.props;
       history.replace('/');
       return;
     }
 
+    const { match } = this.props;
     // Go to pictures list if picture id is missing
-    if (!this.props.match.params.id) {
-      const { history } = this.props;
+    if (!match.params.id) {
       history.replace('/pictures');
       return;
     }
-
   }
 
   async deletePicture() {
@@ -106,11 +79,40 @@ export default class PicturesList extends Component {
   async presentDeleteLoading() {
     const loadingController = document.querySelector('ion-loading-controller');
     await loadingController.componentOnReady();
-  
+
     this.loadingElement = await loadingController.create({
       content: 'Deleting picture...',
-      spinner: 'crescent'
+      spinner: 'circles'
     });
     return await this.loadingElement.present();
   }
+
+  render() {
+    return (
+      <React.Fragment>
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <Link to="/pictures">
+                <ion-back-button default-href="/pictures"></ion-back-button>
+              </Link>
+            </ion-buttons>
+            <ion-title>Block Photo</ion-title>
+            <ion-buttons slot="end">
+              <ion-button icon-end onClick={() => this.deletePicture()}>
+                <ion-icon name="trash"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content text-center class="picture-background">
+          <BlockImg id={this.props.match.params.id} />
+        </ion-content>
+        <ion-alert-controller />
+        <ion-action-sheet-controller />
+      </React.Fragment>
+    );
+  }
+
 }

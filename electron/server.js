@@ -9,10 +9,10 @@ app.get('/manifest.json', function (req, res) {
   res.sendFile(__dirname + '/app/manifest.json');
 });
 
-app.get("/callback", function (req, res) {
+app.get("/callback", function (req) {
    process.send({ authResponse: req.query.authResponse });
 });
 
-process.on('message', message => {
+process.on('message', () => {
   server.close();
 });

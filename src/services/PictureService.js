@@ -13,9 +13,9 @@ export default class PictureService {
     try {
       cachedPicturesList = JSON.parse(this.storage.getItem('cachedPicturesList'));
     } catch (error) {
-      console.log(error);
+      // TODO: Deal with error
     }
-    console.log(cachedPicturesList);
+
     if (sync || !cachedPicturesList || cachedPicturesList.length === 0) {
       try {
         // Get the contents of the file picture-list.json
@@ -26,8 +26,7 @@ export default class PictureService {
           this.storage.setItem('cachedPicturesList', rawPicturesList);
         }
       } catch (error) {
-        console.log('Blockstack error!');
-        console.log(error);
+        // TODO: Deal with error
       }
     }
     return cachedPicturesList;

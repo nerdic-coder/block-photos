@@ -19,6 +19,7 @@ Read my introduction article about this project: [Building a decentralized Photo
 - Day 12: Created service class for the Blockstack integration and added a cache for the pictures in local storage
 - Day 13: Cleaned up the code and fixed a few bugs in the #BlockPhotos app
 - Day 14: Added a delete button to remove pictures.
+- Day 15-17: Fixed loaders (#8) and ESLint checks (#17).
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
@@ -44,4 +45,9 @@ npm start
 Build and package Electron app:
 ```bash
 npm run package
+```
+
+Test ESLint:
+```bash
+npm run lint
 ```

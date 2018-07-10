@@ -83,7 +83,7 @@ function authCallback(authResponse) {
     mainWindow.focus();
   }
 
-};
+}
 
 ipc.on('open-file-dialog', function () {
   let files = dialog.showOpenDialog({
