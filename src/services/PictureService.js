@@ -1,4 +1,3 @@
-
 import { putFile, getFile } from 'blockstack';
 import uniqid from 'uniqid';
 
@@ -9,9 +8,11 @@ export default class PictureService {
   }
 
   async getPicturesList(sync) {
-    let cachedPicturesList = null;
+    let cachedPicturesList = [];
+    let errorResponse = '';
     try {
       cachedPicturesList = JSON.parse(this.storage.getItem('cachedPicturesList'));
+      
     } catch (error) {
       // TODO: Deal with error
     }
@@ -27,7 +28,13 @@ export default class PictureService {
         }
       } catch (error) {
         // TODO: Deal with error
+        errorResponse = error;
+
       }
+    }
+
+    if (errorResponse !== '') {
+      return errorResponse;
     }
     return cachedPicturesList;
   }
@@ -50,6 +57,7 @@ export default class PictureService {
         "uploadedDate": new Date()
       };
       await putFile(id, file.data);
+      this.storage.setItem(id, file.data);
       picturesList.unshift(metadata);
     }
 
