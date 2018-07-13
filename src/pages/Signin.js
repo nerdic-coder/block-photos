@@ -21,11 +21,15 @@ export default class Signin extends Component {
 
     const { history } = this.props;
     if (isUserSignedIn()) {
-      history.replace('/pictures');
+      if (history) {
+        history.replace('/pictures');
+      }
     }
     else if (isSignInPending() && !isUserSignedIn()) {
       handlePendingSignIn().then(() => {
-        history.replace('/pictures');
+        if (history) {
+          history.replace('/pictures');
+        }
       });
     }
   }
@@ -70,7 +74,7 @@ export default class Signin extends Component {
   async presentLoading() {
     const loadingController = document.querySelector('ion-loading-controller');
     await loadingController.componentOnReady();
-  
+
     const loadingElement = await loadingController.create({
       content: 'Waiting for authentication...',
       spinner: 'circles',

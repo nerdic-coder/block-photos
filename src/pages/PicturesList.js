@@ -27,10 +27,14 @@ export default class PicturesList extends Component {
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
       const { history } = this.props;
-      history.replace('/');
+      if (history) {
+        history.replace('/');
+      }
       return;
     }
+  }
 
+  componentDidMount() {
     this.loadPicturesList();
   }
 

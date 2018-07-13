@@ -17,18 +17,24 @@ export default class Profile extends Component {
   };
 
   state = {
-    person: new Person(loadUserData().profile)
+    person: new Person({ avatarUrl: avatarFallbackImage, name: 'Nameless Person' })
   };
 
   constructor(props) {
     super(props);
+  }
 
-    if (!isUserSignedIn()) {
+  componentDidMount() {
+
+    if (!isUserSignedIn() || !loadUserData()) {
       const { history } = this.props;
-      history.replace('/');
+      if (history) {
+        history.replace('/');
+      }
       return;
     }
 
+    this.setState({ person: new Person(loadUserData().profile) });
   }
 
   handleSignOut(e) {

@@ -17,19 +17,26 @@ export default class PicturesList extends Component {
     super(props);
 
     this.pictureService = new PictureService();
+
     const { history } = this.props;
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
-      history.replace('/');
+      if (history) {
+        history.replace('/');
+      }
       return;
     }
 
     const { match } = this.props;
+
     // Go to pictures list if picture id is missing
-    if (!match.params.id) {
-      history.replace('/pictures');
+    if (!match || !match.params || !match.params.id) {
+      if (history) {
+        history.replace('/pictures');
+      }
       return;
     }
+
   }
 
   async deletePicture() {
@@ -88,6 +95,9 @@ export default class PicturesList extends Component {
   }
 
   render() {
+    if(!this.props.match) {
+      return (<h1>404 - Picture not found</h1>);
+    }
     return (
       <React.Fragment>
         <ion-header>

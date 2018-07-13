@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-class Header extends Component {
+export default class Header extends Component {
 
   render() {
     return (
@@ -21,5 +21,3 @@ class Header extends Component {
   }
 
 }
-
-export default Header;
