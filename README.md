@@ -22,6 +22,7 @@ Read my introduction article about this project: [Building a decentralized Photo
 - Day 15-17: Fixed loaders (#8) and ESLint checks (#17).
 - Day 18: Created unit tests for PictureService class #21
 - Day 19: Fixed unit tests for component BlockImg #18
+- Day 20: Createed unit tests for pages #22 and started building a Jenkins pipeline 
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
