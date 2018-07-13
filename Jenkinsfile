@@ -1,0 +1,1 @@
+bat 'npm run lint'
