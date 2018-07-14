@@ -1,10 +1,12 @@
 import { putFile, getFile } from 'blockstack';
 import uniqid from 'uniqid';
 
+import StorageService from './StorageService';
+
 export default class PictureService {
 
   constructor() {
-    this.storage = window.localStorage;
+    this.storage = new StorageService();
   }
 
   async getPicturesList(sync) {

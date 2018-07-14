@@ -8,6 +8,8 @@ import {
   isUserSignedIn
 } from 'blockstack';
 
+import StorageService from '../services/StorageService';
+
 const avatarFallbackImage = 'https://s3.amazonaws.com/onename/avatar-placeholder.png';
 
 export default class Profile extends Component {
@@ -22,6 +24,8 @@ export default class Profile extends Component {
 
   constructor(props) {
     super(props);
+
+    this.storageService = new StorageService();
   }
 
   componentDidMount() {
@@ -38,10 +42,18 @@ export default class Profile extends Component {
   }
 
   handleSignOut(e) {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
+    // Clear all the users cache in localStorage
+    this.storageService.clear();
+    // End users Blockstack session
     signUserOut();
     const { history } = this.props;
-    history.replace('/');
+    // Redirect to the login page
+    if (history) {
+      history.replace('/');
+    }
   }
 
   render() {

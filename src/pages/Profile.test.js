@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
+import * as blockstack from 'blockstack';
+import { shallow } from 'enzyme';
+
 import Profile from './Profile';
 
-import * as blockstack from 'blockstack';
 
 jest.mock('blockstack');
 
@@ -45,4 +47,20 @@ it('renders signed in with user data', () => {
     </BrowserRouter>
     , div);
   ReactDOM.unmountComponentAtNode(div);
+});
+
+it('test signout method', async () => {
+  const mockResponse = {
+    "profile": {
+       avatarUrl: 'https://placekitten.com/200/300', name: 'Johan Axelsson' 
+    }
+  };
+  blockstack.loadUserData.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+  blockstack.isUserSignedIn.mockReturnValue(Promise.resolve(true));
+
+  const wrapper = shallow(<Profile />);
+  await wrapper.instance().componentDidMount();
+  const profileHeader = "Blockstack Profile";
+  expect(wrapper.contains(profileHeader)).toEqual(true);
+  wrapper.instance().handleSignOut(null);
 });
