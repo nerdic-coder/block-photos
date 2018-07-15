@@ -24,7 +24,7 @@ Read my introduction article about this project: [Building a decentralized Photo
 - Day 19: Fixed unit tests for component BlockImg #18
 - Day 20: Created unit tests for pages #22 and started building a Jenkins pipeline
 - Day 21: Empty cache on logout #16 and created a storage service
-- Day 22:
+- Day 22: Error handling at login #5
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
