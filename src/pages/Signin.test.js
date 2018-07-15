@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import Signin from './Signin';
-
 import * as blockstack from 'blockstack';
+
+import Signin from './Signin';
 
 jest.mock('blockstack');
 

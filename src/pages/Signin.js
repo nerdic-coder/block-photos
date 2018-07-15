@@ -78,7 +78,8 @@ export default class Signin extends Component {
     const loadingElement = await loadingController.create({
       content: 'Waiting for authentication...',
       spinner: 'circles',
-      enableBackdropDismiss: true
+      enableBackdropDismiss: true,
+      duration: 60000
     });
     return await loadingElement.present();
   }
