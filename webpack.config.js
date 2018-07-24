@@ -5,6 +5,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ManifestAssetPlugin = new CopyWebpackPlugin([{ from: 'public/manifest.json', to: 'manifest.json' }]);
 // const IconAssetPlugin = new CopyWebpackPlugin([ { from: 'src/images/icon-192x192.png', to: 'icon-192x192.png' } ]);
+const IonicDistPlugin = new CopyWebpackPlugin([ { from: 'node_modules/@ionic/core/dist', to: 'ionic' } ]);
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
@@ -46,5 +47,5 @@ module.exports = {
       { test: /\.css$/, loader: 'style-loader!css-loader' }
     ]
   },
-  plugins: [HtmlWebpackPluginConfig, ManifestAssetPlugin]
+  plugins: [HtmlWebpackPluginConfig, ManifestAssetPlugin, IonicDistPlugin]
 }

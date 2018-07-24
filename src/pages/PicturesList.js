@@ -66,10 +66,32 @@ export default class PicturesList extends Component {
 
   async uploadFiles(event, filesData) {
     ipcRenderer.removeAllListeners('upload-files');
-    this.presentListLoading('Pictures uploading...');
-    let picturesList = await this.pictureService.uploadPictures(filesData);
-    this.setState({ picturesList: picturesList });
-    this.loadingElement.dismiss();
+    if (filesData && filesData.length > 0) {
+      this.presentListLoading('Pictures uploading...');
+      const response = await this.pictureService.uploadPictures(filesData);
+      this.setState({ picturesList: response.picturesList });
+      this.loadingElement.dismiss();
+      if (response.errorsList && response.errorsList.length > 0) {
+        for (let error of response.errorsList) {
+          if (error.errorCode === 'err_filesize') {
+            this.presentToast('Failed to upload "' + error.id + '", picture exceeds file size limit of 5MB.');
+          } else {
+            this.presentToast('Failed to upload "' + error.id + '".');
+          }
+        }
+      }
+    }
+  }
+
+  async presentToast(message) {
+    const toastController = document.querySelector('ion-toast-controller');
+    await toastController.componentOnReady();
+
+    const toast = await toastController.create({
+      message: message,
+      showCloseButton: true
+    });
+    return await toast.present();
   }
 
   render() {

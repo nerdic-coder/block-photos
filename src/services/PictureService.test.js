@@ -7,7 +7,7 @@ it('initialize without crashing', () => {
   new PictureService();
 });
 
-it('get pictures list', () => {
+it('get pictures list', async () => {
   const mockResponse = [{
     "id": 'test123.jpg',
     "uploadedDate": "2018-07-11T21:58:39.754Z"
@@ -15,38 +15,76 @@ it('get pictures list', () => {
   blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
 
   const pictureService = new PictureService();
-  pictureService.getPicturesList().then((pictures) => {
-    expect(Array.isArray(pictures)).toBe(true);
-    expect(pictures).toEqual(mockResponse);
-  });
+  const pictures = await pictureService.getPicturesList();
+
+  expect(Array.isArray(pictures)).toBe(true);
+  expect(pictures).toEqual(mockResponse);
+
 });
 
-it('get empty pictures list', () => {
+it('get empty pictures list', async () => {
   const mockResponse = [];
   blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
 
   const pictureService = new PictureService();
-  pictureService.getPicturesList().then((pictures) => {
-    expect(Array.isArray(pictures)).toBe(true);
-    expect(pictures).toEqual(mockResponse);
-  });
+  const pictures = await pictureService.getPicturesList();
+
+  expect(Array.isArray(pictures)).toBe(true);
+  expect(pictures).toEqual(mockResponse);
+
 });
 
-it('upload picture', () => {
+it('upload picture', async () => {
   const pictureService = new PictureService();
-  pictureService.uploadPictures([{
+  const response = await pictureService.uploadPictures([{
     filename: 'test1.png',
     data: 'trash'
-  }]).then((pictures) => {
-    const parsedUploadedDate = new Date(Date.parse(pictures[0].uploadedDate));
-    expect(parsedUploadedDate.getFullYear()).toEqual(new Date().getFullYear());
-    expect(parsedUploadedDate.getMonth()).toEqual(new Date().getMonth());
-    expect(parsedUploadedDate.getDate()).toEqual(new Date().getDate());
-    expect(parsedUploadedDate.getHours()).toEqual(new Date().getHours());
-    expect(parsedUploadedDate.getMinutes()).toEqual(new Date().getMinutes());
-    expect(pictures.length).toBeGreaterThanOrEqual(1);
-    expect(pictures[0].id).toContain('test1.png');
-  });
+  }]);
+
+  const pictures = response.picturesList;
+  const parsedUploadedDate = new Date(Date.parse(pictures[0].uploadedDate));
+  expect(parsedUploadedDate.getFullYear()).toEqual(new Date().getFullYear());
+  expect(parsedUploadedDate.getMonth()).toEqual(new Date().getMonth());
+  expect(parsedUploadedDate.getDate()).toEqual(new Date().getDate());
+  expect(parsedUploadedDate.getHours()).toEqual(new Date().getHours());
+  expect(parsedUploadedDate.getMinutes()).toEqual(new Date().getMinutes());
+  expect(pictures.length).toBeGreaterThanOrEqual(1);
+  expect(pictures[0].id).toContain('test1.png');
+
+});
+
+it('upload picture error', async () => {
+
+  blockstack.putFile.mockReturnValueOnce(Promise.reject('failed!'));
+
+  const pictureService = new PictureService();
+  const response = await pictureService.uploadPictures([{
+    filename: 'test1.png',
+    data: 'trash',
+    stats: { size: 100 }
+  }]);
+
+  expect(response.picturesList).toEqual([]);
+  expect(response.errorsList[0].id).toEqual('test1.png');
+  expect(response.errorsList[0].errorCode).toEqual('err_failed');
+
+});
+
+it('upload picture filesize error', async () => {
+
+  blockstack.putFile.mockReturnValueOnce(Promise.reject('failed!'));
+
+  const pictureService = new PictureService();
+  const response = await pictureService.uploadPictures([{
+    filename: 'test2.png',
+    data: 'trash',
+    stats: { size: 6000000 }
+  }]);
+
+  expect(response.picturesList).toEqual([]);
+  expect(response.errorsList[0].id).toEqual('test2.png');
+  expect(response.errorsList[0].errorCode).toEqual('err_filesize');
+
 });
 
 it('load a picture', () => {

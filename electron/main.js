@@ -98,7 +98,8 @@ ipc.on('open-file-dialog', function () {
     for (let file of files) {
       var data = fs.readFileSync(file);
       var filename = path.basename(file);
-      filesData.push({"filename": filename, "data": Buffer.from(data).toString('base64')});
+      const stats = fs.statSync(file);
+      filesData.push({ "filename": filename, "data": Buffer.from(data).toString('base64'), "stats": stats });
     }
 
     mainWindow.webContents.send('upload-files', filesData);

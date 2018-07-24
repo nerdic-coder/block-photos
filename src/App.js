@@ -19,6 +19,7 @@ class App extends Component {
           <Route path="/" component={Signin} />
         </Switch>
         <ion-loading-controller/>
+        <ion-toast-controller/>
       </ion-app>
     );
   }

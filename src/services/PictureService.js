@@ -14,7 +14,7 @@ export default class PictureService {
     let errorResponse = '';
     try {
       cachedPicturesList = JSON.parse(this.storage.getItem('cachedPicturesList'));
-      
+
     } catch (error) {
       // TODO: Deal with error
     }
@@ -51,21 +51,38 @@ export default class PictureService {
   }
 
   async uploadPictures(filesData) {
-    let picturesList = await this.getPicturesList(true);
+    const picturesList = await this.getPicturesList(true);
+    const errorsList = [];
     for (let file of filesData) {
       let id = uniqid() + file.filename;
       let metadata = {
         "id": id,
-        "uploadedDate": new Date()
+        "uploadedDate": new Date(),
+        "stats": file.stats
       };
-      await putFile(id, file.data);
-      this.storage.setItem(id, file.data);
-      picturesList.unshift(metadata);
+      try {
+        await putFile(id, file.data);
+        this.storage.setItem(id, file.data);
+        picturesList.unshift(metadata);
+      } catch (error) {
+        const fileSizeInMegabytes = file.stats.size / 1000000;
+        if (fileSizeInMegabytes >= 5) {
+          errorsList.push({
+            "id": file.filename,
+            "errorCode": "err_filesize"
+          });
+        } else {
+          errorsList.push({
+            "id": file.filename,
+            "errorCode": "err_failed"
+          });
+        }
+      }
     }
 
     this.storage.setItem('cachedPicturesList', JSON.stringify(picturesList));
     await putFile("picture-list.json", JSON.stringify(picturesList));
-    return picturesList;
+    return { picturesList: picturesList, errorsList: errorsList };
   }
 
   async deletePicture(id) {
