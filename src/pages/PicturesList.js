@@ -7,7 +7,6 @@ import _ from 'lodash';
 
 import PictureService from '../services/PictureService.js';
 import BlockImg from '../components/BlockImg.js';
-import Header from '../components/Header.js';
 
 export default class PicturesList extends Component {
 
@@ -35,28 +34,31 @@ export default class PicturesList extends Component {
   }
 
   componentDidMount() {
-    this.loadPicturesList();
+    this.loadPicturesList(false);
   }
 
-  async loadPicturesList() {
+  async loadPicturesList(sync) {
     try {
+      await this.presentListLoading('Loading pictures...');
       // Get the contents of the file picture-list.json
-      let picturesList = await this.pictureService.getPicturesList();
-      this.setState({ picturesList: picturesList });
+      let picturesListResponse = await this.pictureService.getPicturesList(sync);
+      this.loadingElement.dismiss();
+      this.setState({ picturesList: picturesListResponse.picturesList });
+
+      if (picturesListResponse.errorsList && picturesListResponse.errorsList.length > 0) {
+        for (let error in picturesListResponse.errorsList) {
+          if (error.errorCode === 'err_cache') {
+            this.presentToast('Failed to load cached list. Please try again!');
+          } else if (error.errorCode) {
+            this.presentToast('Could not load pictures from blockchain. Please try again or upload some pictures if you have none!');
+          }
+        }
+      }
+
     } catch (error) {
-      // TODO: Deal with error
+      this.loadingElement.dismiss();
+      this.presentToast('Could not load pictures. Please try again!');
     }
-  }
-
-  async presentListLoading(content) {
-    const loadingController = document.querySelector('ion-loading-controller');
-    await loadingController.componentOnReady();
-
-    this.loadingElement = await loadingController.create({
-      content: content,
-      spinner: 'circles'
-    });
-    return await this.loadingElement.present();
   }
 
   handleUpload() {
@@ -83,6 +85,17 @@ export default class PicturesList extends Component {
     }
   }
 
+  async presentListLoading(content) {
+    const loadingController = document.querySelector('ion-loading-controller');
+    await loadingController.componentOnReady();
+
+    this.loadingElement = await loadingController.create({
+      content: content,
+      spinner: 'circles'
+    });
+    return await this.loadingElement.present();
+  }
+
   async presentToast(message) {
     const toastController = document.querySelector('ion-toast-controller');
     await toastController.componentOnReady();
@@ -101,7 +114,21 @@ export default class PicturesList extends Component {
     }
     return (
       <React.Fragment>
-        <Header />
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Block Photos</ion-title>
+            <ion-buttons slot="end">
+              <ion-button onClick={() => this.loadPicturesList(true)}>
+                <ion-icon name="refresh"></ion-icon>
+              </ion-button>
+              <Link to="/profile">
+                <ion-button>
+                  <ion-icon name="person"></ion-icon>
+                </ion-button>
+              </Link>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
         <ion-content>
           <ion-grid>
             {rows.map((row) => (

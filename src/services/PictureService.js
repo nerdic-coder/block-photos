@@ -11,12 +11,11 @@ export default class PictureService {
 
   async getPicturesList(sync) {
     let cachedPicturesList = [];
-    let errorResponse = '';
+    const errorsList = [];
     try {
       cachedPicturesList = JSON.parse(this.storage.getItem('cachedPicturesList'));
-
     } catch (error) {
-      // TODO: Deal with error
+      errorsList.push('err_cache');
     }
 
     if (sync || !cachedPicturesList || cachedPicturesList.length === 0) {
@@ -29,16 +28,15 @@ export default class PictureService {
           this.storage.setItem('cachedPicturesList', rawPicturesList);
         }
       } catch (error) {
-        // TODO: Deal with error
-        errorResponse = error;
-
+        errorsList.push('err_list');
       }
     }
 
-    if (errorResponse !== '') {
-      return errorResponse;
-    }
-    return cachedPicturesList;
+    return { 
+      picturesList: cachedPicturesList, 
+      errorsList: [errorsList] 
+    };
+
   }
 
   async loadPicture(id) {
@@ -51,7 +49,8 @@ export default class PictureService {
   }
 
   async uploadPictures(filesData) {
-    const picturesList = await this.getPicturesList(true);
+    const picturesListResponse = await this.getPicturesList(true);
+    const picturesList = picturesListResponse.picturesList;
     const errorsList = [];
     for (let file of filesData) {
       let id = uniqid() + file.filename;
@@ -99,7 +98,8 @@ export default class PictureService {
       return false;
     }
 
-    let picturesList = await this.getPicturesList(true);
+    let picturesListResponse = await this.getPicturesList(true);
+    const picturesList = picturesListResponse.picturesList;
     let index = 0;
     for (let picture of picturesList) {
       if (id === picture.id) {
