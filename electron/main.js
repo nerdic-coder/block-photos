@@ -1,13 +1,13 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow } = require('electron');
-import cp from 'child_process';
+const serverProcess = require('child_process');
 const ipc = require('electron').ipcMain;
 const dialog = require('electron').dialog;
 const fs = require("fs");
 const path = require("path");
 
 // Start process to serve manifest file
-const server = cp.fork(__dirname + '/server.js');
+const server = serverProcess.fork(__dirname + '/server.js');
 let currentAuthResponse = '';
 
 // Quit server process if main app will quit
