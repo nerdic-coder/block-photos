@@ -2,8 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { isUserSignedIn } from 'blockstack';
+import { ipcRenderer } from 'electron';
+import isElectron from 'is-electron';
 
 import PictureService from '../services/PictureService.js';
+import PresentingService from '../services/PresentingService.js';
 import BlockImg from '../components/BlockImg.js';
 
 export default class PicturesList extends Component {
@@ -17,6 +20,7 @@ export default class PicturesList extends Component {
     super(props);
 
     this.pictureService = new PictureService();
+    this.present = new PresentingService();
 
     const { history } = this.props;
     // Go to signin page if no active session exist
@@ -39,6 +43,18 @@ export default class PicturesList extends Component {
 
   }
 
+  componentDidMount() {
+    if (isElectron()) {
+      ipcRenderer.on('upload-files', this.uploadFiles.bind(this));
+    }
+  }
+
+  componentWillUnmount() {
+    if (isElectron()) {
+      ipcRenderer.removeAllListeners('upload-files');
+    }
+  }
+
   async deletePicture() {
     const actionSheetController = document.querySelector('ion-action-sheet-controller');
     await actionSheetController.componentOnReady();
@@ -50,9 +66,9 @@ export default class PicturesList extends Component {
         role: 'destructive',
         icon: 'trash',
         handler: async () => {
-          this.presentDeleteLoading();
+          this.present.loading('Deleting picture...');
           let result = await this.pictureService.deletePicture(this.props.match.params.id);
-          this.loadingElement.dismiss();
+          this.present.dismissLoading();
           if (result === true) {
             const { history } = this.props;
             history.replace('/pictures');
@@ -83,15 +99,21 @@ export default class PicturesList extends Component {
     return await alert.present();
   }
 
-  async presentDeleteLoading() {
-    const loadingController = document.querySelector('ion-loading-controller');
-    await loadingController.componentOnReady();
-
-    this.loadingElement = await loadingController.create({
-      content: 'Deleting picture...',
-      spinner: 'circles'
-    });
-    return await this.loadingElement.present();
+  async uploadFiles(event, filesData) {
+    if (filesData && filesData.length > 0) {
+      this.present.loading('Pictures uploading...');
+      const response = await this.pictureService.uploadPictures(filesData);
+      this.present.dismissLoading();
+      if (response.errorsList && response.errorsList.length > 0) {
+        for (let error of response.errorsList) {
+          if (error.errorCode === 'err_filesize') {
+            this.present.toast('Failed to upload "' + error.id + '", picture exceeds file size limit of 5MB.');
+          } else {
+            this.present.toast('Failed to upload "' + error.id + '".');
+          }
+        }
+      }
+    }
   }
 
   render() {

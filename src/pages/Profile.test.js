@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import * as blockstack from 'blockstack';
 import { shallow } from 'enzyme';
 
-import Profile from './Profile';
+import * as blockstack from 'blockstack';
 
+import Profile from './Profile';
 
 jest.mock('blockstack');
 

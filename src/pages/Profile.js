@@ -7,8 +7,12 @@ import {
   signUserOut,
   isUserSignedIn
 } from 'blockstack';
+import { ipcRenderer } from 'electron';
+import isElectron from 'is-electron';
 
 import StorageService from '../services/StorageService';
+import PictureService from '../services/PictureService.js';
+import PresentingService from '../services/PresentingService.js';
 
 const avatarFallbackImage = 'https://s3.amazonaws.com/onename/avatar-placeholder.png';
 
@@ -26,6 +30,8 @@ export default class Profile extends Component {
     super(props);
 
     this.storageService = new StorageService();
+    this.pictureService = new PictureService();
+    this.present = new PresentingService();
   }
 
   componentDidMount() {
@@ -38,7 +44,17 @@ export default class Profile extends Component {
       return;
     }
 
+    if (isElectron()) {
+      ipcRenderer.on('upload-files', this.uploadFiles.bind(this));
+    }
+
     this.setState({ person: new Person(loadUserData().profile) });
+  }
+
+  componentWillUnmount() {
+    if (isElectron()) {
+      ipcRenderer.removeAllListeners('upload-files');
+    }
   }
 
   handleSignOut(e) {
@@ -53,6 +69,23 @@ export default class Profile extends Component {
     // Redirect to the login page
     if (history) {
       history.replace('/');
+    }
+  }
+
+  async uploadFiles(event, filesData) {
+    if (filesData && filesData.length > 0) {
+      this.present.loading('Pictures uploading...');
+      const response = await this.pictureService.uploadPictures(filesData);
+      this.present.dismissLoading();
+      if (response.errorsList && response.errorsList.length > 0) {
+        for (let error of response.errorsList) {
+          if (error.errorCode === 'err_filesize') {
+            this.present.toast('Failed to upload "' + error.id + '", picture exceeds file size limit of 5MB.');
+          } else {
+            this.present.toast('Failed to upload "' + error.id + '".');
+          }
+        }
+      }
     }
   }
 

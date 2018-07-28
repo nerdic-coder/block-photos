@@ -43,6 +43,7 @@
     "electron-compile": "6.4.3",
     "electron-squirrel-startup": "^1.0.0",
     "express": "^4.16.3",
+    "is-electron": "^2.1.0",
     "localforage": "1.7.2",
     "prop-types": "^15.6.2",
     "react": "^16.4.1",

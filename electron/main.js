@@ -105,3 +105,19 @@ ipc.on('open-file-dialog', function () {
     mainWindow.webContents.send('upload-files', filesData);
   }
 });
+
+ipc.on('drop', (event, rawFiles) => {
+  const files = JSON.parse(rawFiles);
+  let filesData = [];
+  if (files) {
+    for (let file of files) {
+      var data = fs.readFileSync(file.path);
+      var filename = path.basename(file.path);
+      const stats = fs.statSync(file.path);
+      stats.type = file.type;
+      filesData.push({ "filename": filename, "data": Buffer.from(data).toString('base64'), "stats": stats });
+    }
+
+    mainWindow.webContents.send('upload-files', filesData);
+  }
+});

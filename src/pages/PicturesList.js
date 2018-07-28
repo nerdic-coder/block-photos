@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { ipcRenderer } from 'electron';
+import isElectron from 'is-electron';
 import { isUserSignedIn } from 'blockstack';
 import _ from 'lodash';
 
 import PictureService from '../services/PictureService.js';
+import PresentingService from '../services/PresentingService.js';
 import BlockImg from '../components/BlockImg.js';
 
 export default class PicturesList extends Component {
@@ -22,6 +24,7 @@ export default class PicturesList extends Component {
     super(props);
 
     this.pictureService = new PictureService();
+    this.present = new PresentingService();
 
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
@@ -34,77 +37,64 @@ export default class PicturesList extends Component {
   }
 
   componentDidMount() {
+    if (isElectron()) {
+      ipcRenderer.on('upload-files', this.uploadFiles.bind(this));
+    }
     this.loadPicturesList(false);
+  }
+
+  componentWillUnmount() {
+    if (isElectron()) {
+      ipcRenderer.removeAllListeners('upload-files');
+    }
   }
 
   async loadPicturesList(sync) {
     try {
-      await this.presentListLoading('Loading pictures...');
+      await this.present.loading('Loading pictures...');
       // Get the contents of the file picture-list.json
       let picturesListResponse = await this.pictureService.getPicturesList(sync);
-      this.loadingElement.dismiss();
+      this.present.dismissLoading();
       this.setState({ picturesList: picturesListResponse.picturesList });
 
       if (picturesListResponse.errorsList && picturesListResponse.errorsList.length > 0) {
         for (let error in picturesListResponse.errorsList) {
           if (error.errorCode === 'err_cache') {
-            this.presentToast('Failed to load cached list. Please try again!');
+            this.present.toast('Failed to load cached list. Please try again!');
           } else if (error.errorCode) {
-            this.presentToast('Could not load pictures from blockchain. Please try again or upload some pictures if you have none!');
+            this.present.toast('Could not load pictures from blockchain. Please try again or upload some pictures if you have none!');
           }
         }
       }
 
     } catch (error) {
-      this.loadingElement.dismiss();
-      this.presentToast('Could not load pictures. Please try again!');
+      this.present.dismissLoading();
+      this.present.toast('Could not load pictures. Please try again!');
     }
   }
 
   handleUpload() {
-    ipcRenderer.send('open-file-dialog');
-    ipcRenderer.on('upload-files', this.uploadFiles.bind(this));
+    if (isElectron()) {
+      ipcRenderer.send('open-file-dialog');
+    }
   }
 
   async uploadFiles(event, filesData) {
-    ipcRenderer.removeAllListeners('upload-files');
     if (filesData && filesData.length > 0) {
-      this.presentListLoading('Pictures uploading...');
+      this.present.loading('Pictures uploading...');
       const response = await this.pictureService.uploadPictures(filesData);
       this.setState({ picturesList: response.picturesList });
-      this.loadingElement.dismiss();
+      this.present.dismissLoading();
       if (response.errorsList && response.errorsList.length > 0) {
         for (let error of response.errorsList) {
           if (error.errorCode === 'err_filesize') {
-            this.presentToast('Failed to upload "' + error.id + '", picture exceeds file size limit of 5MB.');
+            this.present.toast('Failed to upload "' + error.id + '", picture exceeds file size limit of 5MB.');
           } else {
-            this.presentToast('Failed to upload "' + error.id + '".');
+            this.present.toast('Failed to upload "' + error.id + '".');
           }
         }
       }
     }
-  }
-
-  async presentListLoading(content) {
-    const loadingController = document.querySelector('ion-loading-controller');
-    await loadingController.componentOnReady();
-
-    this.loadingElement = await loadingController.create({
-      content: content,
-      spinner: 'circles'
-    });
-    return await this.loadingElement.present();
-  }
-
-  async presentToast(message) {
-    const toastController = document.querySelector('ion-toast-controller');
-    await toastController.componentOnReady();
-
-    const toast = await toastController.create({
-      message: message,
-      showCloseButton: true
-    });
-    return await toast.present();
   }
 
   render() {
