@@ -2,3 +2,13 @@ ion-spinner {
   display: block;
   margin: auto;
 }
+
+.picture-background {
+  background-color: black;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}

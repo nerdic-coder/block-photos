@@ -13,7 +13,8 @@ export default class PictureService {
     let cachedPicturesList = [];
     const errorsList = [];
     try {
-      cachedPicturesList = JSON.parse(this.storage.getItem('cachedPicturesList'));
+      const rawCachedPicturesList = await this.storage.getItem('cachedPicturesList');
+      cachedPicturesList = JSON.parse(rawCachedPicturesList);
     } catch (error) {
       errorsList.push('err_cache');
     }
@@ -25,7 +26,7 @@ export default class PictureService {
         if (rawPicturesList) {
           const picturesList = JSON.parse(rawPicturesList);
           cachedPicturesList = picturesList;
-          this.storage.setItem('cachedPicturesList', rawPicturesList);
+          await this.storage.setItem('cachedPicturesList', rawPicturesList);
         }
       } catch (error) {
         errorsList.push('err_list');
@@ -40,10 +41,10 @@ export default class PictureService {
   }
 
   async loadPicture(id) {
-    let cachedPicture = this.storage.getItem(id);
+    let cachedPicture = await this.storage.getItem(id);
     if (!cachedPicture) {
       cachedPicture = await getFile(id);
-      this.storage.setItem(id, cachedPicture);
+      await this.storage.setItem(id, cachedPicture);
     }
     return cachedPicture;
   }
@@ -61,7 +62,7 @@ export default class PictureService {
       };
       try {
         await putFile(id, file.data);
-        this.storage.setItem(id, file.data);
+        await this.storage.setItem(id, file.data);
         picturesList.unshift(metadata);
       } catch (error) {
         const fileSizeInMegabytes = file.stats.size / 1000000;
@@ -79,7 +80,7 @@ export default class PictureService {
       }
     }
 
-    this.storage.setItem('cachedPicturesList', JSON.stringify(picturesList));
+    await this.storage.setItem('cachedPicturesList', JSON.stringify(picturesList));
     await putFile("picture-list.json", JSON.stringify(picturesList));
     return { picturesList: picturesList, errorsList: errorsList };
   }
@@ -104,7 +105,7 @@ export default class PictureService {
     for (let picture of picturesList) {
       if (id === picture.id) {
         picturesList.splice(index, 1);
-        this.storage.setItem('cachedPicturesList', JSON.stringify(picturesList));
+        await this.storage.setItem('cachedPicturesList', JSON.stringify(picturesList));
         await putFile("picture-list.json", JSON.stringify(picturesList));
         return true;
       }

@@ -31,7 +31,7 @@ export default class BlockImg extends Component {
     const isLoaded = this.state.isLoaded;
     if (isLoaded) {
       return (
-        <img src={'data:image/png;base64,' + this.state.base64} style={{width: '100%', maxHeight: '100%'}} />
+        <img src={'data:image/png;base64,' + this.state.base64} className="center" style={{maxWidth: '100%', maxHeight: '100%'}} />
       );
     } else {
       return (

@@ -1,18 +1,20 @@
+import * as localForage from "localforage";
+
 export default class StorageService {
 
   constructor() {
-    this.storage = window.localStorage;
+    this.storage = localForage;
   }
 
-  getItem(itemId) {
-    return this.storage.getItem(itemId);
+  async getItem(itemId) {
+    return await this.storage.getItem(itemId);
   }
 
-  setItem(itemId, itemValue) {
-    this.storage.setItem(itemId, itemValue);
+  async setItem(itemId, itemValue) {
+    await this.storage.setItem(itemId, itemValue);
   }
 
   clear() {
-    window.localStorage.clear();
+    this.storage.clear();
   }
 }
