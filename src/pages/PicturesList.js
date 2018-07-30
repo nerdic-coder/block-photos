@@ -51,10 +51,16 @@ export default class PicturesList extends Component {
 
   async loadPicturesList(sync) {
     try {
-      await this.present.loading('Loading pictures...');
+      if (sync) {
+        await this.present.loading('Loading pictures...');
+      }
       // Get the contents of the file picture-list.json
       let picturesListResponse = await this.pictureService.getPicturesList(sync);
-      this.present.dismissLoading();
+      
+      if (sync) {
+        this.present.dismissLoading();
+      }
+        
       this.setState({ picturesList: picturesListResponse.picturesList });
 
       if (picturesListResponse.errorsList && picturesListResponse.errorsList.length > 0) {
@@ -68,7 +74,9 @@ export default class PicturesList extends Component {
       }
 
     } catch (error) {
-      this.present.dismissLoading();
+      if (sync) {
+        this.present.dismissLoading();
+      }
       this.present.toast('Could not load pictures. Please try again!');
     }
   }
