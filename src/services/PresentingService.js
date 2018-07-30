@@ -14,7 +14,9 @@ export default class PresentingService {
   }
 
   dismissLoading() {
-    this.loadingElement.dismiss();
+    if (this.loadingElement) {
+      this.loadingElement.dismiss();
+    }
   }
 
   async toast(message) {

@@ -16,6 +16,11 @@ export default class PicturesList extends Component {
     match: PropTypes.any
   };
 
+  state = {
+    nextAndPreviousPicture: [],
+    currentId: this.props.match.params.id
+  };
+
   constructor(props) {
     super(props);
 
@@ -47,11 +52,20 @@ export default class PicturesList extends Component {
     if (isElectron()) {
       ipcRenderer.on('upload-files', this.uploadFiles.bind(this));
     }
+
+    this.loadPictureWithId(this.props.match.params.id);
   }
 
   componentWillUnmount() {
     if (isElectron()) {
       ipcRenderer.removeAllListeners('upload-files');
+    }
+  }
+
+  async loadPictureWithId(id) {
+    if (id) {
+      const nextAndPreviousPicture = await this.pictureService.getNextAndPreviousPicture(id);
+      this.setState({ nextAndPreviousPicture: nextAndPreviousPicture, currentId: id });
     }
   }
 
@@ -67,7 +81,7 @@ export default class PicturesList extends Component {
         icon: 'trash',
         handler: async () => {
           this.present.loading('Deleting picture...');
-          let result = await this.pictureService.deletePicture(this.props.match.params.id);
+          let result = await this.pictureService.deletePicture(this.state.currentId);
           this.present.dismissLoading();
           if (result === true) {
             const { history } = this.props;
@@ -117,7 +131,8 @@ export default class PicturesList extends Component {
   }
 
   render() {
-    if(!this.props.match) {
+    const { currentId, nextAndPreviousPicture } = this.state;
+    if (!currentId) {
       return (<h1>404 - Picture not found</h1>);
     }
     return (
@@ -126,20 +141,28 @@ export default class PicturesList extends Component {
           <ion-toolbar>
             <ion-buttons slot="start">
               <Link to="/pictures">
-                <ion-back-button default-href="/pictures"></ion-back-button>
+                <ion-button>
+                  <ion-icon name="close"></ion-icon>
+                </ion-button>
               </Link>
             </ion-buttons>
             <ion-title>Block Photo</ion-title>
             <ion-buttons slot="end">
-              <ion-button icon-end onClick={() => this.deletePicture()}>
+              <ion-button onClick={() => this.deletePicture()}>
                 <ion-icon name="trash"></ion-icon>
+              </ion-button>
+              <ion-button disabled={!nextAndPreviousPicture.previousId} onClick={() => this.loadPictureWithId(nextAndPreviousPicture.previousId)}>
+                <ion-icon name="arrow-back"></ion-icon>
+              </ion-button>
+              <ion-button disabled={!nextAndPreviousPicture.nextId} onClick={() => this.loadPictureWithId(nextAndPreviousPicture.nextId)}>
+                <ion-icon name="arrow-forward"></ion-icon>
               </ion-button>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
 
         <ion-content text-center class="picture-background">
-          <BlockImg id={this.props.match.params.id} />
+          <BlockImg id={currentId} />
         </ion-content>
         <ion-alert-controller />
         <ion-action-sheet-controller />

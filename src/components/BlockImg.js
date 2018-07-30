@@ -18,7 +18,16 @@ export default class BlockImg extends Component {
     super(props);
 
     this.pictureService = new PictureService();
+  }
+
+  componentDidMount() {
     this.getPicture();
+  }
+
+  componentDidUpdate(prevProps) {
+    if(this.props.id !== prevProps.id) {
+      this.getPicture();
+    }
   }
 
   async getPicture() {

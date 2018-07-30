@@ -176,4 +176,142 @@ describe('PictureService Test Suites', () => {
       expect(result).toBe(false);
     });
   });
+
+  it('get next and previous image', async () => {
+    const mockResponse = [
+      {
+        "id": 'test1.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      },
+      {
+        "id": 'test2.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      },
+      {
+        "id": 'test3.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      }
+    ];
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.getNextAndPreviousPicture('test2.jpg');
+
+    expect(response.previousId).toEqual('test1.jpg');
+    expect(response.nextId).toEqual('test3.jpg');
+
+  });
+
+  it('get next image with previous image as null', async () => {
+    const mockResponse = [
+      {
+        "id": 'test1.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      },
+      {
+        "id": 'test2.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      },
+      {
+        "id": 'test3.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      }
+    ];
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.getNextAndPreviousPicture('test1.jpg');
+
+    expect(response.previousId).toEqual(null);
+    expect(response.nextId).toEqual('test2.jpg');
+
+  });
+
+  it('get previous image with next image as null', async () => {
+    const mockResponse = [
+      {
+        "id": 'test1.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      },
+      {
+        "id": 'test2.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      },
+      {
+        "id": 'test3.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      }
+    ];
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.getNextAndPreviousPicture('test3.jpg');
+
+    expect(response.previousId).toEqual('test2.jpg');
+    expect(response.nextId).toEqual(null);
+
+  });
+
+  it('get no previous image and no next image', async () => {
+    const mockResponse = [
+      {
+        "id": 'test1.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      }
+    ];
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.getNextAndPreviousPicture('test1.jpg');
+
+    expect(response.previousId).toEqual(null);
+    expect(response.nextId).toEqual(null);
+
+  });
+
+  it('get no previous image and no next image on wrong id', async () => {
+    const mockResponse = [
+      {
+        "id": 'test1.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      }
+    ];
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.getNextAndPreviousPicture('test2.jpg');
+
+    expect(response.previousId).toEqual(null);
+    expect(response.nextId).toEqual(null);
+
+  });
+
+  it('get no previous image and no next image on empty id', async () => {
+    const mockResponse = [
+      {
+        "id": 'test1.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z"
+      }
+    ];
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.getNextAndPreviousPicture();
+
+    expect(response.previousId).toEqual(null);
+    expect(response.nextId).toEqual(null);
+
+  });
+
+  it('get no previous image and no next image on empty list', async () => {
+    const mockResponse = [];
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.getNextAndPreviousPicture('dummy');
+
+    expect(response.previousId).toEqual(null);
+    expect(response.nextId).toEqual(null);
+
+  });
 });

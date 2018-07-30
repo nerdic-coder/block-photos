@@ -14,7 +14,7 @@ it('renders without crashing', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <BrowserRouter>
-      <Picture />
+      <Picture match={{params: {}}} />
     </BrowserRouter>
     , div);
   ReactDOM.unmountComponentAtNode(div);
@@ -28,7 +28,7 @@ it('renders signed in', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <BrowserRouter>
-      <Picture />
+      <Picture match={{params: {}}} />
     </BrowserRouter>
     , div);
   ReactDOM.unmountComponentAtNode(div);

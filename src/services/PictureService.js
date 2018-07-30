@@ -101,6 +101,7 @@ export default class PictureService {
 
     let picturesListResponse = await this.getPicturesList(true);
     const picturesList = picturesListResponse.picturesList;
+    
     let index = 0;
     for (let picture of picturesList) {
       if (id === picture.id) {
@@ -113,4 +114,28 @@ export default class PictureService {
     }
     return false;
   }
+
+  async getNextAndPreviousPicture(id) {
+    const response = { "previousId": null, "nextId": null };
+    const picturesListResponse = await this.getPicturesList(true);
+    const picturesList = picturesListResponse.picturesList;
+
+    let index = 0;
+    for (let picture of picturesList) {
+      // Current picture
+      if (picture.id === id) {
+        if (picturesList[index-1]) {
+          response.previousId = picturesList[index-1].id;
+        }
+        if (picturesList[index+1]) {
+          response.nextId = picturesList[index+1].id;
+        }
+        break;
+      }
+      index++;
+    }
+    
+    return response;
+  }
+
 }
