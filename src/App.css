@@ -18,3 +18,7 @@ ion-spinner {
   pointer-events: auto;
   z-index: 9999; /* Ensure context menu always appears on top */
 }
+
+.react-contextmenu-item ion-item:hover{
+  color: #387ef5;
+}
