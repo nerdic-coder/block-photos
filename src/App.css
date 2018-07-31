@@ -12,3 +12,9 @@ ion-spinner {
   margin-left: auto;
   margin-right: auto;
 }
+
+.react-contextmenu.react-contextmenu--visible {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 9999; /* Ensure context menu always appears on top */
+}

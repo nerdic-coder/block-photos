@@ -5,6 +5,7 @@ import { ipcRenderer } from 'electron';
 import isElectron from 'is-electron';
 import { isUserSignedIn } from 'blockstack';
 import _ from 'lodash';
+import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 
 import PictureService from '../services/PictureService.js';
 import PresentingService from '../services/PresentingService.js';
@@ -56,11 +57,11 @@ export default class PicturesList extends Component {
       }
       // Get the contents of the file picture-list.json
       let picturesListResponse = await this.pictureService.getPicturesList(sync);
-      
+
       if (sync) {
         this.present.dismissLoading();
       }
-        
+
       this.setState({ picturesList: picturesListResponse.picturesList });
 
       if (picturesListResponse.errorsList && picturesListResponse.errorsList.length > 0) {
@@ -105,6 +106,10 @@ export default class PicturesList extends Component {
     }
   }
 
+  deletePictureCallback(callbackComponent) {
+    callbackComponent.loadPicturesList();
+  }
+
   render() {
     let rows = [];
     if (this.state.picturesList && this.state.picturesList.length > 0) {
@@ -130,13 +135,24 @@ export default class PicturesList extends Component {
         <ion-content>
           <ion-grid>
             {rows.map((row) => (
-              <ion-row key={row[0].id}>
+              <ion-row align-items-center key={row[0].id}>
                 {
                   row.map((col) => (
-                    <ion-col key={col.id}>
-                      <Link to={"/picture/" + col.id}>
-                        <BlockImg id={col.id} />
-                      </Link>
+                    <ion-col align-self-center key={col.id}>
+                      <ContextMenuTrigger id={col.id}>
+                        <Link to={"/picture/" + col.id}>
+                          <BlockImg id={col.id} />
+                        </Link>
+                        <ContextMenu id={col.id}>
+                          <ion-list>
+                            <MenuItem onClick={() => this.present.deletePicture(col.id, this)}>
+                              <ion-item>
+                                <ion-label>Delete picture</ion-label>
+                              </ion-item>
+                            </MenuItem>
+                          </ion-list>
+                        </ContextMenu>
+                      </ContextMenuTrigger>
                     </ion-col>
                   ))
                 }

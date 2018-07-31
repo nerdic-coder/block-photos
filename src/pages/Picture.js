@@ -69,50 +69,6 @@ export default class PicturesList extends Component {
     }
   }
 
-  async deletePicture() {
-    const actionSheetController = document.querySelector('ion-action-sheet-controller');
-    await actionSheetController.componentOnReady();
-
-    const actionSheet = await actionSheetController.create({
-      header: "Delete picture?",
-      buttons: [{
-        text: 'Delete',
-        role: 'destructive',
-        icon: 'trash',
-        handler: async () => {
-          this.present.loading('Deleting picture...');
-          let result = await this.pictureService.deletePicture(this.state.currentId);
-          this.present.dismissLoading();
-          if (result === true) {
-            const { history } = this.props;
-            history.replace('/pictures');
-          } else {
-            this.presentDeleteError();
-          }
-        }
-      }, {
-        text: 'Cancel',
-        icon: 'close',
-        role: 'cancel'
-      }]
-    });
-    await actionSheet.present();
-
-  }
-
-  async presentDeleteError() {
-    const alertController = document.querySelector('ion-alert-controller');
-    await alertController.componentOnReady();
-
-    const alert = await alertController.create({
-      header: 'Removal failed',
-      subHeader: '',
-      message: 'The removal of the picture failed. Please try again in a few minutes!',
-      buttons: ['OK']
-    });
-    return await alert.present();
-  }
-
   async uploadFiles(event, filesData) {
     if (filesData && filesData.length > 0) {
       this.present.loading('Pictures uploading...');
@@ -128,6 +84,11 @@ export default class PicturesList extends Component {
         }
       }
     }
+  }
+
+  deletePictureCallback(callbackComponent) {
+    const { history } = callbackComponent.props;
+    history.replace('/pictures');
   }
 
   render() {
@@ -148,7 +109,7 @@ export default class PicturesList extends Component {
             </ion-buttons>
             <ion-title>Block Photo</ion-title>
             <ion-buttons slot="end">
-              <ion-button onClick={() => this.deletePicture()}>
+              <ion-button onClick={() => this.present.deletePicture(currentId, this)}>
                 <ion-icon name="trash"></ion-icon>
               </ion-button>
               <ion-button disabled={!nextAndPreviousPicture.previousId} onClick={() => this.loadPictureWithId(nextAndPreviousPicture.previousId)}>
@@ -164,8 +125,6 @@ export default class PicturesList extends Component {
         <ion-content text-center class="picture-background">
           <BlockImg id={currentId} />
         </ion-content>
-        <ion-alert-controller />
-        <ion-action-sheet-controller />
       </React.Fragment>
     );
   }
