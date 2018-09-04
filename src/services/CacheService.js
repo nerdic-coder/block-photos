@@ -1,6 +1,6 @@
 import * as localForage from "localforage";
 
-export default class StorageService {
+export default class CacheService {
 
   constructor() {
     this.storage = localForage;

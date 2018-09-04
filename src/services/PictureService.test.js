@@ -1,15 +1,30 @@
 import * as blockstack from 'blockstack';
 import PictureService from './PictureService';
-import StorageService from './StorageService';
+import CacheService from './CacheService';
 
 jest.mock('blockstack');
-jest.mock('./StorageService');
+jest.mock('./CacheService');
 
 describe('PictureService Test Suites', () => {
 
+  const mockPictureListResponse = [
+    {
+      "id": 'test1.jpg',
+      "uploadedDate": "2018-07-11T21:58:39.754Z"
+    },
+    {
+      "id": 'test2.jpg',
+      "uploadedDate": "2018-07-11T21:58:39.754Z"
+    },
+    {
+      "id": 'test3.jpg',
+      "uploadedDate": "2018-07-11T21:58:39.754Z"
+    }
+  ];
+
   beforeEach(() => {
-    StorageService.mockClear();
-    StorageService.mockImplementation(() => {
+    CacheService.mockClear();
+    CacheService.mockImplementation(() => {
       return {
         getItem: jest.fn(),
         setItem: jest.fn()
@@ -18,7 +33,7 @@ describe('PictureService Test Suites', () => {
   });
 
   it('initialize without crashing', () => {
-    new StorageService();
+    new CacheService();
     new PictureService();
   });
 
@@ -178,21 +193,8 @@ describe('PictureService Test Suites', () => {
   });
 
   it('get next and previous image', async () => {
-    const mockResponse = [
-      {
-        "id": 'test1.jpg',
-        "uploadedDate": "2018-07-11T21:58:39.754Z"
-      },
-      {
-        "id": 'test2.jpg',
-        "uploadedDate": "2018-07-11T21:58:39.754Z"
-      },
-      {
-        "id": 'test3.jpg',
-        "uploadedDate": "2018-07-11T21:58:39.754Z"
-      }
-    ];
-    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
 
     const pictureService = new PictureService();
     const response = await pictureService.getNextAndPreviousPicture('test2.jpg');
@@ -203,21 +205,8 @@ describe('PictureService Test Suites', () => {
   });
 
   it('get next image with previous image as null', async () => {
-    const mockResponse = [
-      {
-        "id": 'test1.jpg',
-        "uploadedDate": "2018-07-11T21:58:39.754Z"
-      },
-      {
-        "id": 'test2.jpg',
-        "uploadedDate": "2018-07-11T21:58:39.754Z"
-      },
-      {
-        "id": 'test3.jpg',
-        "uploadedDate": "2018-07-11T21:58:39.754Z"
-      }
-    ];
-    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+    
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
 
     const pictureService = new PictureService();
     const response = await pictureService.getNextAndPreviousPicture('test1.jpg');
@@ -228,21 +217,8 @@ describe('PictureService Test Suites', () => {
   });
 
   it('get previous image with next image as null', async () => {
-    const mockResponse = [
-      {
-        "id": 'test1.jpg',
-        "uploadedDate": "2018-07-11T21:58:39.754Z"
-      },
-      {
-        "id": 'test2.jpg',
-        "uploadedDate": "2018-07-11T21:58:39.754Z"
-      },
-      {
-        "id": 'test3.jpg',
-        "uploadedDate": "2018-07-11T21:58:39.754Z"
-      }
-    ];
-    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
 
     const pictureService = new PictureService();
     const response = await pictureService.getNextAndPreviousPicture('test3.jpg');

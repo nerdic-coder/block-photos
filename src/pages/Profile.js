@@ -10,7 +10,7 @@ import {
 import { ipcRenderer } from 'electron';
 import isElectron from 'is-electron';
 
-import StorageService from '../services/StorageService';
+import CacheService from '../services/CacheService';
 import PictureService from '../services/PictureService.js';
 import PresentingService from '../services/PresentingService.js';
 
@@ -29,7 +29,7 @@ export default class Profile extends Component {
   constructor(props) {
     super(props);
 
-    this.storageService = new StorageService();
+    this.cacheService = new CacheService();
     this.pictureService = new PictureService();
     this.present = new PresentingService();
   }
@@ -62,7 +62,7 @@ export default class Profile extends Component {
       e.preventDefault();
     }
     // Clear all the users cache in localStorage
-    this.storageService.clear();
+    this.cacheService.clear();
     // End users Blockstack session
     signUserOut();
     const { history } = this.props;

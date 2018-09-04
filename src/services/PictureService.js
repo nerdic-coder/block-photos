@@ -1,19 +1,19 @@
 import { putFile, getFile } from 'blockstack';
 import uniqid from 'uniqid';
 
-import StorageService from './StorageService';
+import CacheService from './CacheService';
 
 export default class PictureService {
 
   constructor() {
-    this.storage = new StorageService();
+    this.cache = new CacheService();
   }
 
   async getPicturesList(sync) {
     let cachedPicturesList = [];
     const errorsList = [];
     try {
-      const rawCachedPicturesList = await this.storage.getItem('cachedPicturesList');
+      const rawCachedPicturesList = await this.cache.getItem('cachedPicturesList');
       cachedPicturesList = JSON.parse(rawCachedPicturesList);
     } catch (error) {
       errorsList.push('err_cache');
@@ -26,7 +26,7 @@ export default class PictureService {
         if (rawPicturesList) {
           const picturesList = JSON.parse(rawPicturesList);
           cachedPicturesList = picturesList;
-          await this.storage.setItem('cachedPicturesList', rawPicturesList);
+          await this.cache.setItem('cachedPicturesList', rawPicturesList);
         }
       } catch (error) {
         errorsList.push('err_list');
@@ -41,10 +41,10 @@ export default class PictureService {
   }
 
   async loadPicture(id) {
-    let cachedPicture = await this.storage.getItem(id);
+    let cachedPicture = await this.cache.getItem(id);
     if (!cachedPicture) {
       cachedPicture = await getFile(id);
-      await this.storage.setItem(id, cachedPicture);
+      await this.cache.setItem(id, cachedPicture);
     }
     return cachedPicture;
   }
@@ -62,7 +62,7 @@ export default class PictureService {
       };
       try {
         await putFile(id, file.data);
-        await this.storage.setItem(id, file.data);
+        await this.cache.setItem(id, file.data);
         picturesList.unshift(metadata);
       } catch (error) {
         const fileSizeInMegabytes = file.stats.size / 1000000;
@@ -80,7 +80,7 @@ export default class PictureService {
       }
     }
 
-    await this.storage.setItem('cachedPicturesList', JSON.stringify(picturesList));
+    await this.cache.setItem('cachedPicturesList', JSON.stringify(picturesList));
     await putFile("picture-list.json", JSON.stringify(picturesList));
     return { picturesList: picturesList, errorsList: errorsList };
   }
@@ -106,7 +106,7 @@ export default class PictureService {
     for (let picture of picturesList) {
       if (id === picture.id) {
         picturesList.splice(index, 1);
-        await this.storage.setItem('cachedPicturesList', JSON.stringify(picturesList));
+        await this.cache.setItem('cachedPicturesList', JSON.stringify(picturesList));
         await putFile("picture-list.json", JSON.stringify(picturesList));
         return true;
       }
