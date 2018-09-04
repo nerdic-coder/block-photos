@@ -21,6 +21,9 @@ module.exports = {
     path: path.resolve('electron/app'),
     filename: 'index_bundle.js',
   },
+  node: {
+    fs: 'empty'
+  },
   devServer: {
     historyApiFallback: true,
     watchOptions: { aggregateTimeout: 300, poll: 1000 },

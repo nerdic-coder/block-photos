@@ -141,7 +141,7 @@ export default class PicturesList extends Component {
                     <ion-col align-self-center key={col.id}>
                       <ContextMenuTrigger id={col.id}>
                         <Link to={"/picture/" + col.id}>
-                          <BlockImg id={col.id} />
+                          <BlockImg id={col.id} aspectRatio={1/1} />
                         </Link>
                         <ContextMenu id={col.id}>
                           <ion-list>

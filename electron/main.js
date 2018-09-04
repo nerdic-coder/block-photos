@@ -3,8 +3,9 @@ const { app, BrowserWindow } = require('electron');
 const serverProcess = require('child_process');
 const ipc = require('electron').ipcMain;
 const dialog = require('electron').dialog;
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
+const exif = require('exif-parser');
 
 // Start process to serve manifest file
 const server = serverProcess.fork(__dirname + '/server.js');
@@ -99,6 +100,10 @@ ipc.on('open-file-dialog', function () {
       var data = fs.readFileSync(file);
       var filename = path.basename(file);
       const stats = fs.statSync(file);
+
+      const exifParser = exif.create(data);
+      stats.exifdata = exifParser.parse();
+
       filesData.push({ "filename": filename, "data": Buffer.from(data).toString('base64'), "stats": stats });
     }
 
@@ -115,6 +120,10 @@ ipc.on('drop', (event, rawFiles) => {
       var filename = path.basename(file.path);
       const stats = fs.statSync(file.path);
       stats.type = file.type;
+
+      const exifParser = exif.create(data);
+      stats.exifdata = exifParser.parse();
+
       filesData.push({ "filename": filename, "data": Buffer.from(data).toString('base64'), "stats": stats });
     }
 

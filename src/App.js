@@ -1,6 +1,17 @@
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router';
 
+import "@ionic/core/css/core.css";
+import '@ionic/core/css/normalize.css';
+import '@ionic/core/css/structure.css';
+import '@ionic/core/css/typography.css';
+
+import '@ionic/core/css/padding.css';
+import '@ionic/core/css/float-elements.css';
+import '@ionic/core/css/text-alignment.css';
+import '@ionic/core/css/text-transformation.css';
+import '@ionic/core/css/flex-utils.css';
+
 import './App.css';
 import PicturesList from './pages/PicturesList.js';
 import Signin from './pages/Signin.js';

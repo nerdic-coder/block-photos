@@ -138,4 +138,21 @@ export default class PictureService {
     return response;
   }
 
+  async getPictureMetaData(id) {
+    let response = { };
+    const picturesListResponse = await this.getPicturesList();
+    const picturesList = picturesListResponse.picturesList;
+
+    let index = 0;
+    for (let picture of picturesList) {
+      // Current picture
+      if (picture.id === id) {
+        response = picturesList[index];
+        break;
+      }
+      index++;
+    }
+
+    return response;
+  }
 }

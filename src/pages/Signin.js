@@ -9,6 +9,8 @@ import {
   isSignInPending,
   handlePendingSignIn
 } from 'blockstack';
+import PresentingService from '../services/PresentingService.js';
+
 
 export default class Signin extends Component {
 
@@ -24,19 +26,21 @@ export default class Signin extends Component {
       if (history) {
         history.replace('/pictures');
       }
-    }
-    else if (isSignInPending() && !isUserSignedIn()) {
+    } else if (isSignInPending() && !isUserSignedIn()) {
       handlePendingSignIn().then(() => {
         if (history) {
           history.replace('/pictures');
         }
       });
     }
+
+    this.present = new PresentingService();
   }
 
   handleSignIn(e) {
     e.preventDefault();
-    this.presentLoading();
+    this.present.loading('Waiting for authentication...', 60000, true);
+
     const transitPrivateKey = generateAndStoreTransitKey();
     const redirectURI = 'http://localhost:9876/callback';
     const manifestURI = 'http://localhost:9876/manifest.json';
@@ -69,19 +73,6 @@ export default class Signin extends Component {
         </ion-content>
       </React.Fragment>
     );
-  }
-
-  async presentLoading() {
-    const loadingController = document.querySelector('ion-loading-controller');
-    await loadingController.componentOnReady();
-
-    const loadingElement = await loadingController.create({
-      content: 'Waiting for authentication...',
-      spinner: 'circles',
-      enableBackdropDismiss: true,
-      duration: 60000
-    });
-    return await loadingElement.present();
   }
 
 }
