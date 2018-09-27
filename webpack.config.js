@@ -15,8 +15,8 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
 });
 
 module.exports = {
-  entry: ['babel-polyfill', './src/index.js'],
-  target: 'electron',
+  entry: ['@babel/polyfill', './src/index.js'],
+  target: 'electron-main',
   output: {
     path: path.resolve('electron/app'),
     filename: 'index_bundle.js',
@@ -36,7 +36,7 @@ module.exports = {
   },
   module: {
     rules: [
-      { test: /\.json$/, use: 'json-loader' },
+
       {
         test: /\.js$/,
         loader: 'babel-loader',

@@ -97,7 +97,9 @@ export default class Profile extends Component {
           <ion-toolbar>
             <ion-buttons slot="start">
               <Link to="/pictures">
-                <ion-back-button default-href="/pictures"></ion-back-button>
+                <ion-button>
+                  <ion-icon name="arrow-back"></ion-icon>
+                </ion-button>
               </Link>
             </ion-buttons>
             <ion-title>Blockstack Profile</ion-title>
