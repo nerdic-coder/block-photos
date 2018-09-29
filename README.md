@@ -13,8 +13,8 @@ To test this project do the following...
 
 Installation:
 ```bash
-git clone https://github.com/nerdic-coder/react-photos.git react-photos
-cd react-photos
+git clone https://github.com/nerdic-coder/block-photos.git block-photos
+cd block-photos
 npm install
 ```
 
@@ -31,4 +31,9 @@ npm run package
 Test ESLint:
 ```bash
 npm run lint
+```
+
+Run unit tests:
+```bash
+npm run test
 ```
