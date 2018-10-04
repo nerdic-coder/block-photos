@@ -1,5 +1,9 @@
 # Block Photos - Your photo album on the blockchain!
 
+<p align="center">
+  <img src="https://github.com/nerdic-coder/block-photos/blob/master/electron/icons/png/256x256.png?raw=true" width="256" height="256">
+</p>
+
 Read my introduction article about this project: [Building a decentralized Photos app on Blockstack with React](https://nerdic-coder.com/2018/06/22/building-a-decentralized-photos-app-on-blockstack-with-react/)
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
