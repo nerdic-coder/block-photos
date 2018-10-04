@@ -34,6 +34,9 @@
           "deb",
           "rpm"
         ]
+      },
+      "electronPackagerConfig": {
+        "icon": "electron/icons/mac/icon.png.hqx"
       }
     }
   },
