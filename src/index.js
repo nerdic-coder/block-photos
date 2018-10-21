@@ -1,14 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import { ipcRenderer } from 'electron';
 import isElectron from 'is-electron';
 
 import './index.css';
 import App from './App';
+import ElectronService from './services/ElectronService';
 
 // import registerServiceWorker from './registerServiceWorker';
-
 ReactDOM.render(
   <BrowserRouter>
     <App />
@@ -35,7 +34,7 @@ document.addEventListener('drop', event => {
     event.dataTransfer.items.clear();
 
     if (picturesToUpload.length > 0 && isElectron()) {
-      ipcRenderer.send('drop', JSON.stringify(picturesToUpload));
+      ElectronService.send('drop', JSON.stringify(picturesToUpload));
     }
   }
 

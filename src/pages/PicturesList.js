@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { ipcRenderer } from 'electron';
 import isElectron from 'is-electron';
 import { isUserSignedIn } from 'blockstack';
 import _ from 'lodash';
@@ -10,6 +9,7 @@ import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 import PictureService from '../services/PictureService.js';
 import PresentingService from '../services/PresentingService.js';
 import BlockImg from '../components/BlockImg.js';
+import ElectronService from '../services/ElectronService';
 
 export default class PicturesList extends Component {
 
@@ -39,14 +39,14 @@ export default class PicturesList extends Component {
 
   componentDidMount() {
     if (isElectron()) {
-      ipcRenderer.on('upload-files', this.uploadFiles.bind(this));
+      ElectronService.on('upload-files', this.uploadFiles.bind(this));
     }
     this.loadPicturesList(false);
   }
 
   componentWillUnmount() {
     if (isElectron()) {
-      ipcRenderer.removeAllListeners('upload-files');
+      ElectronService.removeAllListeners('upload-files');
     }
   }
 
@@ -84,7 +84,7 @@ export default class PicturesList extends Component {
 
   handleUpload() {
     if (isElectron()) {
-      ipcRenderer.send('open-file-dialog');
+      ElectronService.send('open-file-dialog');
     }
   }
 
@@ -160,11 +160,15 @@ export default class PicturesList extends Component {
             ))}
           </ion-grid>
         </ion-content>
-        <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-          <ion-fab-button onClick={() => this.handleUpload()}>
-            <ion-icon name="add"></ion-icon>
-          </ion-fab-button>
-        </ion-fab>
+        {isElectron() ?
+        (
+          <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+            <ion-fab-button onClick={() => this.handleUpload()}>
+              <ion-icon name="add"></ion-icon>
+            </ion-fab-button>
+          </ion-fab>
+        ) : ( null )
+        }
       </React.Fragment>
     );
   }

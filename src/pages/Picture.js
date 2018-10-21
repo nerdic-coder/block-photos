@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { isUserSignedIn } from 'blockstack';
-import { ipcRenderer } from 'electron';
 import isElectron from 'is-electron';
 
 import PictureService from '../services/PictureService.js';
 import PresentingService from '../services/PresentingService.js';
 import BlockImg from '../components/BlockImg.js';
+import ElectronService from '../services/ElectronService';
 
 export default class PicturesList extends Component {
 
@@ -50,7 +50,7 @@ export default class PicturesList extends Component {
 
   componentDidMount() {
     if (isElectron()) {
-      ipcRenderer.on('upload-files', this.uploadFiles.bind(this));
+      ElectronService.on('upload-files', this.uploadFiles.bind(this));
     }
 
     this.loadPictureWithId(this.props.match.params.id);
@@ -58,7 +58,7 @@ export default class PicturesList extends Component {
 
   componentWillUnmount() {
     if (isElectron()) {
-      ipcRenderer.removeAllListeners('upload-files');
+      ElectronService.removeAllListeners('upload-files');
     }
   }
 

@@ -123,7 +123,11 @@ ipc.on('drop', (event, rawFiles) => {
       stats.type = file.type;
 
       const exifParser = exif.create(data);
-      stats.exifdata = exifParser.parse();
+      try {
+        stats.exifdata = exifParser.parse();
+      } catch (error) {
+        stats.exifdata = null;
+      }
 
       filesData.push({ "filename": filename, "data": Buffer.from(data).toString('base64'), "stats": stats });
     }

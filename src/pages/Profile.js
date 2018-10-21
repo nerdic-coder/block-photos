@@ -7,12 +7,12 @@ import {
   signUserOut,
   isUserSignedIn
 } from 'blockstack';
-import { ipcRenderer } from 'electron';
 import isElectron from 'is-electron';
 
 import CacheService from '../services/CacheService';
 import PictureService from '../services/PictureService.js';
 import PresentingService from '../services/PresentingService.js';
+import ElectronService from '../services/ElectronService';
 
 const avatarFallbackImage = 'https://s3.amazonaws.com/onename/avatar-placeholder.png';
 
@@ -45,7 +45,7 @@ export default class Profile extends Component {
     }
 
     if (isElectron()) {
-      ipcRenderer.on('upload-files', this.uploadFiles.bind(this));
+      ElectronService.on('upload-files', this.uploadFiles.bind(this));
     }
 
     this.setState({ person: new Person(loadUserData().profile) });
@@ -53,7 +53,7 @@ export default class Profile extends Component {
 
   componentWillUnmount() {
     if (isElectron()) {
-      ipcRenderer.removeAllListeners('upload-files');
+      ElectronService.removeAllListeners('upload-files');
     }
   }
 
