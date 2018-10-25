@@ -22,6 +22,11 @@ cd block-photos
 npm install
 ```
 
+Starting Test server:
+```bash
+npm run serve
+```
+
 Starting Electron app:
 ```bash
 npm start
@@ -30,6 +35,11 @@ npm start
 Build and package Electron app:
 ```bash
 npm run package
+```
+
+Build and package for web app distribution:
+```bash
+npm run build:web
 ```
 
 Test ESLint:

@@ -17,7 +17,7 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "electron": "electron-forge start",
-    "package": "electron-forge package",
+    "package": "npm run build:prod && electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "eslint": "eslint",

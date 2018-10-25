@@ -1,0 +1,4 @@
+## A manifest.json:
+/manifest.json
+  # Headers for that path:
+  Access-Control-Allow-Origin: *
