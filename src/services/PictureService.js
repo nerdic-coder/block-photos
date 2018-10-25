@@ -1,4 +1,4 @@
-import { putFile, getFile } from 'blockstack';
+import { putFile, getFile, deleteFile } from 'blockstack';
 import uniqid from 'uniqid';
 
 import CacheService from './CacheService';
@@ -41,10 +41,12 @@ export default class PictureService {
   }
 
   async loadPicture(id) {
+
     let cachedPicture = await this.cache.getItem(id);
+    
     if (!cachedPicture) {
       cachedPicture = await getFile(id);
-      await this.cache.setItem(id, cachedPicture);
+      this.cache.setItem(id, cachedPicture);
     }
     return cachedPicture;
   }
@@ -90,6 +92,7 @@ export default class PictureService {
     try {
       // put empty file, since deleteFile is yet not supported
       await putFile(id, '');
+      await deleteFile(id);
       returnState = true;
     } catch (error) {
       returnState = false;

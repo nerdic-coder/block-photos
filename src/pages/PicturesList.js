@@ -141,9 +141,11 @@ export default class PicturesList extends Component {
                     <ion-col align-self-center key={col.id}>
                       <ContextMenuTrigger id={col.id}>
                         <Link to={"/picture/" + col.id}>
+                        <div className="square">
                           <BlockImg id={col.id} aspectRatio={1/1} />
+                        </div>
                         </Link>
-                        <ContextMenu id={col.id}>
+                        <ContextMenu id={col.id} className="pointer">
                           <ion-list>
                             <MenuItem onClick={() => this.present.deletePicture(col.id, this)}>
                               <ion-item>

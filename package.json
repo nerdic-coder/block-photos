@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@ionic/core": "4.0.0-beta.13",
-    "blockstack": "18.0.4",
+    "blockstack": "18.1.0",
     "blueimp-load-image": "2.19.0",
     "cors": "^2.8.4",
     "electron-squirrel-startup": "^1.0.0",
@@ -53,9 +53,9 @@
     "is-electron": "^2.1.0",
     "localforage": "1.7.2",
     "prop-types": "^15.6.2",
-    "react": "^16.5.2",
+    "react": "^16.6.0",
     "react-contextmenu": "^2.9.4",
-    "react-dom": "^16.5.2",
+    "react-dom": "^16.6.0",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.0.5",
     "uniqid": "5.0.3"
@@ -85,6 +85,6 @@
     "style-loader": "^0.23.1",
     "url-loader": "1.1.2",
     "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.9"
+    "webpack-dev-server": "3.1.9"
   }
 }

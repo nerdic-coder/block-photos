@@ -122,7 +122,7 @@ export default class PicturesList extends Component {
           </ion-toolbar>
         </ion-header>
 
-        <ion-content text-center class="picture-background">
+        <ion-content text-center class="picture-page">
           <BlockImg id={currentId} />
         </ion-content>
       </React.Fragment>

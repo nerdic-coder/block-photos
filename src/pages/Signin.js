@@ -10,7 +10,7 @@ import {
   handlePendingSignIn
 } from 'blockstack';
 import PresentingService from '../services/PresentingService.js';
-
+import isElectron from 'is-electron';
 
 export default class Signin extends Component {
 
@@ -41,11 +41,14 @@ export default class Signin extends Component {
     e.preventDefault();
     this.present.loading('Waiting for authentication...', 60000, true);
 
+    let appDomain = 'http://localhost:9876';
+    if (!isElectron()) {
+      appDomain = 'https://app.block-photos.com'
+    }
     const transitPrivateKey = generateAndStoreTransitKey();
-    const redirectURI = 'http://localhost:9876/callback';
-    const manifestURI = 'http://localhost:9876/manifest.json';
+    const redirectURI = appDomain + '/callback';
+    const manifestURI = appDomain + '/manifest.json';
     const scopes = DEFAULT_SCOPE;
-    const appDomain = 'http://localhost:9876';
     var authRequest = makeAuthRequest(transitPrivateKey, redirectURI, manifestURI, scopes, appDomain);
     redirectToSignInWithAuthRequest(authRequest);
   }

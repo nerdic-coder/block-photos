@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import * as loadImage from 'blueimp-load-image';
 
 import PictureService from '../services/PictureService.js';
 
@@ -33,7 +32,7 @@ export default class BlockImg extends Component {
   }
 
   async getPicture() {
-    const { id, aspectRatio } = this.props;
+    const { id } = this.props;
     const metadata = await this.pictureService.getPictureMetaData(id);
 
     const base64 = await this.pictureService.loadPicture(id);
@@ -44,34 +43,16 @@ export default class BlockImg extends Component {
       imageOptions.orientation = metadata.stats.exifdata.tags.Orientation;
     }
 
-    if (aspectRatio) {
-      imageOptions.aspectRatio = aspectRatio;
-    }
 
-    if (imageOptions) {
-      loadImage('data:image/png;base64,' + base64, (img) => {
-        this.handleProcessedPicture(img);
-      }, imageOptions);
-    } else {
-      this.setState({ source: 'data:image/png;base64,' + base64, isLoaded: true });
-    }
-  }
+    this.setState({ source: 'data:image/png;base64,' + base64, isLoaded: true });
 
-  handleProcessedPicture(img) {
-    if (img.type === "error") {
-      // TODO: show error message
-    } else if (img.tagName == 'CANVAS') {
-      this.setState({ source: img.toDataURL(), isLoaded: true });
-    } else {
-      this.setState({ source: img.src, isLoaded: true });
-    }
   }
 
   render() {
     const { isLoaded, source } = this.state;
     if (isLoaded && source) {
       return (
-        <img src={source} className="center" style={{ maxWidth: '100%', maxHeight: '100%' }} />
+        <img src={source} />
       );
     } else {
       return (
