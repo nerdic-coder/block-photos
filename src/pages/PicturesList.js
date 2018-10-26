@@ -82,6 +82,12 @@ export default class PicturesList extends Component {
     }
   }
 
+  async rotatePicture(id) {
+    const picturesList = await this.pictureService.rotatePicture(id);
+    this.setState({ picturesList: [] });
+    this.setState({ picturesList: picturesList });
+  }
+
   handleUpload() {
     if (isElectron()) {
       ElectronService.send('open-file-dialog');
@@ -149,7 +155,14 @@ export default class PicturesList extends Component {
                           <ion-list>
                             <MenuItem onClick={() => this.present.deletePicture(col.id, this)}>
                               <ion-item>
+                                <ion-icon name="trash"></ion-icon>
                                 <ion-label>Delete picture</ion-label>
+                              </ion-item>
+                            </MenuItem>
+                            <MenuItem onClick={() => this.rotatePicture(col.id)}>
+                              <ion-item>
+                                <ion-icon name="sync"></ion-icon>
+                                <ion-label>Rotate picture</ion-label>
                               </ion-item>
                             </MenuItem>
                           </ion-list>

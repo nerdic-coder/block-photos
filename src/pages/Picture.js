@@ -69,6 +69,14 @@ export default class PicturesList extends Component {
     }
   }
 
+  async rotatePicture(currentId) {
+    await this.pictureService.rotatePicture(currentId);
+
+    this.setState({ nextAndPreviousPicture: this.state.nextAndPreviousPicture, currentId: 'loading' });
+    this.loadPictureWithId(currentId);
+
+  }
+
   async uploadFiles(event, filesData) {
     if (filesData && filesData.length > 0) {
       this.present.loading('Pictures uploading...');
@@ -109,6 +117,9 @@ export default class PicturesList extends Component {
             </ion-buttons>
             <ion-title>Block Photo</ion-title>
             <ion-buttons slot="end">
+              <ion-button onClick={() => this.rotatePicture(currentId)}>
+                <ion-icon name="sync"></ion-icon>
+              </ion-button>
               <ion-button onClick={() => this.present.deletePicture(currentId, this)}>
                 <ion-icon name="trash"></ion-icon>
               </ion-button>
@@ -123,7 +134,7 @@ export default class PicturesList extends Component {
         </ion-header>
 
         <ion-content text-center class="picture-page">
-          <BlockImg id={currentId} />
+          <BlockImg id={currentId} rotate={true} />
         </ion-content>
       </React.Fragment>
     );

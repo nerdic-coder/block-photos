@@ -158,4 +158,59 @@ export default class PictureService {
 
     return response;
   }
+
+  async setPictureMetaData(id, metadata) {
+    const picturesListResponse = await this.getPicturesList();
+    const picturesList = picturesListResponse.picturesList;
+
+    let index = 0;
+    for (let picture of picturesList) {
+      // Current picture
+      if (picture.id === id) {
+        picturesList[index] = metadata;
+        break;
+      }
+      index++;
+    }
+
+    await this.cache.setItem('cachedPicturesList', JSON.stringify(picturesList));
+    await putFile("picture-list.json", JSON.stringify(picturesList));
+
+    return picturesList;
+  }
+
+  async rotatePicture(id) {
+    const metadata = await this.getPictureMetaData(id);
+
+    let currentOrientation = 1;
+
+    if (metadata && metadata.stats && metadata.stats.exifdata 
+      && metadata.stats.exifdata.tags.Orientation) {
+        currentOrientation = metadata.stats.exifdata.tags.Orientation;
+    }
+
+    if (!metadata.stats) {
+      metadata.stats = { exifdata: { tags: { }}};
+    }
+
+    if (!metadata.stats.exifdata) {
+      metadata.stats.exifdata = { tags: { }};
+    }
+
+    if (!metadata.stats.exifdata.tags) {
+      metadata.stats.exifdata.tags = { };
+    }
+
+    if (currentOrientation === 1) {
+      metadata.stats.exifdata.tags.Orientation = 6;
+    } else if (currentOrientation === 6) {
+      metadata.stats.exifdata.tags.Orientation = 3;
+    } else if (currentOrientation === 3) {
+      metadata.stats.exifdata.tags.Orientation = 8;
+    } else {
+      metadata.stats.exifdata.tags.Orientation = 1;
+    }
+
+    return await this.setPictureMetaData(id, metadata);
+  }
 }
