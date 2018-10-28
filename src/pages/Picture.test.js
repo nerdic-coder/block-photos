@@ -4,8 +4,20 @@ import { BrowserRouter } from 'react-router-dom';
 import Picture from './Picture';
 
 import * as blockstack from 'blockstack';
+import UploadService from '../services/UploadService';
 
 jest.mock('blockstack');
+jest.mock('../services/UploadService');
+
+beforeEach(() => {
+  UploadService.mockClear();
+  UploadService.mockImplementation(() => {
+    return {
+      addEventListeners: jest.fn(),
+      removeEventListeners: jest.fn()
+    };
+  });
+});
 
 it('renders without crashing', () => {
   const mockResponse = 'base64mumbojumbo';

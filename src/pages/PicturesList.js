@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import isElectron from 'is-electron';
 import { isUserSignedIn } from 'blockstack';
 import _ from 'lodash';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 
-import PictureService from '../services/PictureService.js';
-import PresentingService from '../services/PresentingService.js';
-import BlockImg from '../components/BlockImg.js';
-import ElectronService from '../services/ElectronService';
+import PictureService from '../services/PictureService';
+import PresentingService from '../services/PresentingService';
+import UploadService from '../services/UploadService';
+import BlockImg from '../components/BlockImg';
 
 export default class PicturesList extends Component {
+
+  _isMounted = false;
 
   static propTypes = {
     history: PropTypes.any
@@ -26,6 +27,7 @@ export default class PicturesList extends Component {
 
     this.pictureService = new PictureService();
     this.present = new PresentingService();
+    this.uploadService = new UploadService(this.uploadFilesDoneCallback.bind(this));
 
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
@@ -38,16 +40,16 @@ export default class PicturesList extends Component {
   }
 
   componentDidMount() {
-    if (isElectron()) {
-      ElectronService.on('upload-files', this.uploadFiles.bind(this));
-    }
+    this._isMounted = true;
+
+    this.uploadService.addEventListeners(true);
     this.loadPicturesList(false);
   }
 
   componentWillUnmount() {
-    if (isElectron()) {
-      ElectronService.removeAllListeners('upload-files');
-    }
+    this._isMounted = false;
+
+    this.uploadService.removeEventListeners(true);
   }
 
   async loadPicturesList(sync) {
@@ -62,8 +64,9 @@ export default class PicturesList extends Component {
         this.present.dismissLoading();
       }
 
-      this.setState({ picturesList: picturesListResponse.picturesList });
-
+      if (this._isMounted) {
+        this.setState({ picturesList: picturesListResponse.picturesList });
+      }
       if (picturesListResponse.errorsList && picturesListResponse.errorsList.length > 0) {
         for (let error in picturesListResponse.errorsList) {
           if (error.errorCode === 'err_cache') {
@@ -84,32 +87,14 @@ export default class PicturesList extends Component {
 
   async rotatePicture(id) {
     const picturesList = await this.pictureService.rotatePicture(id);
-    this.setState({ picturesList: [] });
-    this.setState({ picturesList: picturesList });
-  }
-
-  handleUpload() {
-    if (isElectron()) {
-      ElectronService.send('open-file-dialog');
+    if (this._isMounted) {
+      this.setState({ picturesList: [] });
+      this.setState({ picturesList: picturesList });
     }
   }
 
-  async uploadFiles(event, filesData) {
-    if (filesData && filesData.length > 0) {
-      this.present.loading('Pictures uploading...');
-      const response = await this.pictureService.uploadPictures(filesData);
-      this.setState({ picturesList: response.picturesList });
-      this.present.dismissLoading();
-      if (response.errorsList && response.errorsList.length > 0) {
-        for (let error of response.errorsList) {
-          if (error.errorCode === 'err_filesize') {
-            this.present.toast('Failed to upload "' + error.id + '", picture exceeds file size limit of 5MB.');
-          } else {
-            this.present.toast('Failed to upload "' + error.id + '".');
-          }
-        }
-      }
-    }
+  uploadFilesDoneCallback() {
+    this.loadPicturesList();
   }
 
   deletePictureCallback(callbackComponent) {
@@ -127,12 +112,16 @@ export default class PicturesList extends Component {
           <ion-toolbar>
             <ion-title>Block Photos</ion-title>
             <ion-buttons slot="end">
+              <label htmlFor="file-upload" className="custom-file-upload">
+                <ion-icon name="add" size="large"></ion-icon>
+              </label>
+              <input id="file-upload" type="file" multiple />
               <ion-button onClick={() => this.loadPicturesList(true)}>
                 <ion-icon name="refresh"></ion-icon>
               </ion-button>
               <Link to="/profile">
                 <ion-button>
-                  <ion-icon name="person"></ion-icon>
+                  <ion-icon color="dark" name="person"></ion-icon>
                 </ion-button>
               </Link>
             </ion-buttons>
@@ -175,15 +164,6 @@ export default class PicturesList extends Component {
             ))}
           </ion-grid>
         </ion-content>
-        {isElectron() ?
-        (
-          <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-            <ion-fab-button onClick={() => this.handleUpload()}>
-              <ion-icon name="add"></ion-icon>
-            </ion-fab-button>
-          </ion-fab>
-        ) : ( null )
-        }
       </React.Fragment>
     );
   }

@@ -32,7 +32,7 @@ ion-spinner {
   object-fit: cover;
   width: 100%;
   height: 100%;
-  padding: 8px;
+  padding: 4px;
 }
 
 .square .rotation-6 {
@@ -53,4 +53,20 @@ ion-spinner {
   display: block;
   margin-left: auto;
   margin-right: auto;
+}
+
+
+#file-upload {
+  display: none;
+}
+
+.custom-file-upload {
+  padding-left: 8px;
+  padding-right: 8px;
+  cursor: pointer;
+}
+
+.custom-file-upload ion-icon {
+  padding-top: 3px;
+  --ion-icon-size-large: 22px;
 }

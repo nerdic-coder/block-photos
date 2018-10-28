@@ -2,9 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import * as loadImage from 'blueimp-load-image';
 
-import PictureService from '../services/PictureService.js';
+import PictureService from '../services/PictureService';
 
 export default class BlockImg extends Component {
+
+  _isMounted = false;
 
   static propTypes = {
     id: PropTypes.any,
@@ -24,13 +26,21 @@ export default class BlockImg extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
+
     this.getPicture();
   }
 
   componentDidUpdate(prevProps) {
+    this._isMounted = true;
+
     if (this.props.id !== prevProps.id) {
       this.getPicture();
     }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   async getPicture() {
@@ -43,6 +53,9 @@ export default class BlockImg extends Component {
     const metadata = await this.pictureService.getPictureMetaData(id);
 
     const base64 = await this.pictureService.loadPicture(id);
+    if (!this._isMounted) {
+      return;
+    }
     this.state.rotation = 1;
 
     if (metadata && metadata.stats && metadata.stats.exifdata 
@@ -55,11 +68,11 @@ export default class BlockImg extends Component {
       && metadata.stats.exifdata.tags.Orientation && metadata.stats.exifdata.tags.Orientation !== 1) {
         const imageOptions = {};
         imageOptions.orientation = metadata.stats.exifdata.tags.Orientation;
-        loadImage('data:image/png;base64,' + base64, (processedPicture) => {
+        loadImage(base64, (processedPicture) => {
           this.handleProcessedPicture(processedPicture);
         }, imageOptions);
-    } else {
-      this.setState({ source: 'data:image/png;base64,' + base64, isLoaded: true, rotation: this.state.rotation });
+    } else if (this._isMounted) {
+      this.setState({ source: base64, isLoaded: true, rotation: this.state.rotation });
     }
 
   }
@@ -67,9 +80,9 @@ export default class BlockImg extends Component {
   handleProcessedPicture(processedPicture) {
     if (processedPicture.type === "error") {
       // TODO: show error message
-    } else if (processedPicture.tagName == 'CANVAS') {
+    } else if (processedPicture.tagName == 'CANVAS' && this._isMounted) {
       this.setState({ source: processedPicture.toDataURL(), isLoaded: true, rotation: this.state.rotation });
-    } else {
+    } else if (this._isMounted) {
       this.setState({ source: processedPicture.src, isLoaded: true, rotation: this.state.rotation });
     }
   }

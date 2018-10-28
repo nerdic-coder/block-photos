@@ -5,9 +5,22 @@ import { shallow } from 'enzyme';
 
 import * as blockstack from 'blockstack';
 
+import UploadService from '../services/UploadService';
+
 import Profile from './Profile';
 
 jest.mock('blockstack');
+jest.mock('../services/UploadService');
+
+beforeEach(() => {
+  UploadService.mockClear();
+  UploadService.mockImplementation(() => {
+    return {
+      addEventListeners: jest.fn(),
+      removeEventListeners: jest.fn()
+    };
+  });
+});
 
 it('renders without crashing', () => {
   const div = document.createElement('div');

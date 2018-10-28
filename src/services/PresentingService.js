@@ -6,12 +6,12 @@ export default class PresentingService {
     this.pictureService = new PictureService();
   }
 
-  async loading(content, duration, enableBackdropDismiss) {
+  async loading(message, duration, enableBackdropDismiss) {
     const loadingController = document.querySelector('ion-loading-controller');
     await loadingController.componentOnReady();
 
     this.loadingElement = await loadingController.create({
-      content: content,
+      message: message,
       spinner: 'circles',
       duration: duration,
       enableBackdropDismiss: enableBackdropDismiss

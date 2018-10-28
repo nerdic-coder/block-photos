@@ -13,10 +13,10 @@ import '@ionic/core/css/text-transformation.css';
 import '@ionic/core/css/flex-utils.css';
 
 import './App.css';
-import PicturesList from './pages/PicturesList.js';
-import Signin from './pages/Signin.js';
-import Profile from './pages/Profile.js';
-import Picture from './pages/Picture.js';
+import PicturesList from './pages/PicturesList';
+import Signin from './pages/Signin';
+import Profile from './pages/Profile';
+import Picture from './pages/Picture';
 
 class App extends Component {
 

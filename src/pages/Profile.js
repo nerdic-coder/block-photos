@@ -7,12 +7,11 @@ import {
   signUserOut,
   isUserSignedIn
 } from 'blockstack';
-import isElectron from 'is-electron';
 
 import CacheService from '../services/CacheService';
-import PictureService from '../services/PictureService.js';
-import PresentingService from '../services/PresentingService.js';
-import ElectronService from '../services/ElectronService';
+import PictureService from '../services/PictureService';
+import PresentingService from '../services/PresentingService';
+import UploadService from '../services/UploadService';
 
 const avatarFallbackImage = 'https://s3.amazonaws.com/onename/avatar-placeholder.png';
 
@@ -32,6 +31,7 @@ export default class Profile extends Component {
     this.cacheService = new CacheService();
     this.pictureService = new PictureService();
     this.present = new PresentingService();
+    this.uploadService = new UploadService();
   }
 
   componentDidMount() {
@@ -44,17 +44,12 @@ export default class Profile extends Component {
       return;
     }
 
-    if (isElectron()) {
-      ElectronService.on('upload-files', this.uploadFiles.bind(this));
-    }
-
+    this.uploadService.addEventListeners(false);
     this.setState({ person: new Person(loadUserData().profile) });
   }
 
   componentWillUnmount() {
-    if (isElectron()) {
-      ElectronService.removeAllListeners('upload-files');
-    }
+    this.uploadService.removeEventListeners(false);
   }
 
   handleSignOut(e) {
@@ -72,23 +67,6 @@ export default class Profile extends Component {
     }
   }
 
-  async uploadFiles(event, filesData) {
-    if (filesData && filesData.length > 0) {
-      this.present.loading('Pictures uploading...');
-      const response = await this.pictureService.uploadPictures(filesData);
-      this.present.dismissLoading();
-      if (response.errorsList && response.errorsList.length > 0) {
-        for (let error of response.errorsList) {
-          if (error.errorCode === 'err_filesize') {
-            this.present.toast('Failed to upload "' + error.id + '", picture exceeds file size limit of 5MB.');
-          } else {
-            this.present.toast('Failed to upload "' + error.id + '".');
-          }
-        }
-      }
-    }
-  }
-
   render() {
     const { person } = this.state;
     return (
@@ -98,7 +76,7 @@ export default class Profile extends Component {
             <ion-buttons slot="start">
               <Link to="/pictures">
                 <ion-button>
-                  <ion-icon name="arrow-back"></ion-icon>
+                  <ion-icon color="dark" name="arrow-back"></ion-icon>
                 </ion-button>
               </Link>
             </ion-buttons>

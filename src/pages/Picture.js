@@ -2,14 +2,15 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { isUserSignedIn } from 'blockstack';
-import isElectron from 'is-electron';
 
-import PictureService from '../services/PictureService.js';
-import PresentingService from '../services/PresentingService.js';
-import BlockImg from '../components/BlockImg.js';
-import ElectronService from '../services/ElectronService';
+import PictureService from '../services/PictureService';
+import PresentingService from '../services/PresentingService';
+import BlockImg from '../components/BlockImg';
+import UploadService from '../services/UploadService';
 
 export default class PicturesList extends Component {
+
+  _isMounted = false;
 
   static propTypes = {
     history: PropTypes.any,
@@ -26,6 +27,7 @@ export default class PicturesList extends Component {
 
     this.pictureService = new PictureService();
     this.present = new PresentingService();
+    this.uploadService = new UploadService();
 
     const { history } = this.props;
     // Go to signin page if no active session exist
@@ -49,21 +51,20 @@ export default class PicturesList extends Component {
   }
 
   componentDidMount() {
-    if (isElectron()) {
-      ElectronService.on('upload-files', this.uploadFiles.bind(this));
-    }
+    this._isMounted = true;
 
+    this.uploadService.addEventListeners(false);
     this.loadPictureWithId(this.props.match.params.id);
   }
 
   componentWillUnmount() {
-    if (isElectron()) {
-      ElectronService.removeAllListeners('upload-files');
-    }
+    this._isMounted = false;
+
+    this.uploadService.removeEventListeners(false);
   }
 
   async loadPictureWithId(id) {
-    if (id) {
+    if (id && this._isMounted) {
       const nextAndPreviousPicture = await this.pictureService.getNextAndPreviousPicture(id);
       this.setState({ nextAndPreviousPicture: nextAndPreviousPicture, currentId: id });
     }
@@ -72,26 +73,11 @@ export default class PicturesList extends Component {
   async rotatePicture(currentId) {
     await this.pictureService.rotatePicture(currentId);
 
-    this.setState({ nextAndPreviousPicture: this.state.nextAndPreviousPicture, currentId: 'loading' });
-    this.loadPictureWithId(currentId);
-
-  }
-
-  async uploadFiles(event, filesData) {
-    if (filesData && filesData.length > 0) {
-      this.present.loading('Pictures uploading...');
-      const response = await this.pictureService.uploadPictures(filesData);
-      this.present.dismissLoading();
-      if (response.errorsList && response.errorsList.length > 0) {
-        for (let error of response.errorsList) {
-          if (error.errorCode === 'err_filesize') {
-            this.present.toast('Failed to upload "' + error.id + '", picture exceeds file size limit of 5MB.');
-          } else {
-            this.present.toast('Failed to upload "' + error.id + '".');
-          }
-        }
-      }
+    if (this._isMounted) {
+      this.setState({ nextAndPreviousPicture: this.state.nextAndPreviousPicture, currentId: 'loading' });
+      this.loadPictureWithId(currentId);
     }
+
   }
 
   deletePictureCallback(callbackComponent) {
@@ -111,7 +97,7 @@ export default class PicturesList extends Component {
             <ion-buttons slot="start">
               <Link to="/pictures">
                 <ion-button>
-                  <ion-icon name="close"></ion-icon>
+                  <ion-icon color="dark" name="close"></ion-icon>
                 </ion-button>
               </Link>
             </ion-buttons>

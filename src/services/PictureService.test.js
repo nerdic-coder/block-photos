@@ -1,9 +1,11 @@
 import * as blockstack from 'blockstack';
 import PictureService from './PictureService';
 import CacheService from './CacheService';
+import UploadService from './UploadService';
 
 jest.mock('blockstack');
 jest.mock('./CacheService');
+jest.mock('./UploadService');
 
 describe('PictureService Test Suites', () => {
 
@@ -28,6 +30,14 @@ describe('PictureService Test Suites', () => {
       return {
         getItem: jest.fn(),
         setItem: jest.fn()
+      };
+    });
+
+    UploadService.mockClear();
+    UploadService.mockImplementation(() => {
+      return {
+        addEventListeners: jest.fn(),
+        removeEventListeners: jest.fn()
       };
     });
   });

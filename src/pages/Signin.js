@@ -10,7 +10,7 @@ import {
   handlePendingSignIn,
   redirectToSignIn
 } from 'blockstack';
-import PresentingService from '../services/PresentingService.js';
+import PresentingService from '../services/PresentingService';
 import isElectron from 'is-electron';
 
 export default class Signin extends Component {
