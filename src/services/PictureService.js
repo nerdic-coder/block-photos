@@ -14,7 +14,9 @@ export default class PictureService {
     const errorsList = [];
     try {
       const rawCachedPicturesList = await this.cache.getItem('cachedPicturesList');
-      cachedPicturesList = JSON.parse(rawCachedPicturesList);
+      if (rawCachedPicturesList) {
+        cachedPicturesList = JSON.parse(rawCachedPicturesList);
+      }
     } catch (error) {
       errorsList.push('err_cache');
     }
