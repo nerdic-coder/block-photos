@@ -59,7 +59,10 @@ export default class PictureService {
 
   async uploadPictures(filesData) {
     const picturesListResponse = await this.getPicturesList(true);
-    const picturesList = picturesListResponse.picturesList;
+    let picturesList = picturesListResponse.picturesList;
+    if (!picturesList && picturesListResponse.errorsList.length === 0) {
+      picturesList = [];
+    }
     const errorsList = [];
     for (let file of filesData) {
       let id = uniqid() + file.filename;

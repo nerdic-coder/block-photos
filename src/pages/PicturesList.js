@@ -72,7 +72,7 @@ export default class PicturesList extends Component {
           if (error.errorCode === 'err_cache') {
             this.present.toast('Failed to load cached list. Please try again!');
           } else if (error.errorCode) {
-            this.present.toast('Could not load pictures from blockchain. Please try again or upload some pictures if you have none!');
+            this.present.toast('Could not load pictures from blockstack. Please try again or upload some pictures if you have none!');
           }
         }
       }
@@ -117,7 +117,7 @@ export default class PicturesList extends Component {
               </label>
               <input id="file-upload" type="file" multiple />
               <ion-button onClick={() => this.loadPicturesList(true)}>
-                <ion-icon name="refresh"></ion-icon>
+                <ion-icon color="dark" name="refresh"></ion-icon>
               </ion-button>
               <Link to="/profile">
                 <ion-button>
