@@ -18,6 +18,7 @@ export default class PictureService {
         cachedPicturesList = JSON.parse(rawCachedPicturesList);
       }
     } catch (error) {
+      console.log(error);
       errorsList.push('err_cache');
     }
 
@@ -31,13 +32,14 @@ export default class PictureService {
           await this.cache.setItem('cachedPicturesList', rawPicturesList);
         }
       } catch (error) {
+        console.log(error);
         errorsList.push('err_list');
       }
     }
 
     return { 
       picturesList: cachedPicturesList, 
-      errorsList: [errorsList] 
+      errorsList: errorsList
     };
 
   }

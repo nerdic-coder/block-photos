@@ -84,7 +84,7 @@ describe('PictureService Test Suites', () => {
     const pictures = response.picturesList;
     expect(Array.isArray(pictures)).toBe(true);
     expect(pictures).toEqual(mockResponse);
-    expect(response.errorsList[0]).toEqual(['err_cache']);
+    expect(response.errorsList).toEqual([]);
 
   });
 
@@ -97,7 +97,7 @@ describe('PictureService Test Suites', () => {
 
     const pictures = response.picturesList;
     expect(Array.isArray(pictures)).toBe(true);
-    expect(response.errorsList[0]).toEqual(["err_cache", "err_list"]);
+    expect(response.errorsList).toEqual(["err_list"]);
 
   });
 
