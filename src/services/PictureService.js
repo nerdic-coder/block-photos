@@ -18,7 +18,6 @@ export default class PictureService {
         cachedPicturesList = JSON.parse(rawCachedPicturesList);
       }
     } catch (error) {
-      console.log(error);
       errorsList.push('err_cache');
     }
 
@@ -32,7 +31,6 @@ export default class PictureService {
           await this.cache.setItem('cachedPicturesList', rawPicturesList);
         }
       } catch (error) {
-        console.log(error);
         errorsList.push('err_list');
       }
     }
@@ -61,12 +59,11 @@ export default class PictureService {
 
   async uploadPictures(filesData) {
     const picturesListResponse = await this.getPicturesList(true);
-    console.log(picturesListResponse);
     let picturesList = picturesListResponse.picturesList;
     if ((!picturesList || picturesList == null) && picturesListResponse.errorsList.length === 0) {
       picturesList = [];
     }
-    console.log(picturesList);
+
     const errorsList = [];
     for (let file of filesData) {
       let id = uniqid() + file.filename;
@@ -78,10 +75,9 @@ export default class PictureService {
       try {
         await putFile(id, file.data);
         await this.cache.setItem(id, file.data);
-        console.log('cache done!');
+
         picturesList.unshift(metadata);
       } catch (error) {
-        console.warn(error);
         const fileSizeInMegabytes = file.stats.size / 1000000;
         if (fileSizeInMegabytes >= 5) {
           errorsList.push({
