@@ -3,9 +3,7 @@ const path = require('path');
 // copy manifest.json to the path: 'public/build'
 // this will allow for the authRequest to see the file at www.example.com/manifest.json
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ManifestAssetPlugin = new CopyWebpackPlugin([{ from: 'public/manifest.json', to: 'manifest.json' }]);
-const HeadersPlugin = new CopyWebpackPlugin([{ from: 'public/_headers', to: '.' }]);
-const IconAssetPlugin = new CopyWebpackPlugin([{ from: 'public/favicon.ico', to: 'favicon.ico' }]);
+const HeadersPlugin = new CopyWebpackPlugin([{ from: 'public/', to: '.' }]);
 const IonicDistPlugin = new CopyWebpackPlugin([ { from: 'node_modules/@ionic/core/dist', to: 'ionic' } ]);
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -22,6 +20,7 @@ module.exports = {
     path: path.resolve('electron/app'),
     filename: '[name].bundle.js',
     chunkFilename: '[name].bundle.js',
+    publicPath: '/'
   },
   devServer: {
     historyApiFallback: true,
@@ -48,5 +47,5 @@ module.exports = {
       { test: /\.css$/, loader: 'style-loader!css-loader' }
     ]
   },
-  plugins: [HtmlWebpackPluginConfig, ManifestAssetPlugin, IonicDistPlugin, IconAssetPlugin, HeadersPlugin]
+  plugins: [HtmlWebpackPluginConfig, IonicDistPlugin, HeadersPlugin]
 }
