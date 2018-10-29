@@ -59,7 +59,7 @@ export default class PictureService {
 
   async uploadPictures(filesData) {
     const picturesListResponse = await this.getPicturesList(true);
-    console.log(picturesList);
+    console.log(picturesListResponse);
     let picturesList = picturesListResponse.picturesList;
     if ((!picturesList || picturesList == null) && picturesListResponse.errorsList.length === 0) {
       picturesList = [];
