@@ -63,6 +63,7 @@ export default class PictureService {
     if (!picturesList && picturesListResponse.errorsList.length === 0) {
       picturesList = [];
     }
+    console.log(picturesList);
     const errorsList = [];
     for (let file of filesData) {
       let id = uniqid() + file.filename;
@@ -74,8 +75,10 @@ export default class PictureService {
       try {
         await putFile(id, file.data);
         await this.cache.setItem(id, file.data);
+        console.log('cache done!');
         picturesList.unshift(metadata);
       } catch (error) {
+        console.warn(error);
         const fileSizeInMegabytes = file.stats.size / 1000000;
         if (fileSizeInMegabytes >= 5) {
           errorsList.push({
