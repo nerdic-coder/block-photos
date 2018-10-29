@@ -113,7 +113,7 @@ export default class PicturesList extends Component {
             <ion-title>Block Photos</ion-title>
             <ion-buttons slot="end">
               <label htmlFor="file-upload" className="custom-file-upload">
-                <ion-icon name="add" size="large"></ion-icon>
+                <ion-icon name="md-add" size="large"></ion-icon>
               </label>
               <input id="file-upload" type="file" multiple />
               <ion-button onClick={() => this.loadPicturesList(true)}>

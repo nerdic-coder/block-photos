@@ -66,7 +66,17 @@ ion-spinner {
   cursor: pointer;
 }
 
+.header-ios .custom-file-upload {
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
 .custom-file-upload ion-icon {
   padding-top: 3px;
   --ion-icon-size-large: 22px;
+}
+
+.header-ios .custom-file-upload ion-icon {
+  padding-top: 3px;
+  --ion-icon-size-large: 29px;
 }
