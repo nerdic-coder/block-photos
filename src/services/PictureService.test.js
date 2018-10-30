@@ -300,4 +300,117 @@ describe('PictureService Test Suites', () => {
     expect(response.nextId).toEqual(null);
 
   });
+
+  it('test getPictureMetaData', async () => {
+
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.getPictureMetaData('test2.jpg');
+
+    expect(response.id).toEqual('test2.jpg');
+    expect(response.uploadedDate).toEqual(mockPictureListResponse[1].uploadedDate);
+
+  });
+
+  it('test getPictureMetaData not found', async () => {
+
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.getPictureMetaData('test22.jpg');
+
+    expect(response).toEqual({});
+    
+  });
+
+  it('test getPictureMetaData empty input', async () => {
+
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.getPictureMetaData();
+
+    expect(response).toEqual({});
+    
+  });
+
+  it('test setPictureMetaData', async () => {
+
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.setPictureMetaData('test2.jpg', { id: 'test-set.jpg', uploadedDate: '2020-10-10'});
+
+    expect(response[1].id).toEqual('test-set.jpg');
+    expect(response[1].uploadedDate).toEqual('2020-10-10');
+
+  });
+
+  it('test setPictureMetaData no metadata input', async () => {
+
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.setPictureMetaData('test2.jpg');
+
+    expect(response).toBeFalsy();
+
+  });
+
+  it('test setPictureMetaData no id input', async () => {
+
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.setPictureMetaData(null, { id: 'test-set.jpg', uploadedDate: '2020-10-10'});
+
+    expect(response).toBeFalsy();
+
+  });
+
+  it('test setPictureMetaData no input', async () => {
+
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.setPictureMetaData();
+
+    expect(response).toBeFalsy();
+
+  });
+
+  it('test setPictureMetaData picture not found', async () => {
+
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockPictureListResponse)));
+
+    const pictureService = new PictureService();
+    const response = await pictureService.setPictureMetaData('test2-fake.jpg', { id: 'test-set.jpg', uploadedDate: '2020-10-10'});
+
+    expect(response).toBeFalsy();
+
+  });
+
+  it('test rotatePicture', async () => {
+    const mockResponse = [
+      {
+        "id": 'test1.jpg',
+        "uploadedDate": "2018-07-11T21:58:39.754Z",
+        "metadata": {
+          "stats": {
+            "exifdata": {
+              "tags": {
+                "Orientation": 1
+              } 
+            }
+          }
+        }
+      }
+    ];
+    blockstack.getFile.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
+
+    const pictureService = new PictureService();
+    await pictureService.rotatePicture('test1.jpg');
+
+  });
 });

@@ -172,17 +172,28 @@ export default class PictureService {
   }
 
   async setPictureMetaData(id, metadata) {
+
+    // id and metadata is required
+    if (!id || !metadata) {
+      return false;
+    }
     const picturesListResponse = await this.getPicturesList();
     const picturesList = picturesListResponse.picturesList;
-
+    let pictureFound = false;
     let index = 0;
     for (let picture of picturesList) {
       // Current picture
       if (picture.id === id) {
         picturesList[index] = metadata;
+        pictureFound = true;
         break;
       }
       index++;
+    }
+
+    // Don't update if picture don't exist
+    if (!pictureFound) {
+      return false;
     }
 
     await this.cache.setItem('cachedPicturesList', JSON.stringify(picturesList));
