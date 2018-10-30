@@ -65,24 +65,32 @@ export default class Signin extends Component {
     return (
       <React.Fragment>
         <ion-header>
-          <ion-toolbar>
+          <ion-toolbar color="primary">
             <ion-title>Block Photos</ion-title>
           </ion-toolbar>
         </ion-header>
-        <ion-content>
-          <ion-card>
-            <ion-card-content>
-              <h1>Welcome to Block Photos!</h1>
-              {redirected ? ( <p>Thanks for logging in! You can close this window now.</p>) : (
-                <ion-button expand="block"
-                  id="signin-button"
-                  onClick={(event) => this.handleSignIn(event)}
-                >
-                  Sign In with Blockstack
-                </ion-button>
-              )}
+        <ion-content text-center class="signin">
+          <h1>Welcome to Block Photos!</h1>
+          <ion-img padding src="/favicon-1024x1024.png" />
+
+          <ion-card color="light">
+            <ion-card-content text-left>
+              <p>To get started click the login button below</p> 
+              <p>Blockstack will ask you to register an account if you don't have one already.</p>
+              <p>Then all you need is to start adding photos with the '+' button or drag and drop them into the app view from your computers file browser.</p>
+              {redirected ? ( <p>Thanks for logging in! You can close this window now.</p>) : 
+                ( null )
+              }
             </ion-card-content>
           </ion-card>
+          {redirected ? ( null ) : (
+            <ion-button padding-horizontal margin-bottom expand="block"
+              id="signin-button"
+              onClick={(event) => this.handleSignIn(event)}
+            >
+              Sign In with Blockstack
+            </ion-button>
+          )}
         </ion-content>
       </React.Fragment>
     );

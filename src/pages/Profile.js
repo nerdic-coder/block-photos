@@ -67,38 +67,55 @@ export default class Profile extends Component {
     }
   }
 
+  visitBlockstackProfile(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    window.open("https://browser.blockstack.org/profiles", "_blank");
+  }
+
   render() {
     const { person } = this.state;
     return (
       <React.Fragment>
         <ion-header>
-          <ion-toolbar>
+          <ion-toolbar color="primary">
             <ion-buttons slot="start">
               <Link to="/pictures">
                 <ion-button>
-                  <ion-icon color="dark" name="arrow-back"></ion-icon>
+                  <ion-icon color="light" name="arrow-back"></ion-icon>
                 </ion-button>
               </Link>
             </ion-buttons>
             <ion-title>Blockstack Profile</ion-title>
           </ion-toolbar>
         </ion-header>
-        <ion-content>
-          <ion-card>
+        <ion-content color="medium">
+          <ion-card color="light">
             <img src={person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage} />
 
+            <ion-card-header>
+              <ion-card-title>{person.name() ? person.name() : 'Nameless Person'}</ion-card-title>
+            </ion-card-header>
             <ion-card-content>
-              <ion-card-title>You are {person.name() ? person.name() : 'Nameless Person'}!</ion-card-title>
-              <p>
-                <ion-button expand="block"
-                  id="signout-button"
-                  onClick={(event) => this.handleSignOut(event)}
-                >
-                  Logout
-            </ion-button>
-              </p>
+
+              <p>{person.description() ? person.description() : ''}</p>
+
             </ion-card-content>
           </ion-card>
+          <ion-button padding-horizontal expand="block"
+            id="signout-button"
+            onClick={(event) => this.visitBlockstackProfile(event)}
+          >
+            Go to profile on Blockstack
+          </ion-button>
+          <ion-button padding-horizontal expand="block"
+            id="signout-button"
+            onClick={(event) => this.handleSignOut(event)}
+          >
+            Logout
+          </ion-button>
         </ion-content>
       </React.Fragment>
     );

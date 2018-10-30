@@ -54,15 +54,12 @@ export default class PicturesList extends Component {
 
   async loadPicturesList(sync) {
     try {
-      if (sync) {
-        await this.present.loading('Loading pictures...');
-      }
+      await this.present.loading('Loading pictures...');
+
       // Get the contents of the file picture-list.json
       let picturesListResponse = await this.pictureService.getPicturesList(sync);
 
-      if (sync) {
-        this.present.dismissLoading();
-      }
+      this.present.dismissLoading();
 
       if (this._isMounted) {
         this.setState({ picturesList: picturesListResponse.picturesList });
@@ -109,7 +106,7 @@ export default class PicturesList extends Component {
     return (
       <React.Fragment>
         <ion-header>
-          <ion-toolbar>
+          <ion-toolbar color="primary">
             <ion-title>Block Photos</ion-title>
             <ion-buttons slot="end">
               <label htmlFor="file-upload" className="custom-file-upload">
@@ -117,11 +114,11 @@ export default class PicturesList extends Component {
               </label>
               <input id="file-upload" type="file" multiple />
               <ion-button onClick={() => this.loadPicturesList(true)}>
-                <ion-icon color="dark" name="refresh"></ion-icon>
+                <ion-icon color="light" name="refresh"></ion-icon>
               </ion-button>
               <Link to="/profile">
                 <ion-button>
-                  <ion-icon color="dark" name="person"></ion-icon>
+                  <ion-icon color="light" name="person"></ion-icon>
                 </ion-button>
               </Link>
             </ion-buttons>

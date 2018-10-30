@@ -93,27 +93,27 @@ export default class PicturesList extends Component {
     return (
       <React.Fragment>
         <ion-header>
-          <ion-toolbar>
+          <ion-toolbar color="primary">
             <ion-buttons slot="start">
               <Link to="/pictures">
                 <ion-button>
-                  <ion-icon color="dark" name="close" size="large"></ion-icon>
+                  <ion-icon color="light" name="close" size="large"></ion-icon>
                 </ion-button>
               </Link>
             </ion-buttons>
             <ion-title>Photo</ion-title>
             <ion-buttons slot="end">
               <ion-button onClick={() => this.rotatePicture(currentId)}>
-                <ion-icon color="dark" name="sync"></ion-icon>
+                <ion-icon color="light" name="sync"></ion-icon>
               </ion-button>
               <ion-button onClick={() => this.present.deletePicture(currentId, this)}>
-                <ion-icon color="dark" name="trash"></ion-icon>
+                <ion-icon color="light" name="trash"></ion-icon>
               </ion-button>
               <ion-button disabled={!nextAndPreviousPicture.previousId} onClick={() => this.loadPictureWithId(nextAndPreviousPicture.previousId)}>
-                <ion-icon color="dark" name="arrow-back"></ion-icon>
+                <ion-icon color="light" name="arrow-back"></ion-icon>
               </ion-button>
               <ion-button disabled={!nextAndPreviousPicture.nextId} onClick={() => this.loadPictureWithId(nextAndPreviousPicture.nextId)}>
-                <ion-icon color="dark" name="arrow-forward"></ion-icon>
+                <ion-icon color="light" name="arrow-forward"></ion-icon>
               </ion-button>
             </ion-buttons>
           </ion-toolbar>
