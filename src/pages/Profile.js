@@ -75,6 +75,14 @@ export default class Profile extends Component {
     window.open("https://browser.blockstack.org/profiles", "_blank");
   }
 
+  reportIssue(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    window.open("https://github.com/nerdic-coder/block-photos/issues/new", "_blank");
+  }
+
   render() {
     const { person } = this.state;
     return (
@@ -115,6 +123,13 @@ export default class Profile extends Component {
             onClick={(event) => this.handleSignOut(event)}
           >
             Logout
+          </ion-button>
+
+          <ion-button color="danger" padding-horizontal expand="block"
+            id="signout-button"
+            onClick={(event) => this.reportIssue(event)}
+          >
+            Report issue
           </ion-button>
         </ion-content>
       </React.Fragment>

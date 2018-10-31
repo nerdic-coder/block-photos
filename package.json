@@ -43,7 +43,7 @@
     }
   },
   "dependencies": {
-    "@ionic/core": "4.0.0-beta.13",
+    "@ionic/core": "4.0.0-beta.15-0",
     "blockstack": "18.1.0",
     "blueimp-load-image": "2.19.0",
     "cors": "^2.8.4",
@@ -51,13 +51,13 @@
     "exif-parser": "0.1.12",
     "express": "^4.16.4",
     "is-electron": "^2.1.0",
-    "localforage": "1.7.2",
+    "localforage": "1.7.3",
     "prop-types": "^15.6.2",
     "react": "^16.6.0",
     "react-contextmenu": "^2.9.4",
     "react-dom": "^16.6.0",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "2.0.5",
+    "react-scripts": "2.1.0",
     "uniqid": "5.0.3"
   },
   "devDependencies": {
@@ -70,9 +70,10 @@
     "babel-loader": "8.0.4",
     "babel-plugin-transform-class-properties": "6.24.1",
     "copy-webpack-plugin": "4.5.4",
-    "css-loader": "1.0.0",
-    "electron": "3.0.5",
-    "electron-prebuilt-compile": "3.0.2",
+    "css-loader": "1.0.1",
+    "cypress": "^3.1.0",
+    "electron": "3.0.6",
+    "electron-prebuilt-compile": "3.0.6",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint": "5.6.0",
@@ -84,7 +85,6 @@
     "path": "^0.12.7",
     "style-loader": "^0.23.1",
     "url-loader": "1.1.2",
-    "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "3.1.9"
+    "webpack-cli": "^3.1.2"
   }
 }
