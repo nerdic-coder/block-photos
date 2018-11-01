@@ -43,7 +43,7 @@
     }
   },
   "dependencies": {
-    "@ionic/core": "4.0.0-beta.15-0",
+    "@ionic/core": "4.0.0-beta.15",
     "blockstack": "18.1.0",
     "blueimp-load-image": "2.19.0",
     "cors": "^2.8.4",
