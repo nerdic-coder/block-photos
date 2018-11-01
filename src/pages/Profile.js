@@ -100,37 +100,47 @@ export default class Profile extends Component {
           </ion-toolbar>
         </ion-header>
         <ion-content color="medium">
-          <ion-card color="light">
-            <img src={person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage} />
+          <ion-grid>
+            <ion-row>
+              <ion-col size="12" size-md="6" size-xl="4">
+                <ion-card color="light">
+                  <img src={person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage} />
 
-            <ion-card-header>
-              <ion-card-title>{person.name() ? person.name() : 'Nameless Person'}</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
+                  <ion-card-header>
+                    <ion-card-title>{person.name() ? person.name() : 'Nameless Person'}</ion-card-title>
+                  </ion-card-header>
+                  <ion-card-content>
 
-              <p>{person.description() ? person.description() : ''}</p>
+                    <p>{person.description() ? person.description() : ''}</p>
 
-            </ion-card-content>
-          </ion-card>
-          <ion-button padding-horizontal expand="block"
-            id="signout-button"
-            onClick={(event) => this.visitBlockstackProfile(event)}
-          >
-            Go to profile on Blockstack
-          </ion-button>
-          <ion-button padding-horizontal expand="block"
-            id="signout-button"
-            onClick={(event) => this.handleSignOut(event)}
-          >
-            Logout
-          </ion-button>
+                  </ion-card-content>
+                </ion-card>
+              </ion-col>
+              <ion-col size="12" size-md="6" size-xl="8">
+                <ion-button padding-horizontal expand="block"
+                  id="signout-button"
+                  onClick={(event) => this.visitBlockstackProfile(event)}
+                >
+                  Go to profile on Blockstack
+                </ion-button>
+                <ion-button padding-horizontal expand="block"
+                  id="signout-button"
+                  onClick={(event) => this.handleSignOut(event)}
+                >
+                  Logout
+                </ion-button>
 
-          <ion-button color="danger" padding-horizontal expand="block"
-            id="signout-button"
-            onClick={(event) => this.reportIssue(event)}
-          >
-            Report issue
-          </ion-button>
+                <ion-button color="danger" padding-horizontal expand="block"
+                  id="signout-button"
+                  onClick={(event) => this.reportIssue(event)}
+                >
+                  Report issue
+                </ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+
         </ion-content>
       </React.Fragment>
     );
