@@ -19,7 +19,8 @@ export default class PicturesList extends Component {
   };
 
   state = {
-    picturesList: []
+    picturesList: [],
+    refreshPicture: []
   };
 
   constructor(props) {
@@ -111,10 +112,9 @@ export default class PicturesList extends Component {
   }
 
   async rotatePicture(id) {
-    const picturesList = await this.pictureService.rotatePicture(id);
+    await this.pictureService.rotatePicture(id);
     if (this._isMounted) {
-      this.setState({ picturesList: [] });
-      this.setState({ picturesList: picturesList });
+      this.refreshPicture(id);
     }
   }
 
@@ -124,6 +124,16 @@ export default class PicturesList extends Component {
 
   deletePictureCallback(callbackComponent) {
     callbackComponent.loadPicturesList();
+  }
+
+  refreshPicture(id) {
+    let tempRefreshPicture = this.state.refreshPicture;
+    if (tempRefreshPicture[id]) {
+      tempRefreshPicture[id] = false;
+    } else {
+      tempRefreshPicture[id] = true;
+    }
+    this.setState({refreshPicture: tempRefreshPicture})
   }
 
   render() {
@@ -162,21 +172,21 @@ export default class PicturesList extends Component {
                       <ContextMenuTrigger id={col.id}>
                         <Link to={"/picture/" + col.id}>
                         <div className="square">
-                          <BlockImg id={col.id} aspectRatio={1/1} />
+                          <BlockImg id={col.id} refresh={this.state.refreshPicture[col.id]} />
                         </div>
                         </Link>
                         <ContextMenu id={col.id} className="pointer">
                           <ion-list>
-                            <MenuItem onClick={() => this.present.deletePicture(col.id, this)}>
-                              <ion-item>
-                                <ion-icon name="trash"></ion-icon>
-                                <ion-label>Delete picture</ion-label>
-                              </ion-item>
-                            </MenuItem>
                             <MenuItem onClick={() => this.rotatePicture(col.id)}>
                               <ion-item>
                                 <ion-icon name="sync"></ion-icon>
                                 <ion-label>Rotate picture</ion-label>
+                              </ion-item>
+                            </MenuItem>
+                            <MenuItem onClick={() => this.present.deletePicture(col.id, this)}>
+                              <ion-item>
+                                <ion-icon name="trash"></ion-icon>
+                                <ion-label>Delete picture</ion-label>
                               </ion-item>
                             </MenuItem>
                           </ion-list>

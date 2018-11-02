@@ -10,7 +10,8 @@ export default class BlockImg extends Component {
 
   static propTypes = {
     id: PropTypes.any,
-    rotate: PropTypes.bool
+    rotate: PropTypes.bool,
+    refresh: PropTypes.bool
   };
 
   state = {
@@ -34,7 +35,7 @@ export default class BlockImg extends Component {
   componentDidUpdate(prevProps) {
     this._isMounted = true;
 
-    if (this.props.id !== prevProps.id) {
+    if (this.props.id !== prevProps.id || this.props.refresh !== prevProps.refresh) {
       this.getPicture();
     }
   }
