@@ -1,7 +1,7 @@
 {
   "short_name": "Block Photos",
   "name": "Block Photos",
-  "domain_name": "blockphotos://auth",
+  "domain_name": "app.block-photos.com",
   "icons": [
     {
       "src": "favicon.ico",
@@ -9,8 +9,8 @@
       "type": "image/x-icon"
     }
   ],
-  "start_url": "blockphotos://auth",
+  "start_url": "https://app.block-photos.com/",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#220631",
   "background_color": "#ffffff"
 }

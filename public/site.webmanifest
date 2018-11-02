@@ -48,7 +48,7 @@
       "type": "image/png"
     }
   ],
-  "theme_color": "#ffffff",
+  "theme_color": "#220631",
   "background_color": "#ffffff",
   "start_url": "https://app.block-photos.com/",
   "display": "standalone"
