@@ -85,7 +85,7 @@ ion-spinner {
   --ion-icon-size-large: 29px;
 }
 
-.signin {
+.signin, .profile {
   --background: linear-gradient( 135deg, rgba(60, 8, 118, 0.8) 0%, rgba(250, 0, 118, 0.8) 100%);
 }
 

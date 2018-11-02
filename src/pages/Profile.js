@@ -99,11 +99,11 @@ export default class Profile extends Component {
             <ion-title>Blockstack Profile</ion-title>
           </ion-toolbar>
         </ion-header>
-        <ion-content color="medium">
+        <ion-content class="profile">
           <ion-grid>
             <ion-row>
               <ion-col size="12" size-md="6" size-xl="4">
-                <ion-card color="light">
+                <ion-card color="light" no-margin margin-horizontal>
                   <img src={person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage} />
 
                   <ion-card-header>
