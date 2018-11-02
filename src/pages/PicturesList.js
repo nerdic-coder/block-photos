@@ -153,12 +153,12 @@ export default class PicturesList extends Component {
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          <ion-grid>
+          <ion-grid no-padding>
             {rows.map((row) => (
               <ion-row align-items-center key={row[0].id}>
                 {
                   row.map((col) => (
-                    <ion-col align-self-center key={col.id}>
+                    <ion-col no-padding align-self-center key={col.id}>
                       <ContextMenuTrigger id={col.id}>
                         <Link to={"/picture/" + col.id}>
                         <div className="square">
