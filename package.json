@@ -10,7 +10,7 @@
   "main": "electron/main.js",
   "scripts": {
     "start": "npm run build && npm run electron",
-    "serve": "webpack-dev-server --target=web --mode=development",
+    "serve": "webpack-dev-server --target=web --mode=development --hot --host 0.0.0.0",
     "build": "webpack --mode=development",
     "build:prod": "webpack --mode=production",
     "build:web": "webpack --target=web --mode=production",

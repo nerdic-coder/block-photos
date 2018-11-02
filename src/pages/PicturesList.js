@@ -28,7 +28,7 @@ export default class PicturesList extends Component {
     this.pictureService = new PictureService();
     this.present = new PresentingService();
     this.uploadService = new UploadService(this.uploadFilesDoneCallback.bind(this));
-
+    this.picturesRangeListener = this.loadPicturesRange.bind(this);
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
       const { history } = this.props;
@@ -41,7 +41,12 @@ export default class PicturesList extends Component {
 
   componentDidMount() {
     this._isMounted = true;
+    this.picturesLoaded= 0;
 
+    this.infiniteScroll = document.getElementById('infinite-scroll');
+    if (this.infiniteScroll) {
+      this.infiniteScroll.addEventListener('ionInfinite', this.picturesRangeListener);
+    }
     this.uploadService.addEventListeners(true);
     this.loadPicturesList(false);
   }
@@ -50,6 +55,9 @@ export default class PicturesList extends Component {
     this._isMounted = false;
 
     this.uploadService.removeEventListeners(true);
+    if (this.infiniteScroll) {
+      this.infiniteScroll.removeEventListener('ionInfinite', this.picturesRangeListener);
+    }
   }
 
   async loadPicturesList(sync) {
@@ -58,12 +66,11 @@ export default class PicturesList extends Component {
 
       // Get the contents of the file picture-list.json
       let picturesListResponse = await this.pictureService.getPicturesList(sync);
-
+      this.picturesListCached = picturesListResponse.picturesList;
       this.present.dismissLoading();
 
-      if (this._isMounted) {
-        this.setState({ picturesList: picturesListResponse.picturesList });
-      }
+      this.loadPicturesRange();
+      
       if (picturesListResponse.errorsList && picturesListResponse.errorsList.length > 0) {
         for (let error in picturesListResponse.errorsList) {
           if (error.errorCode === 'err_cache') {
@@ -80,6 +87,27 @@ export default class PicturesList extends Component {
       }
       this.present.toast('Could not load pictures. Please try again!');
     }
+  }
+
+  loadPicturesRange(event) {
+    if (this._isMounted) {
+      const picturesToLoad = this.picturesLoaded + 21;
+      if (picturesToLoad > this.picturesListCached.length) {
+        if (event) {
+          event.target.disabled = true;
+        }
+        this.setState({ picturesList: this.picturesListCached });
+      } else {
+        const picturesList = this.picturesListCached.slice(0, picturesToLoad);
+        this.setState({ picturesList: picturesList });
+        this.picturesLoaded = picturesToLoad;
+      }
+    }
+
+    if (event) {
+      event.target.complete();
+    }
+
   }
 
   async rotatePicture(id) {
@@ -160,6 +188,12 @@ export default class PicturesList extends Component {
               </ion-row>
             ))}
           </ion-grid>
+          <ion-infinite-scroll threshold="100px" id="infinite-scroll">
+          <ion-infinite-scroll-content
+            loading-spinner="bubbles"
+            loading-text="Loading more pictures...">
+          </ion-infinite-scroll-content>
+        </ion-infinite-scroll>
         </ion-content>
       </React.Fragment>
     );
