@@ -58,16 +58,12 @@ export default class BlockImg extends Component {
       return;
     }
     this.state.rotation = 1;
-    // alert('state up 1:');
-    console.log(metadata);
     if (metadata && metadata.stats && metadata.stats.exifdata 
       && metadata.stats.exifdata.tags.Orientation) {
         this.state.rotation = metadata.stats.exifdata.tags.Orientation;
-        // alert('state up:' + this.state.rotation);
         // Handle correct orientation for iOS
         if (this.iOS() && metadata.stats.exifdata.tags.OriginalOrientation) {
           const originalOrientation = metadata.stats.exifdata.tags.OriginalOrientation;
-          alert('state before:' + this.state.rotation);
           // If the orientation is unchanged don't rotate at all with CSS, iOS handles it automatic
           if (this.state.rotation === originalOrientation) {
             this.state.rotation = 1;
@@ -95,7 +91,6 @@ export default class BlockImg extends Component {
             && originalOrientation == 3) {
               this.state.rotation = 8;
           }
-          alert('state after:' + this.state.rotation);
         }
     }
 
