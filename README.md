@@ -20,23 +20,23 @@ Read my introduction article about this project: [Building a decentralized Photo
 If you like this project please donate to preferred cryptocurrency below:
 
 Bitcoin: 3JkxUQ763fbf1cYVAitqpWUMeY4QLaBU8M
-<p align="center">
-  <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/btc-qrcode.png?raw=true" width="256" height="256">
+<p>
+  <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/btc-qrcode.png?raw=true">
 </p>
 
 Etherium: 0x6e54183E7b22dA87fb48e0d79ADaDa4f665A4D5a
-<p align="center">
-  <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/etherium-qrcode.png?raw=true" width="256" height="256">
+<p>
+  <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/etherium-qrcode.png?raw=true">
 </p>
 
 XRP: rGaGGSbeF8HmmrLnTg8gaT92Wa77qg3Y8k
-<p align="center">
-  <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/xrp-qrcode.png?raw=true" width="256" height="256">
+<p>
+  <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/xrp-qrcode.png?raw=true">
 </p>
 
 IOTA: HTPB9JVTMCDHEDMCIPOJELELVLNWLGMHVGZJUCKOYNBZGN9EVCDKFEIUJKINPCBWZI9BKAVIHRVRNWPFC9CQXJYQSZ
-<p align="center">
-  <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/iota-qrcode.png?raw=true" width="256" height="256">
+<p>
+  <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/iota-qrcode.png?raw=true">
 </p>
 
 NEO: ALNbr6NSuEkWE7ASNB9iB5VcpZmhz1FaAg
