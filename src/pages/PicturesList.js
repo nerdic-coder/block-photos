@@ -91,24 +91,24 @@ export default class PicturesList extends Component {
   }
 
   loadPicturesRange(event) {
-    if (this._isMounted) {
-      const picturesToLoad = this.picturesLoaded + 21;
-      if (picturesToLoad > this.picturesListCached.length) {
-        if (event) {
-          event.target.disabled = true;
+    setTimeout(() => {
+      if (this._isMounted) {
+        const picturesToLoad = this.picturesLoaded + 21;
+        if (picturesToLoad > this.picturesListCached.length) {
+          if (event) {
+            this.infiniteScroll.disabled = true;
+          }
+          this.setState({ picturesList: this.picturesListCached });
+        } else {
+          const picturesList = this.picturesListCached.slice(0, picturesToLoad);
+          this.setState({ picturesList: picturesList });
+          this.picturesLoaded = picturesToLoad;
         }
-        this.setState({ picturesList: this.picturesListCached });
-      } else {
-        const picturesList = this.picturesListCached.slice(0, picturesToLoad);
-        this.setState({ picturesList: picturesList });
-        this.picturesLoaded = picturesToLoad;
+        if (event) {
+          this.infiniteScroll.complete();
+        }
       }
-    }
-
-    if (event) {
-      event.target.complete();
-    }
-
+    }, 500);
   }
 
   async rotatePicture(id) {
