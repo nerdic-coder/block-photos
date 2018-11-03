@@ -36,15 +36,15 @@ ion-spinner {
   padding: 2px;
 }
 
-.md .square .rotation-6 {
+.square .rotation-6 {
   transform: rotate(90deg);
 }
 
-.md .square .rotation-3 {
+.square .rotation-3 {
   transform: rotate(180deg);
 }
 
-.md .square .rotation-8 {
+.square .rotation-8 {
   transform: rotate(270deg);
 }
 
