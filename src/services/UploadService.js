@@ -97,8 +97,7 @@ export default class UploadService {
                 return async (e) => {
                   e.target.result;
                   if (orientation) {
-                    loadedFile.exifdata = { tags: { Orientation: orientation } };
-                    loadedFile.exifdata = { tags: { OriginalOrientation: orientation } };
+                    loadedFile.exifdata = { tags: { Orientation: orientation, OriginalOrientation: orientation } };
                   }
                   const photosData = {
                     "filename": loadedFile.name,
