@@ -19,6 +19,10 @@ Read my introduction article about this project: [Building a decentralized Photo
 
 If you like this project please donate to preferred cryptocurrency below:
 
+### Coinbase commerce
+
+[Click here to donate with Coinbase commerce](https://commerce.coinbase.com/checkout/9d35f08b-bd51-40b0-a502-b88250cffc6b)
+
 ### Bitcoin
 
 3JkxUQ763fbf1cYVAitqpWUMeY4QLaBU8M
