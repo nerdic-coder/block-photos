@@ -12,13 +12,15 @@ import '@ionic/core/css/text-alignment.css';
 import '@ionic/core/css/text-transformation.css';
 import '@ionic/core/css/flex-utils.css';
 
+import '@ionic/pwa-elements';
+
 import './App.css';
 import PicturesList from './pages/PicturesList';
 import Signin from './pages/Signin';
 import Profile from './pages/Profile';
 import Picture from './pages/Picture';
 
-class App extends Component {
+class MainApp extends Component {
 
   render() {
     return (
@@ -38,4 +40,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default MainApp;

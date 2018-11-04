@@ -13,6 +13,10 @@ import {
 import PresentingService from '../services/PresentingService';
 import isElectron from 'is-electron';
 
+import { Plugins } from '@capacitor/core';
+
+const { Device } = Plugins;
+
 export default class Signin extends Component {
 
   static propTypes = {
@@ -42,10 +46,21 @@ export default class Signin extends Component {
     this.present = new PresentingService();
   }
 
-  handleSignIn(e) {
+  async handleSignIn(e) {
     e.preventDefault();
 
-    if (!isElectron()) {
+    const info = await Device.getInfo();
+
+    if (info.platform === 'android') {
+      this.present.loading('Waiting for authentication...', 60000, true);
+      let appDomain = 'https://app.block-photos.com';
+      const transitPrivateKey = generateAndStoreTransitKey();
+      const redirectURI = appDomain + '/redirect.html';
+      const manifestURI = appDomain + '/manifest.json';
+      const scopes = DEFAULT_SCOPE;
+      let authRequest = makeAuthRequest(transitPrivateKey, redirectURI, manifestURI, scopes, appDomain);
+      redirectToSignInWithAuthRequest(authRequest);
+    } else if (!isElectron()) {
       redirectToSignIn();
       this.setState({ redirected: true });
     } else {
@@ -55,7 +70,7 @@ export default class Signin extends Component {
       const redirectURI = appDomain + '/callback';
       const manifestURI = appDomain + '/manifest.json';
       const scopes = DEFAULT_SCOPE;
-      var authRequest = makeAuthRequest(transitPrivateKey, redirectURI, manifestURI, scopes, appDomain);
+      let authRequest = makeAuthRequest(transitPrivateKey, redirectURI, manifestURI, scopes, appDomain);
       redirectToSignInWithAuthRequest(authRequest);
     }
   }

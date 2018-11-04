@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Block Photos</string>
+    <string name="title_activity_main">Block Photos</string>
+    <string name="package_name">com.nerdiccoder.blockphotos</string>
+    <string name="fileprovider_authority">com.nerdiccoder.blockphotos.fileprovider</string>
+    <string name="custom_url_scheme">blockphotosapp</string>
+</resources>

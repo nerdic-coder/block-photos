@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "name": "iOS Web",
+          "type": "chrome",
+          "request": "attach",
+          "port": 9000,
+          "url": "https://app.block-photos.com/*",
+          "webRoot": "${workspaceRoot}/src"
+      }
+  ]
+}

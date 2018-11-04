@@ -2,10 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import * as blockstack from 'blockstack';
+import * as capacitor from '@capacitor/core';
 
 import Signin from './Signin';
 
 jest.mock('blockstack');
+jest.mock('@capacitor/core');
 
 it('renders without crashing', () => {
   const div = document.createElement('div');

@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+
+      {
+          "name": "iOS Web",
+          "type": "chrome",
+          "request": "attach",
+          "port": 9222,
+          "url": "https://79.133.3.164:9876/*",
+          "webRoot": "${workspaceRoot}/src"
+      }
+  ]
+}

@@ -17,12 +17,13 @@ module.exports = {
   entry: ['@babel/polyfill', './src/index.js'],
   target: 'electron-main',
   output: {
-    path: path.resolve('electron/app'),
+    path: path.resolve('www'),
     filename: '[name].bundle.js',
     chunkFilename: '[name].bundle.js',
     publicPath: '/'
   },
   devServer: {
+    https: false,
     historyApiFallback: true,
     watchOptions: { aggregateTimeout: 300, poll: 1000 },
     headers: {
