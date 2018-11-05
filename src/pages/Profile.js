@@ -83,6 +83,10 @@ export default class Profile extends Component {
     window.open("https://github.com/nerdic-coder/block-photos/issues/new", "_blank");
   }
 
+  sendEmail() {
+    window.open('mailto:johan@block-photos.com?subject=Block Photos Feedback');
+  }
+
   render() {
     const { person } = this.state;
     return (
@@ -119,15 +123,22 @@ export default class Profile extends Component {
               <ion-col size="12" size-md="6" size-xl="8">
                 <ion-button padding-horizontal expand="block"
                   id="signout-button"
+                  onClick={(event) => this.handleSignOut(event)}
+                >
+                  Logout
+                </ion-button>
+                <ion-button padding-horizontal expand="block"
+                  id="signout-button"
                   onClick={(event) => this.visitBlockstackProfile(event)}
                 >
                   Go to profile on Blockstack
                 </ion-button>
+
                 <ion-button padding-horizontal expand="block"
                   id="signout-button"
-                  onClick={(event) => this.handleSignOut(event)}
+                  onClick={() => this.sendEmail()}
                 >
-                  Logout
+                  Email johan@block-photos.com
                 </ion-button>
 
                 <ion-button color="danger" padding-horizontal expand="block"
