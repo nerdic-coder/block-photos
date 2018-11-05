@@ -90,7 +90,10 @@ export default class UploadService {
             (data) => {
               const reader = new FileReader();
 
-              const orientation = data.exif.get('Orientation');
+              let orientation = 1;
+              if (data && data.exif) {
+                orientation = data.exif.get('Orientation');
+              }
 
               // Closure to capture the file information.
               reader.onload = ((loadedFile, loadedList, orientation) => {

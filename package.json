@@ -14,6 +14,7 @@
     "build": "webpack --mode=development",
     "build:prod": "webpack --mode=production",
     "build:web": "webpack --target=web --mode=production",
+    "build:android": "webpack --target=web --mode=production && npx cap copy android",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "electron": "electron-forge start",
