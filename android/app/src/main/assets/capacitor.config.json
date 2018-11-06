@@ -2,10 +2,5 @@
   "appId": "com.nerdiccoder.blockphotos",
   "appName": "Block Photos",
   "bundledWebRuntime": false,
-  "webDir": "www",
-  "plugins": {
-    "SplashScreen": {
-      "launchShowDuration": 12345
-    }
-  }
+  "webDir": "www"
 }

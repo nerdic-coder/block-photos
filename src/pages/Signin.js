@@ -15,8 +15,6 @@ import isElectron from 'is-electron';
 
 import { Plugins } from '@capacitor/core';
 
-const { Device } = Plugins;
-
 export default class Signin extends Component {
 
   static propTypes = {
@@ -49,6 +47,7 @@ export default class Signin extends Component {
   async handleSignIn(e) {
     e.preventDefault();
 
+    const { Device } = Plugins;
     const info = await Device.getInfo();
 
     if (info.platform === 'android' || info.platform === 'ios') {
