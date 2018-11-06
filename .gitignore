@@ -23,6 +23,5 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-android/.idea/caches/build_file_checksums.ser
-android/.idea/misc.xml
-android/.idea/assetWizardSettings.xml
+
+android/.idea/
