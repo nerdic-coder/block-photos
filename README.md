@@ -86,6 +86,16 @@ Build and package for web app distribution:
 npm run build:web
 ```
 
+Build for Android app distribution:
+```bash
+npm run build:android
+```
+
+Build for iOS app distribution:
+```bash
+npm run build:ios
+```
+
 Test ESLint:
 ```bash
 npm run lint
