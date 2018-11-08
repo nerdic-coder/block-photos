@@ -95,3 +95,5 @@ Run unit tests:
 ```bash
 npm run test
 ```
+
+[![CodeFactor](https://www.codefactor.io/repository/github/nerdic-coder/block-photos/badge/master)](https://www.codefactor.io/repository/github/nerdic-coder/block-photos/overview/master)
