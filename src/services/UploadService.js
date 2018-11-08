@@ -97,17 +97,16 @@ export default class UploadService {
 
               // Closure to capture the file information.
               reader.onload = ((loadedFile, loadedList, orientation) => {
-                return async (e) => {
-                  e.target.result;
+                return async (event) => {
                   if (orientation) {
                     loadedFile.exifdata = { tags: { Orientation: orientation, OriginalOrientation: orientation } };
                   }
                   const photosData = {
                     "filename": loadedFile.name,
                     "stats": loadedFile,
-                    "data": e.target.result
+                    "data": event.target.result
                   };
-                  await this.uploadFiles(event, [photosData]);
+                  await this.uploadFiles([photosData]);
                   if (loadedList[currentIndex + 1]) {
                     this.processUpload(loadedList, currentIndex + 1);
                   } else {
@@ -149,7 +148,7 @@ export default class UploadService {
     }
   }
 
-  async uploadFiles(event, filesData) {
+  async uploadFiles(filesData) {
     if (filesData && filesData.length > 0) {
       const response = await this.pictureService.uploadPictures(filesData);
       if (response.errorsList && response.errorsList.length > 0) {
