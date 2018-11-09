@@ -101,12 +101,11 @@ export default class UploadService {
                   if (orientation) {
                     loadedFile.exifdata = { tags: { Orientation: orientation, OriginalOrientation: orientation } };
                   }
-                  const photosData = {
+                  const metadata = {
                     "filename": loadedFile.name,
-                    "stats": loadedFile,
-                    "data": event.target.result
+                    "stats": loadedFile
                   };
-                  await this.uploadFiles([photosData]);
+                  await this.uploadPicture(metadata, event);
                   if (loadedList[currentIndex + 1]) {
                     this.processUpload(loadedList, currentIndex + 1);
                   } else {
@@ -148,9 +147,9 @@ export default class UploadService {
     }
   }
 
-  async uploadFiles(filesData) {
-    if (filesData && filesData.length > 0) {
-      const response = await this.pictureService.uploadPictures(filesData);
+  async uploadPicture(metadata, event) {
+    if (metadata && event) {
+      const response = await this.pictureService.uploadPicture(metadata, event);
       if (response.errorsList && response.errorsList.length > 0) {
         for (let error of response.errorsList) {
           if (error.errorCode === 'err_filesize') {
@@ -160,6 +159,8 @@ export default class UploadService {
           }
         }
       }
+    } else {
+      this.present.toast('Failed to upload "' + metadata.filename + '".');
     }
   }
 

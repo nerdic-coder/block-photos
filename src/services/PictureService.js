@@ -57,7 +57,7 @@ export default class PictureService {
     return cachedPicture;
   }
 
-  async uploadPictures(filesData) {
+  async uploadPicture(file, event) {
     const picturesListResponse = await this.getPicturesList(true);
     let picturesList = picturesListResponse.picturesList;
     if ((!picturesList || picturesList == null) && picturesListResponse.errorsList.length === 0) {
@@ -65,31 +65,29 @@ export default class PictureService {
     }
 
     const errorsList = [];
-    for (let file of filesData) {
-      let id = uniqid() + file.filename;
-      let metadata = {
-        "id": id,
-        "uploadedDate": new Date(),
-        "stats": file.stats
-      };
-      try {
-        await putFile(id, file.data);
-        await this.cache.setItem(id, file.data);
+    let id = uniqid() + file.filename;
+    let metadata = {
+      "id": id,
+      "uploadedDate": new Date(),
+      "stats": file.stats
+    };
+    try {
+      await putFile(id, event.target.result);
+      await this.cache.setItem(id, event.target.result);
 
-        picturesList.unshift(metadata);
-      } catch (error) {
-        const fileSizeInMegabytes = file.stats.size / 1000000;
-        if (fileSizeInMegabytes >= 5) {
-          errorsList.push({
-            "id": file.filename,
-            "errorCode": "err_filesize"
-          });
-        } else {
-          errorsList.push({
-            "id": file.filename,
-            "errorCode": "err_failed"
-          });
-        }
+      picturesList.unshift(metadata);
+    } catch (error) {
+      const fileSizeInMegabytes = file.stats.size / 1000000;
+      if (fileSizeInMegabytes >= 5) {
+        errorsList.push({
+          "id": file.filename,
+          "errorCode": "err_filesize"
+        });
+      } else {
+        errorsList.push({
+          "id": file.filename,
+          "errorCode": "err_failed"
+        });
       }
     }
 

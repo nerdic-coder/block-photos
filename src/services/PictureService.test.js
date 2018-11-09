@@ -103,10 +103,9 @@ describe('PictureService Test Suites', () => {
 
   it('upload picture', async () => {
     const pictureService = new PictureService();
-    const response = await pictureService.uploadPictures([{
-      filename: 'test1.png',
-      data: 'trash'
-    }]);
+    const response = await pictureService.uploadPicture({
+      filename: 'test1.png'
+    }, { target: { result: 'trash' } } );
 
     const pictures = response.picturesList;
     const parsedUploadedDate = new Date(Date.parse(pictures[0].uploadedDate));
@@ -125,11 +124,10 @@ describe('PictureService Test Suites', () => {
     blockstack.putFile.mockReturnValueOnce(Promise.reject('failed!'));
 
     const pictureService = new PictureService();
-    const response = await pictureService.uploadPictures([{
+    const response = await pictureService.uploadPicture({
       filename: 'test1.png',
-      data: 'trash',
       stats: { size: 100 }
-    }]);
+    }, { target: { result: 'trash' } });
 
     expect(response.picturesList).toEqual([]);
     expect(response.errorsList[0].id).toEqual('test1.png');
@@ -142,11 +140,10 @@ describe('PictureService Test Suites', () => {
     blockstack.putFile.mockReturnValueOnce(Promise.reject('failed!'));
 
     const pictureService = new PictureService();
-    const response = await pictureService.uploadPictures([{
+    const response = await pictureService.uploadPicture({
       filename: 'test2.png',
-      data: 'trash',
       stats: { size: 6000000 }
-    }]);
+    }, { target: { result: 'trash' } });
 
     expect(response.picturesList).toEqual([]);
     expect(response.errorsList[0].id).toEqual('test2.png');
