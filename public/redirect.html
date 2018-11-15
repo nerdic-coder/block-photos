@@ -8,8 +8,11 @@
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
   }
 
-  var authResponse = getParameterByName('authResponse')
-  window.location="blockphotosapp:" + authResponse
+  var authResponse = getParameterByName('authResponse');
+  window.location="blockphotosapp:" + authResponse;
+
+  setTimeout(function(){ window.location="https://block-photos.com/"; }, 3000);
+
   </script>
 <body>
 </body>
