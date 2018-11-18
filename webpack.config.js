@@ -13,6 +13,15 @@ const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   inject: 'body'
 });
 
+
+let PUBLIC_PATH = './';
+
+process.argv.forEach(function (val) {
+  if (val.includes('target=web')) {
+    PUBLIC_PATH = '/';
+  }
+});
+
 module.exports = {
   entry: ['@babel/polyfill', './src/index.js'],
   target: 'electron-main',
@@ -20,10 +29,10 @@ module.exports = {
     path: path.resolve('www'),
     filename: '[name].bundle.js',
     chunkFilename: '[name].bundle.js',
-    publicPath: '/'
+    publicPath: PUBLIC_PATH
   },
   devServer: {
-    https: false,
+    https: true,
     historyApiFallback: true,
     watchOptions: { aggregateTimeout: 300, poll: 1000 },
     headers: {
