@@ -65,27 +65,6 @@ ion-spinner {
   display: none;
 }
 
-.custom-file-upload {
-  padding-left: 8px;
-  padding-right: 8px;
-  cursor: pointer;
-}
-
-.header-ios .custom-file-upload {
-  padding-left: 2px;
-  padding-right: 2px;
-}
-
-.custom-file-upload ion-icon {
-  padding-top: 3px;
-  --ion-icon-size-large: 22px;
-}
-
-.header-ios .custom-file-upload ion-icon {
-  padding-top: 3px;
-  --ion-icon-size-large: 29px;
-}
-
 .signin, .profile {
   --background: linear-gradient( 135deg, rgba(60, 8, 118, 0.8) 0%, rgba(250, 0, 118, 0.8) 100%);
 }
