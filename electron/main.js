@@ -1,44 +1,67 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron');
-const serverProcess = require('child_process');
-const ipc = require('electron').ipcMain;
-const dialog = require('electron').dialog;
-const fs = require('fs');
+const { app, BrowserWindow, protocol, dialog } = require('electron');
 const path = require('path');
-const exif = require('exif-parser');
+const isDev = require('electron-is-dev');
 
-// Start process to serve manifest file
-const server = serverProcess.fork(__dirname + '/server.js');
+let BASE_URL = `file://${__dirname}/app/index.html`;
+let SCHEME = 'blockphotosapp';
+if (isDev) {
+  BASE_URL = 'http://localhost:9876';
+  
+}
+
+protocol.registerStandardSchemes([SCHEME]);
+app.setAsDefaultProtocolClient(SCHEME);
+
+// Keep a global reference of the window object, if you don't, the window will
+// be closed automatically when the JavaScript object is garbage collected.
+let mainWindow;
 let currentAuthResponse = '';
 
-// Quit server process if main app will quit
-app.on('will-quit', () => {
-  server.send('quit');
-});
+const gotTheLock = app.requestSingleInstanceLock();
 
-server.on('message', (m) => {
-  authCallback(m.authResponse);
-});
+if (!gotTheLock) {
+  app.quit();
+  return;
+} else {
+  app.on('second-instance', (event, commandLine) => {
+    if (mainWindow && commandLine[1]) {
+        if (mainWindow.isMinimized()) {
+          mainWindow.restore();
+        }
+        
+        var request = commandLine[1].split(":");
+
+        if (request[1] && currentAuthResponse !== request[1]) {
+          currentAuthResponse = request[1];
+          
+          mainWindow.focus();
+          mainWindow.loadURL(BASE_URL + '?authResponse=' + request[1]);
+          return true;
+        }
+    }
+    dialog.showMessageBox({ 
+      message: "Authentication failed, please try again!",
+      buttons: ["OK"] 
+    });
+  });
+}
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
-
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 500,
+    height: 810,
     icon: path.join(__dirname, 'icons/png/64x64.png')
   });
 
   // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/app/index.html`);
+  mainWindow.loadURL(BASE_URL);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -76,62 +99,3 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-
-function authCallback(authResponse) {
-  // Bring app window to front
-  if (currentAuthResponse !== authResponse) {
-    currentAuthResponse = authResponse;
-    mainWindow.loadURL(`file://${__dirname}/app/index.html?authResponse=` + authResponse);
-    mainWindow.focus();
-  }
-
-}
-
-ipc.on('open-file-dialog', function () {
-  let files = dialog.showOpenDialog({
-    properties: ['openFile', 'multiSelections'],
-    filters: [
-      { name: 'Images', extensions: ['jpg', 'png', 'gif'] }
-    ]
-  });
-
-  let filesData = [];
-  if (files) {
-    for (let file of files) {
-      var data = fs.readFileSync(file);
-      var filename = path.basename(file);
-      const stats = fs.statSync(file);
-
-      const exifParser = exif.create(data);
-      stats.exifdata = exifParser.parse();
-
-      filesData.push({ "filename": filename, "data": Buffer.from(data).toString('base64'), "stats": stats });
-    }
-
-    mainWindow.webContents.send('upload-files', filesData);
-  }
-});
-
-ipc.on('drop', (event, rawFiles) => {
-  const files = JSON.parse(rawFiles);
-  let filesData = [];
-  if (files) {
-    for (let file of files) {
-      var data = fs.readFileSync(file.path);
-      var filename = path.basename(file.path);
-      const stats = fs.statSync(file.path);
-      stats.type = file.type;
-
-      const exifParser = exif.create(data);
-      try {
-        stats.exifdata = exifParser.parse();
-      } catch (error) {
-        stats.exifdata = null;
-      }
-
-      filesData.push({ "filename": filename, "data": Buffer.from(data).toString('base64'), "stats": stats });
-    }
-
-    mainWindow.webContents.send('upload-files', filesData);
-  }
-});
