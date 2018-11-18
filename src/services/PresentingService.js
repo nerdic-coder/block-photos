@@ -1,4 +1,5 @@
 import PictureService from './PictureService';
+import isElectron from 'is-electron';
 
 export default class PresentingService {
 
@@ -78,4 +79,14 @@ export default class PresentingService {
     });
     return await alert.present();
   }
+
+  openLink(url, target) {
+    if (isElectron()) {
+      let electron = window['require']("electron");
+      electron.shell.openExternal(url);
+    } else {
+      window.open(url, target);
+    }
+  }
+
 }

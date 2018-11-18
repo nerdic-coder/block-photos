@@ -72,7 +72,7 @@ export default class Profile extends Component {
       e.preventDefault();
     }
 
-    window.open("https://browser.blockstack.org/profiles", "_blank");
+    this.present.openLink("https://browser.blockstack.org/profiles", "_blank");
   }
 
   reportIssue(e) {
@@ -80,11 +80,11 @@ export default class Profile extends Component {
       e.preventDefault();
     }
 
-    window.open("https://github.com/nerdic-coder/block-photos/issues/new", "_blank");
+    this.present.openLink("https://github.com/nerdic-coder/block-photos/issues/new", "_blank");
   }
 
   sendEmail() {
-    window.open('mailto:johan@block-photos.com?subject=Block Photos Feedback');
+    this.present.openLink("mailto:johan@block-photos.com?subject=Block Photos Feedback");
   }
 
   render() {
@@ -150,8 +150,6 @@ export default class Profile extends Component {
               </ion-col>
             </ion-row>
           </ion-grid>
-
-
         </ion-content>
       </React.Fragment>
     );
