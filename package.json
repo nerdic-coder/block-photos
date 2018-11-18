@@ -9,7 +9,7 @@
   "private": false,
   "main": "electron/main.js",
   "scripts": {
-    "start": "npm run build && npm run electron",
+    "start": "npm run build && npx cap copy electron && npm run electron",
     "serve": "webpack-dev-server --target=web --mode=development --hot --host 0.0.0.0",
     "build": "webpack --mode=development",
     "build:prod": "webpack --mode=production",
@@ -19,9 +19,9 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "electron": "electron-forge start",
-    "package": "npm run build:prod && electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "package": "npm run build:prod && npx cap copy electron && electron-forge package",
+    "make": "npm run build:prod && npx cap copy electron && electron-forge make",
+    "publish": "npm run build:prod && npx cap copy electron && electron-forge publish",
     "eslint": "eslint",
     "lint": "eslint ./src/**/*.js ./electron/*.js"
   },
@@ -29,10 +29,12 @@
     "forge": {
       "make_targets": {
         "win32": [
-          "squirrel"
+          "squirrel",
+          "appx"
         ],
         "darwin": [
-          "zip"
+          "zip",
+          "dmg"
         ],
         "linux": [
           "deb",
@@ -40,7 +42,11 @@
         ]
       },
       "electronPackagerConfig": {
-        "icon": "electron/icons/mac/icon.png.hqx"
+        "icon": "electron/icons/mac/icon"
+      },
+      "github_repository": {
+        "owner": "nerdic-coder",
+        "name": "block-photos"
       }
     }
   },
@@ -49,45 +55,43 @@
     "@capacitor/cli": "^1.0.0-beta.8",
     "@capacitor/core": "^1.0.0-beta.8",
     "@capacitor/ios": "^1.0.0-beta.8",
-    "@ionic/core": "4.0.0-beta.15",
+    "@ionic/core": "4.0.0-beta.16",
     "@ionic/pwa-elements": "1.0.0",
     "blockstack": "18.1.0",
-    "blueimp-load-image": "2.19.0",
-    "cors": "^2.8.4",
+    "blueimp-load-image": "2.20.1",
+    "electron-is-dev": "1.0.1",
     "electron-squirrel-startup": "^1.0.0",
-    "exif-parser": "0.1.12",
-    "express": "^4.16.4",
-    "is-electron": "^2.1.0",
+    "is-electron": "^2.2.0",
     "localforage": "1.7.3",
     "prop-types": "^15.6.2",
-    "react": "^16.6.0",
-    "react-contextmenu": "^2.9.4",
-    "react-dom": "^16.6.0",
+    "react": "^16.6.3",
+    "react-contextmenu": "^2.10.0",
+    "react-dom": "^16.6.3",
     "react-router-dom": "^4.3.1",
-    "react-scripts": "2.1.0",
+    "react-scripts": "2.1.1",
     "uniqid": "5.0.3"
   },
   "devDependencies": {
-    "@babel/core": "7.1.2",
+    "@babel/core": "7.1.6",
     "@babel/polyfill": "7.0.0",
-    "@babel/preset-env": "7.1.0",
+    "@babel/preset-env": "7.1.6",
     "@babel/preset-react": "7.0.0",
     "@electron-forge/cli": "6.0.0-beta.22",
-    "@types/react": "16.4.18",
+    "@types/react": "16.7.6",
     "babel-loader": "8.0.4",
     "babel-plugin-transform-class-properties": "6.24.1",
-    "copy-webpack-plugin": "4.5.4",
+    "copy-webpack-plugin": "4.6.0",
     "css-loader": "1.0.1",
-    "electron": "3.0.6",
+    "electron": "3.0.9",
     "electron-prebuilt-compile": "3.0.6",
     "enzyme": "^3.7.0",
-    "enzyme-adapter-react-16": "^1.6.0",
+    "enzyme-adapter-react-16": "^1.7.0",
     "eslint": "5.6.0",
     "eslint-plugin-react": "^7.11.1",
     "file-loader": "2.0.0",
     "html-webpack-plugin": "3.2.0",
     "jest": "23.6.0",
-    "jest-enzyme": "^7.0.0",
+    "jest-enzyme": "^7.0.1",
     "path": "^0.12.7",
     "style-loader": "^0.23.1",
     "url-loader": "1.1.2",
