@@ -136,11 +136,9 @@ export default class PicturesList extends Component {
     this.setState({refreshPicture: tempRefreshPicture})
   }
 
-  async openFileDialog(event) {
+  openFileDialog(event) {
     event.preventDefault();
-    const fileUpload = document.querySelector('.custom-file-upload');
-    await fileUpload.componentOnReady();
-    fileUpload.click();
+    document.getElementById('file-upload').click();
   }
 
   render() {
@@ -154,20 +152,18 @@ export default class PicturesList extends Component {
           <ion-toolbar color="primary">
             <ion-title>Block Photos</ion-title>
             <ion-buttons slot="end">
-              <label htmlFor="file-upload" className="custom-file-upload">
-                <ion-button onClick={() => this.openFileDialog(event)}>
-                  <ion-icon name="md-add"></ion-icon>
-                </ion-button>
-                <input id="file-upload" type="file" multiple />
-              </label>
-              <ion-button onClick={() => this.loadPicturesList(true)}>
-                <ion-icon name="refresh"></ion-icon>
-              </ion-button>
               <Link to="/profile">
                 <ion-button>
                   <ion-icon color="light" name="person"></ion-icon>
                 </ion-button>
               </Link>
+              <ion-button onClick={() => this.loadPicturesList(true)}>
+                <ion-icon name="refresh"></ion-icon>
+              </ion-button>
+              <ion-button onClick={() => this.openFileDialog(event)}>
+                <ion-icon name="ios-cloud-upload"></ion-icon>
+              </ion-button>
+              <input id="file-upload" type="file" multiple />
             </ion-buttons>
           </ion-toolbar>
         </ion-header>

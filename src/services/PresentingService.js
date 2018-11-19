@@ -32,7 +32,8 @@ export default class PresentingService {
 
     const toast = await toastController.create({
       message: message,
-      showCloseButton: true
+      showCloseButton: true,
+      color: 'primary'
     });
     return await toast.present();
   }
