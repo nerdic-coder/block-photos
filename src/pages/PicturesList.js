@@ -50,6 +50,10 @@ export default class PicturesList extends Component {
     }
     this.uploadService.addEventListeners(true);
     this.loadPicturesList(false);
+
+    if (window.gtag) {
+      window.gtag('event', 'pictures-list');
+    }
   }
 
   componentWillUnmount() {
@@ -116,14 +120,26 @@ export default class PicturesList extends Component {
     if (this._isMounted) {
       this.refreshPicture(id);
     }
+
+    if (window.gtag) {
+      window.gtag('event', 'pictures-list-rotate');
+    }
   }
 
   uploadFilesDoneCallback() {
     this.loadPicturesList();
+
+    if (window.gtag) {
+      window.gtag('event', 'pictures-list-uploaded');
+    }
   }
 
   deletePictureCallback(callbackComponent) {
     callbackComponent.loadPicturesList();
+
+    if (window.gtag) {
+      window.gtag('event', 'pictures-list-deleted');
+    }
   }
 
   refreshPicture(id) {
@@ -133,12 +149,16 @@ export default class PicturesList extends Component {
     } else {
       tempRefreshPicture[id] = true;
     }
-    this.setState({refreshPicture: tempRefreshPicture})
+    this.setState({refreshPicture: tempRefreshPicture});
   }
 
   openFileDialog(event) {
     event.preventDefault();
     document.getElementById('file-upload').click();
+
+    if (window.gtag) {
+      window.gtag('event', 'pictures-list-file-dialog');
+    }
   }
 
   render() {

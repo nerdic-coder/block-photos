@@ -29,6 +29,7 @@ export default class Signin extends Component {
     super(props);
 
     const { history } = this.props;
+
     if (isUserSignedIn()) {
       if (history) {
         history.replace('/pictures');
@@ -37,6 +38,9 @@ export default class Signin extends Component {
       handlePendingSignIn().then(() => {
         if (history) {
           history.replace('/pictures');
+          if (window.gtag) {
+            window.gtag('event', 'login', { method : 'Blockstack' });
+          }
         }
       });
     }
@@ -46,6 +50,10 @@ export default class Signin extends Component {
 
   async handleSignIn(e) {
     e.preventDefault();
+
+    if (window.gtag) {
+      window.gtag('event', 'login-started');
+    }
 
     const { Device } = Plugins;
     const info = await Device.getInfo();

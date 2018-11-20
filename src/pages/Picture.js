@@ -55,6 +55,10 @@ export default class PicturesList extends Component {
 
     this.uploadService.addEventListeners(false);
     this.loadPictureWithId(this.props.match.params.id);
+
+    if (window.gtag) {
+      window.gtag('event', 'picture-page');
+    }
   }
 
   componentWillUnmount() {
@@ -78,11 +82,18 @@ export default class PicturesList extends Component {
       this.loadPictureWithId(currentId);
     }
 
+    if (window.gtag) {
+      window.gtag('event', 'picture-page-rotate');
+    }
   }
 
   deletePictureCallback(callbackComponent) {
     const { history } = callbackComponent.props;
     history.replace('/pictures');
+
+    if (window.gtag) {
+      window.gtag('event', 'picture-page-delete');
+    }
   }
 
   render() {

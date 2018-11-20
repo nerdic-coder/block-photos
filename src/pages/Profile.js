@@ -46,6 +46,10 @@ export default class Profile extends Component {
 
     this.uploadService.addEventListeners(false);
     this.setState({ person: new Person(loadUserData().profile) });
+
+    if (window.gtag) {
+      window.gtag('event', 'profile-page');
+    }
   }
 
   componentWillUnmount() {
@@ -65,6 +69,10 @@ export default class Profile extends Component {
     if (history) {
       history.replace('/');
     }
+
+    if (window.gtag) {
+      window.gtag('event', 'logged-out');
+    }
   }
 
   visitBlockstackProfile(e) {
@@ -73,6 +81,10 @@ export default class Profile extends Component {
     }
 
     this.present.openLink("https://browser.blockstack.org/profiles", "_blank");
+
+    if (window.gtag) {
+      window.gtag('event', 'blockstack-profile-link');
+    }
   }
 
   reportIssue(e) {
@@ -81,10 +93,18 @@ export default class Profile extends Component {
     }
 
     this.present.openLink("https://github.com/nerdic-coder/block-photos/issues/new", "_blank");
+
+    if (window.gtag) {
+      window.gtag('event', 'report-issue-link');
+    }
   }
 
   sendEmail() {
     this.present.openLink("mailto:johan@block-photos.com?subject=Block Photos Feedback");
+
+    if (window.gtag) {
+      window.gtag('event', 'send-email-link');
+    }
   }
 
   render() {
