@@ -65,9 +65,10 @@ export default class PictureService {
     }
 
     const errorsList = [];
-    let id = uniqid() + file.filename;
+    let id = uniqid() + file.filename.replace(".", "");
     let metadata = {
       "id": id,
+      "filename": file.filename,
       "uploadedDate": new Date(),
       "stats": file.stats
     };

@@ -58,6 +58,12 @@ export default class PicturesList extends Component {
     }
   }
 
+  componentDidUpdate() {
+    if (this._isMounted) {
+      this.loadPictureWithId(this.props.match.params.id);
+    }
+  }
+
   componentWillUnmount() {
     this._isMounted = false;
   }
@@ -65,7 +71,18 @@ export default class PicturesList extends Component {
   async loadPictureWithId(id) {
     if (id && this._isMounted) {
       const nextAndPreviousPicture = await this.pictureService.getNextAndPreviousPicture(id);
-      this.setState({ nextAndPreviousPicture: nextAndPreviousPicture, currentId: id });
+      if (this._isMounted) {
+        this.setState({ nextAndPreviousPicture: nextAndPreviousPicture, currentId: id });
+      }
+    }
+  }
+
+  gotoPictureWithId(id) {
+    if (id) {
+      const { history } = this.props;
+      if (history) {
+        history.replace("/picture/" + id);
+      }
     }
   }
 
@@ -115,10 +132,10 @@ export default class PicturesList extends Component {
               <ion-button onClick={() => this.present.deletePicture(currentId, this)}>
                 <ion-icon color="light" name="trash"></ion-icon>
               </ion-button>
-              <ion-button disabled={!nextAndPreviousPicture.previousId} onClick={() => this.loadPictureWithId(nextAndPreviousPicture.previousId)}>
+              <ion-button disabled={!nextAndPreviousPicture.previousId} onClick={() => this.gotoPictureWithId(nextAndPreviousPicture.previousId)}>
                 <ion-icon color="light" name="arrow-back"></ion-icon>
               </ion-button>
-              <ion-button disabled={!nextAndPreviousPicture.nextId} onClick={() => this.loadPictureWithId(nextAndPreviousPicture.nextId)}>
+              <ion-button disabled={!nextAndPreviousPicture.nextId} onClick={() => this.gotoPictureWithId(nextAndPreviousPicture.nextId)}>
                 <ion-icon color="light" name="arrow-forward"></ion-icon>
               </ion-button>
             </ion-buttons>

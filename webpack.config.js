@@ -33,7 +33,9 @@ module.exports = {
   },
   devServer: {
     https: true,
-    historyApiFallback: true,
+    historyApiFallback: {
+      disableDotRule: true
+    },
     watchOptions: { aggregateTimeout: 300, poll: 1000 },
     headers: {
       "Access-Control-Allow-Origin": "*",
