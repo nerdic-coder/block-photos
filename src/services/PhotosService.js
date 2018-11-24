@@ -23,8 +23,8 @@ export default class PhotosService {
 
     if (sync || !cachedPhotosList || cachedPhotosList.length === 0) {
       try {
-        // Get the contents of the file photo-list.json
-        let rawPhotosList = await getFile("photo-list.json");
+        // Get the contents of the file picture-list.json
+        let rawPhotosList = await getFile("picture-list.json");
         if (rawPhotosList) {
           const photosList = JSON.parse(rawPhotosList);
           cachedPhotosList = photosList;
@@ -93,7 +93,7 @@ export default class PhotosService {
     }
 
     await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
-    await putFile("photo-list.json", JSON.stringify(photosList));
+    await putFile("picture-list.json", JSON.stringify(photosList));
     return { photosList: photosList, errorsList: errorsList };
   }
 
@@ -121,7 +121,7 @@ export default class PhotosService {
       if (id === photo.id) {
         photosList.splice(index, 1);
         await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
-        await putFile("photo-list.json", JSON.stringify(photosList));
+        await putFile("picture-list.json", JSON.stringify(photosList));
         return true;
       }
       index++;
@@ -196,7 +196,7 @@ export default class PhotosService {
     }
 
     await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
-    await putFile("photo-list.json", JSON.stringify(photosList));
+    await putFile("picture-list.json", JSON.stringify(photosList));
 
     return photosList;
   }
