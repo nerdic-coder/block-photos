@@ -165,8 +165,10 @@ export default class PicturesList extends Component {
 
   render() {
     let rows = [];
+    let empty = true;
     if (this.state.picturesList && this.state.picturesList.length > 0) {
       rows = _.chunk(this.state.picturesList, 3);
+      empty = false;
     }
     return (
       <React.Fragment>
@@ -190,6 +192,7 @@ export default class PicturesList extends Component {
           </ion-toolbar>
         </ion-header>
         <ion-content>
+          {empty ? ( <ion-card padding text-center><h2>Welcome to Block Photos.</h2><h3>Use the upload button (<ion-icon size="small" name="ios-cloud-upload"></ion-icon>) to add your first photo.</h3></ion-card> ) : (
           <ion-grid no-padding>
             {rows.map((row) => (
               <ion-row align-items-center key={row[0].id}>
@@ -225,6 +228,7 @@ export default class PicturesList extends Component {
               </ion-row>
             ))}
           </ion-grid>
+          )}
           <ion-infinite-scroll threshold="100px" id="infinite-scroll">
           <ion-infinite-scroll-content
             loading-spinner="bubbles"
