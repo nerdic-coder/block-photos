@@ -153,7 +153,9 @@ export default class PicturesList extends Component {
   }
 
   openFileDialog(event) {
-    event.preventDefault();
+    if (event) {
+      event.preventDefault();
+    }
     document.getElementById('file-upload').click();
 
     if (window.gtag) {
@@ -180,7 +182,7 @@ export default class PicturesList extends Component {
               <ion-button onClick={() => this.loadPicturesList(true)}>
                 <ion-icon name="refresh"></ion-icon>
               </ion-button>
-              <ion-button onClick={() => this.openFileDialog(event)}>
+              <ion-button onClick={(event) => this.openFileDialog(event)}>
                 <ion-icon name="ios-cloud-upload"></ion-icon>
               </ion-button>
               <input id="file-upload" type="file" multiple />
