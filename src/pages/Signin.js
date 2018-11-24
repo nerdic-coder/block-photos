@@ -90,7 +90,7 @@ export default class Signin extends Component {
             <ion-card-content text-left>
               <p>To get started click the login button below.</p> 
               <p>Blockstack will ask you to register an account if you  don&apos;t have one already.</p>
-              <p>Then all you need is to start adding photos with the &apos;+&apos; button or drag and drop them into the app view from your computers file browser.</p>
+              <p>Then all you need is to start adding photos with the upload button (<ion-icon size="small" name="ios-cloud-upload"></ion-icon>) or drag and drop them into the app view from your computers file browser.</p>
               {redirected ? ( <p>Thanks for logging in! You can close this window now.</p>) : 
                 ( null )
               }
