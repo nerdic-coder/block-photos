@@ -32,12 +32,12 @@ export default class Signin extends Component {
 
     if (isUserSignedIn()) {
       if (history) {
-        history.replace('/pictures');
+        history.replace('/photos');
       }
     } else if (isSignInPending() && !isUserSignedIn()) {
       handlePendingSignIn().then(() => {
         if (history) {
-          history.replace('/pictures');
+          history.replace('/photos');
           if (window.gtag) {
             window.gtag('event', 'login', { method : 'Blockstack' });
           }

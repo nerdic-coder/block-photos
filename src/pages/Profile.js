@@ -9,7 +9,7 @@ import {
 } from 'blockstack';
 
 import CacheService from '../services/CacheService';
-import PictureService from '../services/PictureService';
+import PhotosService from '../services/PhotosService';
 import PresentingService from '../services/PresentingService';
 
 const avatarFallbackImage = 'https://s3.amazonaws.com/onename/avatar-placeholder.png';
@@ -28,7 +28,7 @@ export default class Profile extends Component {
     super(props);
 
     this.cacheService = new CacheService();
-    this.pictureService = new PictureService();
+    this.photosService = new PhotosService();
     this.present = new PresentingService();
   }
 
@@ -108,7 +108,7 @@ export default class Profile extends Component {
         <ion-header>
           <ion-toolbar color="primary">
             <ion-buttons slot="start">
-              <Link to="/pictures">
+              <Link to="/photos">
                 <ion-button>
                   <ion-icon color="light" name="arrow-back"></ion-icon>
                 </ion-button>

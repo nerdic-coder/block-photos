@@ -5,12 +5,12 @@ import { isUserSignedIn } from 'blockstack';
 import _ from 'lodash';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
 
-import PictureService from '../services/PictureService';
+import PhotosService from '../services/PhotosService';
 import PresentingService from '../services/PresentingService';
 import UploadService from '../services/UploadService';
 import BlockImg from '../components/BlockImg';
 
-export default class PicturesList extends Component {
+export default class PhotosList extends Component {
 
   _isMounted = false;
 
@@ -19,17 +19,18 @@ export default class PicturesList extends Component {
   };
 
   state = {
-    picturesList: [],
-    refreshPicture: []
+    photosList: [],
+    refreshPhoto: [],
+    listLoaded: false
   };
 
   constructor(props) {
     super(props);
 
-    this.pictureService = new PictureService();
+    this.photosService = new PhotosService();
     this.present = new PresentingService();
     this.uploadService = new UploadService(this.uploadFilesDoneCallback.bind(this));
-    this.picturesRangeListener = this.loadPicturesRange.bind(this);
+    this.photosRangeListener = this.loadPhotosRange.bind(this);
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
       const { history } = this.props;
@@ -42,17 +43,17 @@ export default class PicturesList extends Component {
 
   componentDidMount() {
     this._isMounted = true;
-    this.picturesLoaded= 0;
+    this.photosLoaded= 0;
 
     this.infiniteScroll = document.getElementById('infinite-scroll');
     if (this.infiniteScroll) {
-      this.infiniteScroll.addEventListener('ionInfinite', this.picturesRangeListener);
+      this.infiniteScroll.addEventListener('ionInfinite', this.photosRangeListener);
     }
     this.uploadService.addEventListeners(true);
-    this.loadPicturesList(false);
+    this.loadPhotosList(false);
 
     if (window.gtag) {
-      window.gtag('event', 'pictures-list');
+      window.gtag('event', 'photos-list');
     }
   }
 
@@ -61,27 +62,27 @@ export default class PicturesList extends Component {
 
     this.uploadService.removeEventListeners(true);
     if (this.infiniteScroll) {
-      this.infiniteScroll.removeEventListener('ionInfinite', this.picturesRangeListener);
+      this.infiniteScroll.removeEventListener('ionInfinite', this.photosRangeListener);
     }
   }
 
-  async loadPicturesList(sync) {
+  async loadPhotosList(sync) {
     try {
-      await this.present.loading('Loading pictures...');
+      await this.present.loading('Loading photos...');
 
-      // Get the contents of the file picture-list.json
-      let picturesListResponse = await this.pictureService.getPicturesList(sync);
-      this.picturesListCached = picturesListResponse.picturesList;
+      // Get the contents of the file photo-list.json
+      let photosListResponse = await this.photosService.getPhotosList(sync);
+      this.photosListCached = photosListResponse.photosList;
       this.present.dismissLoading();
 
-      this.loadPicturesRange();
+      this.loadPhotosRange();
       
-      if (picturesListResponse.errorsList && picturesListResponse.errorsList.length > 0) {
-        for (let error in picturesListResponse.errorsList) {
+      if (photosListResponse.errorsList && photosListResponse.errorsList.length > 0) {
+        for (let error in photosListResponse.errorsList) {
           if (error.errorCode === 'err_cache') {
             this.present.toast('Failed to load cached list. Please try again!');
           } else if (error.errorCode) {
-            this.present.toast('Could not load pictures from blockstack. Please try again or upload some pictures if you have none!');
+            this.present.toast('Could not load photos from blockstack. Please try again or upload some photos if you have none!');
           }
         }
       }
@@ -90,66 +91,66 @@ export default class PicturesList extends Component {
       if (sync) {
         this.present.dismissLoading();
       }
-      this.present.toast('Could not load pictures. Please try again!');
+      this.present.toast('Could not load photos. Please try again!');
     }
   }
 
-  loadPicturesRange(event) {
+  loadPhotosRange(event) {
     setTimeout(() => {
       if (event) {
         this.infiniteScroll.complete();
       }
       if (this._isMounted) {
-        const picturesToLoad = this.picturesLoaded + 21;
-        if (picturesToLoad > this.picturesListCached.length) {
-          this.setState({ picturesList: this.picturesListCached });
+        const photosToLoad = this.photosLoaded + 21;
+        if (photosToLoad > this.photosListCached.length) {
+          this.setState({ photosList: this.photosListCached, listLoaded: true });
           if (event) {
             this.infiniteScroll.disabled = true;
           }
         } else {
-          const picturesList = this.picturesListCached.slice(0, picturesToLoad);
-          this.setState({ picturesList: picturesList });
-          this.picturesLoaded = picturesToLoad;
+          const photosList = this.photosListCached.slice(0, photosToLoad);
+          this.setState({ photosList: photosList, listLoaded: true });
+          this.photosLoaded = photosToLoad;
         }
       }
     }, 500);
   }
 
-  async rotatePicture(id) {
-    await this.pictureService.rotatePicture(id);
+  async rotatePhoto(id) {
+    await this.photosService.rotatePhoto(id);
     if (this._isMounted) {
-      this.refreshPicture(id);
+      this.refreshPhoto(id);
     }
 
     if (window.gtag) {
-      window.gtag('event', 'pictures-list-rotate');
+      window.gtag('event', 'photos-list-rotate');
     }
   }
 
   uploadFilesDoneCallback() {
-    this.loadPicturesList();
+    this.loadPhotosList();
 
     if (window.gtag) {
-      window.gtag('event', 'pictures-list-uploaded');
+      window.gtag('event', 'photos-list-uploaded');
     }
   }
 
-  deletePictureCallback(callbackComponent) {
-    callbackComponent.loadPicturesList();
+  deletePhotoCallback(callbackComponent) {
+    callbackComponent.loadPhotosList();
 
     if (window.gtag) {
-      window.gtag('event', 'pictures-list-deleted');
+      window.gtag('event', 'photos-list-deleted');
     }
   }
 
-  refreshPicture(id) {
-    let tempRefreshPicture = this.state.refreshPicture;
-    if (tempRefreshPicture[id]) {
-      tempRefreshPicture[id] = false;
+  refreshPhoto(id) {
+    let tempRefreshPhoto = this.state.refreshPhoto;
+    if (tempRefreshPhoto[id]) {
+      tempRefreshPhoto[id] = false;
     } else {
-      tempRefreshPicture[id] = true;
+      tempRefreshPhoto[id] = true;
     }
-    this.setState({refreshPicture: tempRefreshPicture});
+    this.setState({refreshPhoto: tempRefreshPhoto});
   }
 
   openFileDialog(event) {
@@ -159,15 +160,15 @@ export default class PicturesList extends Component {
     document.getElementById('file-upload').click();
 
     if (window.gtag) {
-      window.gtag('event', 'pictures-list-file-dialog');
+      window.gtag('event', 'photos-list-file-dialog');
     }
   }
 
   render() {
     let rows = [];
     let empty = true;
-    if (this.state.picturesList && this.state.picturesList.length > 0) {
-      rows = _.chunk(this.state.picturesList, 3);
+    if (this.state.photosList && this.state.photosList.length > 0) {
+      rows = _.chunk(this.state.photosList, 3);
       empty = false;
     }
     return (
@@ -181,7 +182,7 @@ export default class PicturesList extends Component {
                   <ion-icon color="light" name="person"></ion-icon>
                 </ion-button>
               </Link>
-              <ion-button onClick={() => this.loadPicturesList(true)}>
+              <ion-button onClick={() => this.loadPhotosList(true)}>
                 <ion-icon name="refresh"></ion-icon>
               </ion-button>
               <ion-button onClick={(event) => this.openFileDialog(event)}>
@@ -192,7 +193,7 @@ export default class PicturesList extends Component {
           </ion-toolbar>
         </ion-header>
         <ion-content>
-          {empty ? ( <ion-card padding text-center><h2>Welcome to Block Photos.</h2><h3>Use the upload button (<ion-icon size="small" name="ios-cloud-upload"></ion-icon>) to add your first photo.</h3></ion-card> ) : (
+          {empty && this.state.listLoaded ? ( <ion-card padding text-center><h2>Welcome to Block Photos.</h2><h3>Use the upload button (<ion-icon size="small" name="ios-cloud-upload"></ion-icon>) to add your first photo.</h3></ion-card> ) : (
           <ion-grid no-padding>
             {rows.map((row) => (
               <ion-row align-items-center key={row[0].id}>
@@ -200,23 +201,23 @@ export default class PicturesList extends Component {
                   row.map((col) => (
                     <ion-col no-padding align-self-center key={col.id}>
                       <ContextMenuTrigger id={col.id}>
-                        <Link to={"/picture/" + col.id}>
+                        <Link to={"/photo/" + col.id}>
                         <div className="square">
-                          <BlockImg id={col.id} refresh={this.state.refreshPicture[col.id]} />
+                          <BlockImg id={col.id} refresh={this.state.refreshPhoto[col.id]} />
                         </div>
                         </Link>
                         <ContextMenu id={col.id} className="pointer">
                           <ion-list>
-                            <MenuItem onClick={() => this.rotatePicture(col.id)}>
+                            <MenuItem onClick={() => this.rotatePhoto(col.id)}>
                               <ion-item>
                                 <ion-icon name="sync"></ion-icon>
-                                <ion-label>Rotate picture</ion-label>
+                                <ion-label>Rotate photo</ion-label>
                               </ion-item>
                             </MenuItem>
-                            <MenuItem onClick={() => this.present.deletePicture(col.id, this)}>
+                            <MenuItem onClick={() => this.present.deletePhoto(col.id, this)}>
                               <ion-item>
                                 <ion-icon name="trash"></ion-icon>
-                                <ion-label>Delete picture</ion-label>
+                                <ion-label>Delete photo</ion-label>
                               </ion-item>
                             </MenuItem>
                           </ion-list>
@@ -232,7 +233,7 @@ export default class PicturesList extends Component {
           <ion-infinite-scroll threshold="100px" id="infinite-scroll">
           <ion-infinite-scroll-content
             loading-spinner="bubbles"
-            loading-text="Loading more pictures...">
+            loading-text="Loading more photos...">
           </ion-infinite-scroll-content>
         </ion-infinite-scroll>
         </ion-content>

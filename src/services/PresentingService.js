@@ -1,10 +1,10 @@
-import PictureService from './PictureService';
+import PhotosService from './PhotosService';
 import isElectron from 'is-electron';
 
 export default class PresentingService {
 
   constructor() {
-    this.pictureService = new PictureService();
+    this.photosService = new PhotosService();
   }
 
   async loading(message, duration, enableBackdropDismiss) {
@@ -38,24 +38,24 @@ export default class PresentingService {
     return await toast.present();
   }
 
-  async deletePicture(id, callbackComponent) {
+  async deletePhoto(id, callbackComponent) {
     const actionSheetController = document.querySelector('ion-action-sheet-controller');
     await actionSheetController.componentOnReady();
 
     const actionSheet = await actionSheetController.create({
-      header: "Delete picture?",
+      header: "Delete photo?",
       buttons: [{
         text: 'Delete',
         role: 'destructive',
         icon: 'trash',
         handler: async () => {
-          this.loading('Deleting picture...');
-          let result = await this.pictureService.deletePicture(id);
+          this.loading('Deleting photo...');
+          let result = await this.photosService.deletePhoto(id);
           this.dismissLoading();
           if (result === true) {
-            callbackComponent.deletePictureCallback(callbackComponent);
+            callbackComponent.deletePhotoCallback(callbackComponent);
           } else {
-            this.errorAlert('Removal failed', 'The removal of the picture failed. Please try again in a few minutes!');
+            this.errorAlert('Removal failed', 'The removal of the photo failed. Please try again in a few minutes!');
           }
         }
       }, {

@@ -1,6 +1,6 @@
 import * as loadImage from 'blueimp-load-image';
 
-import PictureService from './PictureService';
+import PhotosService from './PhotosService';
 import PresentingService from './PresentingService';
 
 export default class UploadService {
@@ -8,7 +8,7 @@ export default class UploadService {
   root = document.getElementById('root');
 
   constructor(callback) {
-    this.pictureService = new PictureService();
+    this.photosService = new PhotosService();
     this.present = new PresentingService();
     this.callback = callback;
     this.dropEventBinding = this.dropEvent.bind(this);
@@ -42,15 +42,15 @@ export default class UploadService {
     event.preventDefault();
 
     if (event.dataTransfer.items) {
-      const picturesToUpload = [];
+      const photosToUpload = [];
       for (var i = 0; i < event.dataTransfer.items.length; i++) {
         let item = {
           kind: event.dataTransfer.items[i].kind,
           file: event.dataTransfer.items[i].getAsFile()
         };
-        picturesToUpload.push(item);
+        photosToUpload.push(item);
       }
-      this.processUpload(picturesToUpload, 0);
+      this.processUpload(photosToUpload, 0);
 
       event.dataTransfer.items.clear();
     }
@@ -63,21 +63,21 @@ export default class UploadService {
     const files = event.target.files;
 
     if (files) {
-      const picturesToUpload = [];
+      const photosToUpload = [];
       for (var i = 0; i < files.length; i++) {
         let item = {
           kind: 'file',
           file: files[i]
         };
-        picturesToUpload.push(item);
+        photosToUpload.push(item);
       }
-      this.processUpload(picturesToUpload, 0);
+      this.processUpload(photosToUpload, 0);
     }
   }
 
   async processUpload(list, currentIndex) {
     if (currentIndex === 0) {
-      await this.present.loading('Pictures uploading...');
+      await this.present.loading('Uploading photos...');
     }
     // If dropped items aren't files, reject them
     if (list[currentIndex]) {
@@ -105,7 +105,7 @@ export default class UploadService {
                     "filename": loadedFile.name,
                     "stats": loadedFile
                   };
-                  await this.uploadPicture(metadata, event);
+                  await this.uploadPhoto(metadata, event);
                   if (loadedList[currentIndex + 1]) {
                     this.processUpload(loadedList, currentIndex + 1);
                   } else {
@@ -122,7 +122,7 @@ export default class UploadService {
             }
           );
         } else {
-          this.present.toast('The file "' + file.name + '" could not be uploaded, are you sure it\'s a picture?');
+          this.present.toast('The file "' + file.name + '" could not be uploaded, are you sure it\'s a photo?');
           if (list[currentIndex + 1]) {
             this.processUpload(list, currentIndex + 1);
           } else {
@@ -132,9 +132,9 @@ export default class UploadService {
       } else {
  
         if (file && file.name) {
-          this.present.toast('The file "' + file.name + '" could not be uploaded, are you sure it\'s a picture?');
+          this.present.toast('The file "' + file.name + '" could not be uploaded, are you sure it\'s a photo?');
         } else {
-          this.present.toast('One of the files could not be uploaded, are you sure it\'s a picture?');
+          this.present.toast('One of the files could not be uploaded, are you sure it\'s a photo?');
         }
         if (list[currentIndex + 1]) {
           this.processUpload(list, currentIndex + 1);
@@ -143,7 +143,7 @@ export default class UploadService {
         }
       }
     } else {
-      this.present.toast('The file could not be uploaded, are you sure it\'s a picture?');
+      this.present.toast('The file could not be uploaded, are you sure it\'s a photo?');
       if (list[currentIndex + 1]) {
         this.processUpload(list, currentIndex + 1);
       } else {
@@ -152,13 +152,13 @@ export default class UploadService {
     }
   }
 
-  async uploadPicture(metadata, event) {
+  async uploadPhoto(metadata, event) {
     if (metadata && event) {
-      const response = await this.pictureService.uploadPicture(metadata, event);
+      const response = await this.photosService.uploadPhoto(metadata, event);
       if (response.errorsList && response.errorsList.length > 0) {
         for (let error of response.errorsList) {
           if (error.errorCode === 'err_filesize') {
-            this.present.toast('Failed to upload "' + error.id + '", picture exceeds file size limit of 5MB.');
+            this.present.toast('Failed to upload "' + error.id + '", photo exceeds file size limit of 5MB.');
           } else {
             this.present.toast('Failed to upload "' + error.id + '".');
           }

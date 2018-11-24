@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import PicturesList from './PicturesList';
+import PhotosList from './PhotosList';
 
 import * as blockstack from 'blockstack';
 import UploadService from '../services/UploadService';
@@ -23,7 +23,7 @@ it('renders without crashing', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <BrowserRouter>
-      <PicturesList />
+      <PhotosList />
     </BrowserRouter>
     , div);
   ReactDOM.unmountComponentAtNode(div);
@@ -37,7 +37,7 @@ it('renders signed in', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <BrowserRouter>
-      <PicturesList />
+      <PhotosList />
     </BrowserRouter>
     , div);
   ReactDOM.unmountComponentAtNode(div);
@@ -54,7 +54,7 @@ it('renders with list', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <BrowserRouter>
-      <PicturesList />
+      <PhotosList />
     </BrowserRouter>
     , div);
   ReactDOM.unmountComponentAtNode(div);
@@ -68,7 +68,7 @@ it('renders with empty list', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <BrowserRouter>
-      <PicturesList />
+      <PhotosList />
     </BrowserRouter>
     , div);
   ReactDOM.unmountComponentAtNode(div);

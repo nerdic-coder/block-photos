@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import * as loadImage from 'blueimp-load-image';
 
-import PictureService from '../services/PictureService';
+import PhotosService from '../services/PhotosService';
 
 export default class BlockImg extends Component {
 
@@ -23,20 +23,20 @@ export default class BlockImg extends Component {
   constructor(props) {
     super(props);
 
-    this.pictureService = new PictureService();
+    this.photosService = new PhotosService();
   }
 
   componentDidMount() {
     this._isMounted = true;
 
-    this.getPicture();
+    this.getPhoto();
   }
 
   componentDidUpdate(prevProps) {
     this._isMounted = true;
 
     if (this.props.id !== prevProps.id || this.props.refresh !== prevProps.refresh) {
-      this.getPicture();
+      this.getPhoto();
     }
   }
 
@@ -44,16 +44,16 @@ export default class BlockImg extends Component {
     this._isMounted = false;
   }
 
-  async getPicture() {
+  async getPhoto() {
     const { id, rotate } = this.props;
     
     if (id === 'loading') {
       return;
     }
     
-    const metadata = await this.pictureService.getPictureMetaData(id);
+    const metadata = await this.photosService.getPhotoMetaData(id);
 
-    const base64 = await this.pictureService.loadPicture(id);
+    const base64 = await this.photosService.loadPhoto(id);
     if (!this._isMounted) {
       return;
     }
@@ -94,13 +94,13 @@ export default class BlockImg extends Component {
         }
     }
 
-    // Set picture orientation from exif if it exist
+    // Set photo orientation from exif if it exist
     if (rotate && metadata && metadata.stats && metadata.stats.exifdata 
       && metadata.stats.exifdata.tags.Orientation && this.state.rotation !== 1) {
         const imageOptions = {};
         imageOptions.orientation = metadata.stats.exifdata.tags.Orientation;
-        loadImage(base64, (processedPicture) => {
-          this.handleProcessedPicture(processedPicture);
+        loadImage(base64, (processedPhoto) => {
+          this.handleProcessedPhoto(processedPhoto);
         }, imageOptions);
     } else if (this._isMounted) {
       this.setState({ source: base64, isLoaded: true, rotation: this.state.rotation });
@@ -108,13 +108,13 @@ export default class BlockImg extends Component {
 
   }
 
-  handleProcessedPicture(processedPicture) {
-    if (processedPicture.type === "error") {
+  handleProcessedPhoto(processedPhoto) {
+    if (processedPhoto.type === "error") {
       // TODO: show error message
-    } else if (processedPicture.tagName == 'CANVAS' && this._isMounted) {
-      this.setState({ source: processedPicture.toDataURL(), isLoaded: true, rotation: this.state.rotation });
+    } else if (processedPhoto.tagName == 'CANVAS' && this._isMounted) {
+      this.setState({ source: processedPhoto.toDataURL(), isLoaded: true, rotation: this.state.rotation });
     } else if (this._isMounted) {
-      this.setState({ source: processedPicture.src, isLoaded: true, rotation: this.state.rotation });
+      this.setState({ source: processedPhoto.src, isLoaded: true, rotation: this.state.rotation });
     }
   }
 

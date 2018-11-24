@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { isUserSignedIn } from 'blockstack';
 
-import PictureService from '../services/PictureService';
+import PhotosService from '../services/PhotosService';
 import PresentingService from '../services/PresentingService';
 import BlockImg from '../components/BlockImg';
 
-export default class PicturesList extends Component {
+export default class PhotosList extends Component {
 
   _isMounted = false;
 
@@ -17,14 +17,14 @@ export default class PicturesList extends Component {
   };
 
   state = {
-    nextAndPreviousPicture: [],
+    nextAndPreviousPhoto: [],
     currentId: this.props.match.params.id
   };
 
   constructor(props) {
     super(props);
 
-    this.pictureService = new PictureService();
+    this.photosService = new PhotosService();
     this.present = new PresentingService();
 
     const { history } = this.props;
@@ -38,10 +38,10 @@ export default class PicturesList extends Component {
 
     const { match } = this.props;
 
-    // Go to pictures list if picture id is missing
+    // Go to photos list if photo id is missing
     if (!match || !match.params || !match.params.id) {
       if (history) {
-        history.replace('/pictures');
+        history.replace('/photos');
       }
       return;
     }
@@ -51,16 +51,16 @@ export default class PicturesList extends Component {
   componentDidMount() {
     this._isMounted = true;
 
-    this.loadPictureWithId(this.props.match.params.id);
+    this.loadPhotoWithId(this.props.match.params.id);
 
     if (window.gtag) {
-      window.gtag('event', 'picture-page');
+      window.gtag('event', 'photo-page');
     }
   }
 
   componentDidUpdate() {
     if (this._isMounted) {
-      this.loadPictureWithId(this.props.match.params.id);
+      this.loadPhotoWithId(this.props.match.params.id);
     }
   }
 
@@ -68,57 +68,57 @@ export default class PicturesList extends Component {
     this._isMounted = false;
   }
 
-  async loadPictureWithId(id) {
+  async loadPhotoWithId(id) {
     if (id && this._isMounted) {
-      const nextAndPreviousPicture = await this.pictureService.getNextAndPreviousPicture(id);
+      const nextAndPreviousPhoto = await this.photosService.getNextAndPreviousPhoto(id);
       if (this._isMounted) {
-        this.setState({ nextAndPreviousPicture: nextAndPreviousPicture, currentId: id });
+        this.setState({ nextAndPreviousPhoto: nextAndPreviousPhoto, currentId: id });
       }
     }
   }
 
-  gotoPictureWithId(id) {
+  gotoPhotoWithId(id) {
     if (id) {
       const { history } = this.props;
       if (history) {
-        history.replace("/picture/" + id);
+        history.replace("/photo/" + id);
       }
     }
   }
 
-  async rotatePicture(currentId) {
-    await this.pictureService.rotatePicture(currentId);
+  async rotatePhoto(currentId) {
+    await this.photosService.rotatePhoto(currentId);
 
     if (this._isMounted) {
-      this.setState({ nextAndPreviousPicture: this.state.nextAndPreviousPicture, currentId: 'loading' });
-      this.loadPictureWithId(currentId);
+      this.setState({ nextAndPreviousPhoto: this.state.nextAndPreviousPhoto, currentId: 'loading' });
+      this.loadPhotoWithId(currentId);
     }
 
     if (window.gtag) {
-      window.gtag('event', 'picture-page-rotate');
+      window.gtag('event', 'photo-page-rotate');
     }
   }
 
-  deletePictureCallback(callbackComponent) {
+  deletePhotoCallback(callbackComponent) {
     const { history } = callbackComponent.props;
-    history.replace('/pictures');
+    history.replace('/photos');
 
     if (window.gtag) {
-      window.gtag('event', 'picture-page-delete');
+      window.gtag('event', 'photo-page-delete');
     }
   }
 
   render() {
-    const { currentId, nextAndPreviousPicture } = this.state;
+    const { currentId, nextAndPreviousPhoto } = this.state;
     if (!currentId) {
-      return (<h1>404 - Picture not found</h1>);
+      return (<h1>404 - Photo not found</h1>);
     }
     return (
       <React.Fragment>
         <ion-header>
           <ion-toolbar color="primary">
             <ion-buttons slot="start">
-              <Link to="/pictures">
+              <Link to="/photos">
                 <ion-button>
                   <ion-icon color="light" name="close" size="large"></ion-icon>
                 </ion-button>
@@ -126,23 +126,23 @@ export default class PicturesList extends Component {
             </ion-buttons>
             <ion-title>Photo</ion-title>
             <ion-buttons slot="end">
-              <ion-button onClick={() => this.rotatePicture(currentId)}>
+              <ion-button onClick={() => this.rotatePhoto(currentId)}>
                 <ion-icon color="light" name="sync"></ion-icon>
               </ion-button>
-              <ion-button onClick={() => this.present.deletePicture(currentId, this)}>
+              <ion-button onClick={() => this.present.deletePhoto(currentId, this)}>
                 <ion-icon color="light" name="trash"></ion-icon>
               </ion-button>
-              <ion-button disabled={!nextAndPreviousPicture.previousId} onClick={() => this.gotoPictureWithId(nextAndPreviousPicture.previousId)}>
+              <ion-button disabled={!nextAndPreviousPhoto.previousId} onClick={() => this.gotoPhotoWithId(nextAndPreviousPhoto.previousId)}>
                 <ion-icon color="light" name="arrow-back"></ion-icon>
               </ion-button>
-              <ion-button disabled={!nextAndPreviousPicture.nextId} onClick={() => this.gotoPictureWithId(nextAndPreviousPicture.nextId)}>
+              <ion-button disabled={!nextAndPreviousPhoto.nextId} onClick={() => this.gotoPhotoWithId(nextAndPreviousPhoto.nextId)}>
                 <ion-icon color="light" name="arrow-forward"></ion-icon>
               </ion-button>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
 
-        <ion-content text-center class="picture-page">
+        <ion-content text-center class="photo-page">
           <BlockImg id={currentId} rotate={true} />
         </ion-content>
       </React.Fragment>

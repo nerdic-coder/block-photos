@@ -16,10 +16,10 @@ import '@ionic/pwa-elements';
 import { Plugins } from '@capacitor/core';
 
 import './App.css';
-import PicturesList from './pages/PicturesList';
+import PhotosList from './pages/PhotosList';
 import Signin from './pages/Signin';
 import Profile from './pages/Profile';
-import Picture from './pages/Picture';
+import Photo from './pages/Photo';
 
 class MainApp extends Component {
 
@@ -38,8 +38,8 @@ class MainApp extends Component {
       <ion-app>
         <Switch>
           <Route path="/profile" component={Profile} />
-          <Route path="/picture/:id" component={Picture} />
-          <Route path="/pictures" component={PicturesList} />
+          <Route path="/photo/:id" component={Photo} />
+          <Route path="/photos" component={PhotosList} />
           <Route path="/" component={Signin} />
         </Switch>
         <ion-alert-controller />
