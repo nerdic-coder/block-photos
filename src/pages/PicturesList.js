@@ -170,9 +170,9 @@ export default class PicturesList extends Component {
       <React.Fragment>
         <ion-header>
           <ion-toolbar color="primary">
-            <ion-title>Block Photos</ion-title>
+            <ion-title class="unselectable">Block Photos</ion-title>
             <ion-buttons slot="end">
-              <Link to="/profile">
+              <Link to="/profile" draggable="false">
                 <ion-button>
                   <ion-icon color="light" name="person"></ion-icon>
                 </ion-button>

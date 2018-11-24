@@ -142,7 +142,7 @@ export default class BlockImg extends Component {
     const { isLoaded, source, rotation } = this.state;
     if (isLoaded && source && this.props.id !== 'loading') {
       return (
-        <img src={source} className={ "rotation-" + rotation } />
+        <img draggable="false" src={source} className={ "rotation-" + rotation } />
       );
     } else {
       return (

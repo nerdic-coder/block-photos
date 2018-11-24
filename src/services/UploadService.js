@@ -130,7 +130,12 @@ export default class UploadService {
           }
         }
       } else {
-        this.present.toast('The file "' + file.name + '" could not be uploaded, are you sure it\'s a picture?');
+ 
+        if (file && file.name) {
+          this.present.toast('The file "' + file.name + '" could not be uploaded, are you sure it\'s a picture?');
+        } else {
+          this.present.toast('One of the files could not be uploaded, are you sure it\'s a picture?');
+        }
         if (list[currentIndex + 1]) {
           this.processUpload(list, currentIndex + 1);
         } else {

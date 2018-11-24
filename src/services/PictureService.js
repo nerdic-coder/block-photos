@@ -51,7 +51,7 @@ export default class PictureService {
       this.cache.setItem(id, cachedPicture);
     }
 
-    if (!cachedPicture.match('data:image/.*') ) {
+    if (cachedPicture && !cachedPicture.match('data:image/.*') ) {
       cachedPicture = 'data:image/png;base64,' + cachedPicture;
     }
     return cachedPicture;

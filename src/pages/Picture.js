@@ -6,7 +6,6 @@ import { isUserSignedIn } from 'blockstack';
 import PictureService from '../services/PictureService';
 import PresentingService from '../services/PresentingService';
 import BlockImg from '../components/BlockImg';
-import UploadService from '../services/UploadService';
 
 export default class PicturesList extends Component {
 
@@ -27,7 +26,6 @@ export default class PicturesList extends Component {
 
     this.pictureService = new PictureService();
     this.present = new PresentingService();
-    this.uploadService = new UploadService();
 
     const { history } = this.props;
     // Go to signin page if no active session exist
@@ -53,7 +51,6 @@ export default class PicturesList extends Component {
   componentDidMount() {
     this._isMounted = true;
 
-    this.uploadService.addEventListeners(false);
     this.loadPictureWithId(this.props.match.params.id);
 
     if (window.gtag) {
@@ -63,8 +60,6 @@ export default class PicturesList extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
-
-    this.uploadService.removeEventListeners(false);
   }
 
   async loadPictureWithId(id) {

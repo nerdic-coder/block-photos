@@ -11,7 +11,6 @@ import {
 import CacheService from '../services/CacheService';
 import PictureService from '../services/PictureService';
 import PresentingService from '../services/PresentingService';
-import UploadService from '../services/UploadService';
 
 const avatarFallbackImage = 'https://s3.amazonaws.com/onename/avatar-placeholder.png';
 
@@ -31,7 +30,6 @@ export default class Profile extends Component {
     this.cacheService = new CacheService();
     this.pictureService = new PictureService();
     this.present = new PresentingService();
-    this.uploadService = new UploadService();
   }
 
   componentDidMount() {
@@ -44,7 +42,6 @@ export default class Profile extends Component {
       return;
     }
 
-    this.uploadService.addEventListeners(false);
     this.setState({ person: new Person(loadUserData().profile) });
 
     if (window.gtag) {
@@ -52,9 +49,6 @@ export default class Profile extends Component {
     }
   }
 
-  componentWillUnmount() {
-    this.uploadService.removeEventListeners(false);
-  }
 
   handleSignOut(e) {
     if (e) {
