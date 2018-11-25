@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Route, Switch } from 'react-router';
+import { ModalContainer } from 'react-router-modal';
 
 import "@ionic/core/css/core.css";
 import '@ionic/core/css/normalize.css';
@@ -11,6 +12,8 @@ import '@ionic/core/css/float-elements.css';
 import '@ionic/core/css/text-alignment.css';
 import '@ionic/core/css/text-transformation.css';
 import '@ionic/core/css/flex-utils.css';
+
+import 'react-router-modal/css/react-router-modal.css';
 
 import { Plugins } from '@capacitor/core';
 
@@ -45,6 +48,7 @@ class MainApp extends Component {
         <ion-action-sheet-controller />
         <ion-loading-controller/>
         <ion-toast-controller/>
+        <ModalContainer />
       </ion-app>
     );
   }

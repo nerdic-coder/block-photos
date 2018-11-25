@@ -13,7 +13,8 @@ export default class PhotosList extends Component {
 
   static propTypes = {
     history: PropTypes.any,
-    match: PropTypes.any
+    match: PropTypes.any,
+    updateCallback: PropTypes.func
   };
 
   state = {
@@ -58,8 +59,8 @@ export default class PhotosList extends Component {
     }
   }
 
-  componentDidUpdate() {
-    if (this._isMounted) {
+  componentDidUpdate(prevProps) {
+    if (this._isMounted && this.props.match.params.id !== prevProps.match.params.id) {
       this.loadPhotoWithId(this.props.match.params.id);
     }
   }
@@ -81,17 +82,24 @@ export default class PhotosList extends Component {
     if (id) {
       const { history } = this.props;
       if (history) {
-        history.replace("/photo/" + id);
+        history.replace("/photos/photo/" + id);
       }
     }
   }
 
   async rotatePhoto(currentId) {
     await this.photosService.rotatePhoto(currentId);
+    
+    const { updateCallback } = this.props;
 
     if (this._isMounted) {
       this.setState({ nextAndPreviousPhoto: this.state.nextAndPreviousPhoto, currentId: 'loading' });
       this.loadPhotoWithId(currentId);
+    }
+
+    if (updateCallback && typeof (updateCallback) === "function") {
+      // execute the callback, passing parameters as necessary
+      updateCallback(currentId);
     }
 
     if (window.gtag) {
@@ -100,7 +108,12 @@ export default class PhotosList extends Component {
   }
 
   deletePhotoCallback(callbackComponent) {
-    const { history } = callbackComponent.props;
+    const { history, updateCallback } = callbackComponent.props;
+
+    if (updateCallback && typeof (updateCallback) === "function") {
+      // execute the callback, passing parameters as necessary
+      updateCallback();
+    }
 
     if (this.state.nextAndPreviousPhoto && this.state.nextAndPreviousPhoto.nextId) {
       this.gotoPhotoWithId(this.state.nextAndPreviousPhoto.nextId);
@@ -111,7 +124,7 @@ export default class PhotosList extends Component {
     else if (history) {
       setTimeout(() => {
         history.replace('/photos');
-      }, 1000);
+      }, 2000);
     }
 
     if (window.gtag) {

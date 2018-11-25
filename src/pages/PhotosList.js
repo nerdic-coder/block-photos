@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import { ModalRoute } from 'react-router-modal';
+
 import { isUserSignedIn } from 'blockstack';
 import _ from 'lodash';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "react-contextmenu";
@@ -10,12 +12,15 @@ import PresentingService from '../services/PresentingService';
 import UploadService from '../services/UploadService';
 import BlockImg from '../components/BlockImg';
 
+import Photo from './Photo';
+
 export default class PhotosList extends Component {
 
   _isMounted = false;
 
   static propTypes = {
-    history: PropTypes.any
+    history: PropTypes.any,
+    match: PropTypes.any
   };
 
   state = {
@@ -66,14 +71,18 @@ export default class PhotosList extends Component {
     }
   }
 
-  async loadPhotosList(sync) {
+  async loadPhotosList(sync, skipLoading) {
     try {
-      await this.present.loading('Loading photos...');
+      if (!skipLoading) {
+        await this.present.loading('Loading photos...');
+      }
 
       // Get the contents of the file picture-list.json
       let photosListResponse = await this.photosService.getPhotosList(sync);
       this.photosListCached = photosListResponse.photosList;
-      this.present.dismissLoading();
+      if (!skipLoading) {
+        this.present.dismissLoading();
+      }
 
       this.loadPhotosRange();
       
@@ -88,7 +97,7 @@ export default class PhotosList extends Component {
       }
 
     } catch (error) {
-      if (sync) {
+      if (!skipLoading) {
         this.present.dismissLoading();
       }
       this.present.toast('Could not load photos. Please try again!');
@@ -164,7 +173,24 @@ export default class PhotosList extends Component {
     }
   }
 
+  updateCallback(id) {
+    if (id) {
+      setTimeout(() => {
+        if (this._isMounted) {
+          this.refreshPhoto(id);
+        }
+      }, 1500);
+    } else {
+      setTimeout(() => {
+        if (this._isMounted) {
+          this.loadPhotosList(true, true);
+        }
+      }, 1500);
+    }
+  }
+
   render() {
+    const { match } = this.props;
     let rows = [];
     let empty = true;
     if (this.state.photosList && this.state.photosList.length > 0) {
@@ -201,7 +227,7 @@ export default class PhotosList extends Component {
                   row.map((col) => (
                     <ion-col no-padding align-self-center key={col.id}>
                       <ContextMenuTrigger id={col.id}>
-                        <Link to={"/photo/" + col.id}>
+                        <Link to={`${match.url}/photo/` + col.id}>
                         <div className="square">
                           <BlockImg id={col.id} refresh={this.state.refreshPhoto[col.id]} />
                         </div>
@@ -237,6 +263,7 @@ export default class PhotosList extends Component {
           </ion-infinite-scroll-content>
         </ion-infinite-scroll>
         </ion-content>
+        <ModalRoute path="*/photo/:id" component={Photo} props={{ updateCallback: this.updateCallback.bind(this) }} />
       </React.Fragment>
     );
   }
