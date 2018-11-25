@@ -43,7 +43,7 @@ export default class PhotosList extends Component {
 
   componentDidMount() {
     this._isMounted = true;
-    this.photosLoaded= 0;
+    this.photosLoaded = 0;
 
     this.infiniteScroll = document.getElementById('infinite-scroll');
     if (this.infiniteScroll) {

@@ -101,7 +101,18 @@ export default class PhotosList extends Component {
 
   deletePhotoCallback(callbackComponent) {
     const { history } = callbackComponent.props;
-    history.replace('/photos');
+
+    if (this.state.nextAndPreviousPhoto && this.state.nextAndPreviousPhoto.nextId) {
+      this.gotoPhotoWithId(this.state.nextAndPreviousPhoto.nextId);
+    }
+    else if(this.state.nextAndPreviousPhoto && this.state.nextAndPreviousPhoto.previousId) {
+      this.gotoPhotoWithId(this.state.nextAndPreviousPhoto.previousId);
+    }
+    else if (history) {
+      setTimeout(() => {
+        history.replace('/photos');
+      }, 1000);
+    }
 
     if (window.gtag) {
       window.gtag('event', 'photo-page-delete');
