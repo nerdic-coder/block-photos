@@ -1,100 +1,164 @@
 {
   "name": "block-photos",
-  "version": "1.0.0",
-  "license": "MIT",
+  "version": "1.1.0",
+  "private": false,
+  "description": "The app for storing your photos privatly in the cloud!",
   "repository": {
     "type": "git",
     "url": "https://github.com/nerdic-coder/block-photos"
   },
-  "private": false,
+  "license": "MIT",
+  "author": "Johan Axelsson",
   "main": "electron/main.js",
   "scripts": {
-    "start": "npm run build && npx cap copy electron && npm run electron",
-    "serve": "webpack-dev-server --target=web --mode=development --hot --host 0.0.0.0",
     "build": "webpack --mode=development",
-    "build:prod": "webpack --mode=production",
-    "build:web": "webpack --target=web --mode=production",
     "build:android": "webpack --target=web --mode=production && npx cap copy android",
     "build:ios": "webpack --target=web --mode=production && npx cap copy ios",
-    "test": "react-scripts test --env=jsdom",
+    "build:prod": "webpack --mode=production",
+    "build:web": "webpack --target=web --mode=production",
     "eject": "react-scripts eject",
     "electron": "electron-forge start",
-    "package": "npm run build:prod && npx cap copy electron && electron-forge package",
-    "make": "npm run build:prod && npx cap copy electron && electron-forge make",
-    "publish": "npm run build:prod && npx cap copy electron && electron-forge publish",
     "eslint": "eslint",
-    "lint": "eslint ./src/**/*.js ./electron/*.js"
+    "lint": "eslint ./src/**/*.js ./electron/*.js",
+    "make": "npm run build:prod && npx cap copy electron && electron-forge make",
+    "package": "npm run build:prod && npx cap copy electron && electron-forge package",
+    "publish": "npm run build:prod && npx cap copy electron && electron-forge publish",
+    "serve": "webpack-dev-server --target=web --mode=development --hot --host 0.0.0.0",
+    "start": "npm run build && npx cap copy electron && npm run electron",
+    "start:react": "react-scripts start",
+    "test": "react-scripts test"
   },
   "config": {
     "forge": {
-      "make_targets": {
-        "win32": [
-          "squirrel",
-          "appx"
+      "packagerConfig": {
+        "icon": "electron/icons/mac/icon",
+        "ignore": [
+          ".vscode",
+          "coverage",
+          "android",
+          "ios",
+          "public",
+          "resources",
+          "src",
+          "www"
         ],
-        "darwin": [
-          "zip",
-          "dmg"
-        ],
-        "linux": [
-          "deb",
-          "rpm"
-        ]
+        "prune": true
       },
-      "electronPackagerConfig": {
-        "icon": "electron/icons/mac/icon"
-      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-dmg",
+          "config": {
+            "background": " ./assets/dmg-background.png",
+            "format": "UFLO"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-pkg",
+          "config": {
+            "keychain": "my-secret-ci-keychain"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "block_photos"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip"
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {
+            "options": {
+              "maintainer": "Johan Axelsson",
+              "homepage": "https://block-photos.com/"
+            }
+          }
+        }
+      ],
+      "publishers": [
+        {
+          "name": "@electron-forge/publisher-github",
+          "config": {
+            "repository": {
+              "owner": "nerdic-coder",
+              "name": "block-photos"
+            },
+            "prerelease": true
+          }
+        }
+      ],
       "github_repository": {
         "owner": "nerdic-coder",
         "name": "block-photos"
       }
     }
   },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
   "dependencies": {
-    "@capacitor/android": "^1.0.0-beta.8",
-    "@capacitor/cli": "^1.0.0-beta.8",
-    "@capacitor/core": "^1.0.0-beta.8",
-    "@capacitor/ios": "^1.0.0-beta.8",
-    "@ionic/core": "4.0.0-beta.16",
-    "@ionic/pwa-elements": "1.0.0",
-    "blockstack": "18.1.0",
-    "blueimp-load-image": "2.20.1",
     "electron-is-dev": "1.0.1",
-    "electron-squirrel-startup": "^1.0.0",
-    "is-electron": "^2.2.0",
-    "localforage": "1.7.3",
-    "prop-types": "^15.6.2",
-    "react": "^16.6.3",
-    "react-contextmenu": "^2.10.0",
-    "react-dom": "^16.6.3",
-    "react-router-dom": "^4.3.1",
-    "react-scripts": "2.1.1",
-    "uniqid": "5.0.3"
+    "electron-squirrel-startup": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "7.1.6",
     "@babel/polyfill": "7.0.0",
     "@babel/preset-env": "7.1.6",
     "@babel/preset-react": "7.0.0",
-    "@electron-forge/cli": "6.0.0-beta.22",
-    "@types/react": "16.7.6",
+    "@capacitor/android": "^1.0.0-beta.11",
+    "@capacitor/cli": "^1.0.0-beta.11",
+    "@capacitor/core": "^1.0.0-beta.11",
+    "@capacitor/ios": "^1.0.0-beta.11",
+    "@electron-forge/cli": "6.0.0-beta.30",
+    "@electron-forge/maker-appx": "6.0.0-beta.30",
+    "@electron-forge/maker-deb": "6.0.0-beta.30",
+    "@electron-forge/maker-dmg": "6.0.0-beta.30",
+    "@electron-forge/maker-pkg": "6.0.0-beta.30",
+    "@electron-forge/maker-rpm": "6.0.0-beta.30",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.30",
+    "@electron-forge/maker-zip": "6.0.0-beta.30",
+    "@electron-forge/publisher-github": "6.0.0-beta.30",
+    "@ionic/core": "4.0.0-beta.16",
+    "@types/react": "16.7.7",
     "babel-loader": "8.0.4",
     "babel-plugin-transform-class-properties": "6.24.1",
+    "blockstack": "18.1.0",
+    "blueimp-load-image": "2.20.1",
     "copy-webpack-plugin": "4.6.0",
     "css-loader": "1.0.1",
-    "electron": "3.0.9",
-    "electron-prebuilt-compile": "3.0.6",
+    "electron": "3.0.10",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.7.0",
     "eslint": "5.6.0",
     "eslint-plugin-react": "^7.11.1",
     "file-loader": "2.0.0",
     "html-webpack-plugin": "3.2.0",
-    "jest": "23.6.0",
-    "jest-enzyme": "^7.0.1",
+    "is-electron": "^2.2.0",
+    "localforage": "1.7.3",
     "path": "^0.12.7",
+    "prop-types": "^15.6.2",
+    "react": "^16.6.3",
+    "react-contextmenu": "^2.10.0",
+    "react-dom": "^16.6.3",
+    "react-router-dom": "^4.3.1",
+    "react-router-modal": "1.5.2",
+    "react-scripts": "2.1.1",
     "style-loader": "^0.23.1",
+    "uniqid": "5.0.3",
     "url-loader": "1.1.2",
     "webpack-cli": "^3.1.2"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "productName": "block-photos"
 }
