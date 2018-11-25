@@ -122,7 +122,7 @@ export default class Profile extends Component {
             <ion-row>
               <ion-col size="12" size-md="6" size-xl="4">
                 <ion-card color="light" no-margin margin-horizontal>
-                  <img src={person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage} />
+                  <img src={person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage} alt="Your profile avatar" />
 
                   <ion-card-header>
                     <ion-card-title>{person.name() ? person.name() : 'Nameless Person'}</ion-card-title>

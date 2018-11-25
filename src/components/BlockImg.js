@@ -67,28 +67,28 @@ export default class BlockImg extends Component {
           // If the orientation is unchanged don't rotate at all with CSS, iOS handles it automatic
           if (this.state.rotation === originalOrientation) {
             this.state.rotation = 1;
-          } else if (this.state.rotation == 1
-            && originalOrientation == 6) {
+          } else if (this.state.rotation === 1
+            && originalOrientation === 6) {
               this.state.rotation = 8;
-          } else if (this.state.rotation == 1) {
+          } else if (this.state.rotation === 1) {
             this.state.rotation = originalOrientation;
-          } else if (this.state.rotation == 3 
-            && originalOrientation == 6) {
+          } else if (this.state.rotation === 3 
+            && originalOrientation === 6) {
               this.state.rotation = 6;
-          } else if (this.state.rotation == 8 
-            && originalOrientation == 6) {
+          } else if (this.state.rotation === 8 
+            && originalOrientation === 6) {
               this.state.rotation = 3;
-          } else if (this.state.rotation == 3 
-            && originalOrientation == 8) {
+          } else if (this.state.rotation === 3 
+            && originalOrientation === 8) {
               this.state.rotation = 6;
-          } else if (this.state.rotation == 6 
-            && originalOrientation == 8) {
+          } else if (this.state.rotation === 6 
+            && originalOrientation === 8) {
               this.state.rotation = 3;
-          } else if (this.state.rotation == 8 
-            && originalOrientation == 3) {
+          } else if (this.state.rotation === 8 
+            && originalOrientation === 3) {
               this.state.rotation = 6;
-          } else if (this.state.rotation == 6 
-            && originalOrientation == 3) {
+          } else if (this.state.rotation === 6 
+            && originalOrientation === 3) {
               this.state.rotation = 8;
           }
         }
@@ -111,7 +111,7 @@ export default class BlockImg extends Component {
   handleProcessedPhoto(processedPhoto) {
     if (processedPhoto.type === "error") {
       // TODO: show error message
-    } else if (processedPhoto.tagName == 'CANVAS' && this._isMounted) {
+    } else if (processedPhoto.tagName === 'CANVAS' && this._isMounted) {
       this.setState({ source: processedPhoto.toDataURL(), isLoaded: true, rotation: this.state.rotation });
     } else if (this._isMounted) {
       this.setState({ source: processedPhoto.src, isLoaded: true, rotation: this.state.rotation });
@@ -142,7 +142,7 @@ export default class BlockImg extends Component {
     const { isLoaded, source, rotation } = this.state;
     if (isLoaded && source && this.props.id !== 'loading') {
       return (
-        <img draggable="false" src={source} className={ "rotation-" + rotation } />
+        <img alt={this.props.id} draggable="false" src={source} className={ "rotation-" + rotation } />
       );
     } else {
       return (

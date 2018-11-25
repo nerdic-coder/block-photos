@@ -70,7 +70,7 @@ export default class PhotosList extends Component {
     try {
       await this.present.loading('Loading photos...');
 
-      // Get the contents of the file photo-list.json
+      // Get the contents of the file picture-list.json
       let photosListResponse = await this.photosService.getPhotosList(sync);
       this.photosListCached = photosListResponse.photosList;
       this.present.dismissLoading();

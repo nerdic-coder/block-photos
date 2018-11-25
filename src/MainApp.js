@@ -12,7 +12,6 @@ import '@ionic/core/css/text-alignment.css';
 import '@ionic/core/css/text-transformation.css';
 import '@ionic/core/css/flex-utils.css';
 
-import '@ionic/pwa-elements';
 import { Plugins } from '@capacitor/core';
 
 import './App.css';

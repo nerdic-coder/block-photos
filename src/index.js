@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { Plugins, StatusBarStyle } from '@capacitor/core';
 
-const { Device } = Plugins;
-
 import './index.css';
 import MainApp from './MainApp';
+
+const { Device } = Plugins;
 
 // import registerServiceWorker from './registerServiceWorker';
 ReactDOM.render(
