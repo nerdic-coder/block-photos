@@ -48,7 +48,7 @@ class MainApp extends Component {
         <ion-action-sheet-controller />
         <ion-loading-controller/>
         <ion-toast-controller/>
-        <ModalContainer />
+        <ModalContainer outDelay="1000" />
       </ion-app>
     );
   }

@@ -28,7 +28,7 @@ export default class PhotosList extends Component {
     this.photosService = new PhotosService();
     this.present = new PresentingService();
 
-    const { history } = this.props;
+    const { history, match } = this.props;
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
       if (history) {
@@ -36,8 +36,6 @@ export default class PhotosList extends Component {
       }
       return;
     }
-
-    const { match } = this.props;
 
     // Go to photos list if photo id is missing
     if (!match || !match.params || !match.params.id) {
@@ -51,7 +49,6 @@ export default class PhotosList extends Component {
 
   componentDidMount() {
     this._isMounted = true;
-
     this.loadPhotoWithId(this.props.match.params.id);
 
     if (window.gtag) {
