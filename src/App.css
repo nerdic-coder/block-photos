@@ -97,16 +97,17 @@ ion-spinner {
   height: 100%;
   border: 0px solid #000;
 
-  transition: all 0.2s linear;
-  transition-delay: 2s;
+  visibility: hidden;
 }
 
 .react-router-modal__modal--in {
-  margin-top: 0;
+  transition: visibility 0.0s linear;
+  transition-delay: 0.2s;
+  visibility: visible;
 }
 
 .react-router-modal__modal--out {
-  margin-top: 100%;
+  visibility: hidden;
 }
 
 .react-router-modal__backdrop {
