@@ -115,7 +115,7 @@ describe('PhotosService Test Suites', () => {
     expect(parsedUploadedDate.getHours()).toEqual(new Date().getHours());
     expect(parsedUploadedDate.getMinutes()).toEqual(new Date().getMinutes());
     expect(photos.length).toBeGreaterThanOrEqual(1);
-    expect(photos[0].id).toContain('test1.png');
+    expect(photos[0].id).toContain('test1png');
 
   });
 
