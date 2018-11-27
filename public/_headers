@@ -8,3 +8,9 @@
   # Headers for that path:
   Access-Control-Allow-Origin: *
   Content-Type: application/javascript; charset=UTF-8
+
+## A precache-manifest:
+/*precache-manifest*
+  # Headers for that path:
+  Access-Control-Allow-Origin: *
+  Content-Type: application/javascript; charset=UTF-8
