@@ -2,3 +2,9 @@
 /manifest.json
   # Headers for that path:
   Access-Control-Allow-Origin: *
+
+## A service-worker.js:
+/*service-worker.js
+  # Headers for that path:
+  Access-Control-Allow-Origin: *
+  Content-Type: application/javascript; charset=UTF-8
