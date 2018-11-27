@@ -15,8 +15,6 @@ import '@ionic/core/css/flex-utils.css';
 
 import 'react-router-modal/css/react-router-modal.css';
 
-import { Plugins } from '@capacitor/core';
-
 import './App.css';
 import PhotosList from './pages/PhotosList';
 import Signin from './pages/Signin';
@@ -25,16 +23,6 @@ import Photo from './pages/Photo';
 
 class MainApp extends Component {
 
-  async componentDidMount() {
-    const { Device, SplashScreen } = Plugins;
-
-    const info = await Device.getInfo();
-    if (info.platform !== 'web') {
-      // Hide the splash (you should do this on app launch)
-      SplashScreen.hide();
-    }
-  }
-  
   render() {
     return (
       <ion-app>

@@ -36,6 +36,7 @@ export default class PhotosList extends Component {
     this.present = new PresentingService();
     this.uploadService = new UploadService(this.uploadFilesDoneCallback.bind(this));
     this.photosRangeListener = this.loadPhotosRange.bind(this);
+    this.photosRefresherListener = this.refreshPhotosList.bind(this);
     // Go to signin page if no active session exist
     if (!isUserSignedIn()) {
       const { history } = this.props;
@@ -54,6 +55,11 @@ export default class PhotosList extends Component {
     if (this.infiniteScroll) {
       this.infiniteScroll.addEventListener('ionInfinite', this.photosRangeListener);
     }
+
+    this.refresherScroll = document.getElementById('refresher-scroll');
+    if (this.refresherScroll) {
+      this.refresherScroll.addEventListener('ionRefresh', this.photosRefresherListener);
+    }
     this.uploadService.addEventListeners(true);
     this.loadPhotosList(false);
 
@@ -69,6 +75,13 @@ export default class PhotosList extends Component {
     if (this.infiniteScroll) {
       this.infiniteScroll.removeEventListener('ionInfinite', this.photosRangeListener);
     }
+    if (this.refresherScroll) {
+      this.refresherScroll.removeEventListener('ionRefresh', this.photosRefresherListener);
+    }
+  }
+
+  refreshPhotosList() {
+    this.loadPhotosList(true, true);
   }
 
   async loadPhotosList(sync, skipLoading) {
@@ -101,6 +114,7 @@ export default class PhotosList extends Component {
         this.present.dismissLoading();
       }
       this.present.toast('Could not load photos. Please try again!');
+      this.refresherScroll.complete();
     }
   }
 
@@ -109,6 +123,7 @@ export default class PhotosList extends Component {
       if (event) {
         this.infiniteScroll.complete();
       }
+      this.refresherScroll.complete();
       if (this._isMounted) {
         const photosToLoad = this.photosLoaded + 21;
         if (photosToLoad > this.photosListCached.length) {
@@ -219,6 +234,9 @@ export default class PhotosList extends Component {
           </ion-toolbar>
         </ion-header>
         <ion-content>
+          <ion-refresher slot="fixed" id="refresher-scroll">
+            <ion-refresher-content></ion-refresher-content>
+          </ion-refresher>
           {empty && this.state.listLoaded ? ( <ion-card padding text-center><h2>Welcome to Block Photos.</h2><h3>Use the upload button (<ion-icon size="small" name="ios-cloud-upload"></ion-icon>) to add your first photo.</h3></ion-card> ) : (
           <ion-grid no-padding>
             {rows.map((row) => (

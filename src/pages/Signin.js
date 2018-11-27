@@ -36,12 +36,14 @@ export default class Signin extends Component {
 
     if (isUserSignedIn()) {
       if (history) {
+        this.hideSplash();
         history.replace('/photos');
         return;
       }
     } else if (isSignInPending() && !isUserSignedIn()) {
       handlePendingSignIn().then(() => {
         if (history) {
+          this.hideSplash();
           history.replace('/photos');
           if (window.gtag) {
             window.gtag('event', 'login', { method: 'Blockstack' });
@@ -52,6 +54,21 @@ export default class Signin extends Component {
     }
     
     this.setState({ loaded: true });
+
+    this.hideSplash();
+  }
+
+  async hideSplash() {
+    const { Device } = Plugins;
+
+    const info = await Device.getInfo();
+    if (info.platform !== 'web') {
+      // Hide the splash (you should do this on app launch)
+      setTimeout(() => {
+        const { SplashScreen } = Plugins;
+        SplashScreen.hide();
+      }, 2000);
+    }
   }
 
   async handleSignIn(e) {
