@@ -2,9 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { Plugins, StatusBarStyle } from '@capacitor/core';
+import * as Sentry from '@sentry/browser';
+import packageJson from '../package.json';
 
 import './index.css';
 import MainApp from './MainApp';
+
+Sentry.init({
+  dsn: "https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915",
+  release: "block-photos@" + packageJson.version
+});
 
 const { Device } = Plugins;
 

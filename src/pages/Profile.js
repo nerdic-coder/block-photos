@@ -8,6 +8,7 @@ import {
   isUserSignedIn
 } from 'blockstack';
 
+import packageJson from '../../package.json';
 import CacheService from '../services/CacheService';
 import PhotosService from '../services/PhotosService';
 import PresentingService from '../services/PresentingService';
@@ -161,6 +162,7 @@ export default class Profile extends Component {
                 >
                   Report issue
                 </ion-button>
+                <p text-center="true">Version {packageJson.version}</p>
               </ion-col>
             </ion-row>
           </ion-grid>
