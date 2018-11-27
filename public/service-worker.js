@@ -11,12 +11,6 @@
  * See https://goo.gl/2aRDsh
  */
 
-importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
-
-importScripts(
-  "/precache-manifest.451697991aca5b6a388391be73a55bb3.js"
-);
-
 workbox.clientsClaim();
 
 /**

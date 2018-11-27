@@ -5,6 +5,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HeadersPlugin = new CopyWebpackPlugin([{ from: 'public/', to: '.' }]);
 const IonicDistPlugin = new CopyWebpackPlugin([ { from: 'node_modules/@ionic/core/dist', to: 'ionic' } ]);
+const WorkboxPlugin = require('workbox-webpack-plugin');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
@@ -59,5 +60,9 @@ module.exports = {
       { test: /\.css$/, loader: 'style-loader!css-loader' }
     ]
   },
-  plugins: [HtmlWebpackPluginConfig, IonicDistPlugin, HeadersPlugin]
+  plugins: [HtmlWebpackPluginConfig, IonicDistPlugin, HeadersPlugin,
+    new WorkboxPlugin.InjectManifest({
+      swSrc: './public/service-worker.js',
+    })
+  ]
 }

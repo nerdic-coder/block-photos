@@ -28,7 +28,7 @@
       img-src 'self' https://* http://localhost:* https://localhost:* https://app.block-photos.com data data:; 
       child-src 'self' blockstack:;
       style-src 'unsafe-inline';
-      script-src 'unsafe-eval' http://localhost:* https://localhost:* https://app.block-photos.com https://www.googletagmanager.com https://www.google-analytics.com file:;
+      script-src 'unsafe-eval' https://storage.googleapis.com/ http://localhost:* https://localhost:* https://app.block-photos.com https://www.googletagmanager.com https://www.google-analytics.com file:;
       connect-src ws://localhost:* 
         wss://localhost:* 
         wss://app.block-photos.com 
@@ -41,6 +41,7 @@
         https://registrar.blockstack.org
         https://www.google-analytics.com
         https://sentry.io
+        https://storage.googleapis.com/
         file:;">
     <!--
       manifest.json provides metadata used when your web app is added to the
