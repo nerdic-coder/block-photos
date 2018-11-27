@@ -67,7 +67,7 @@ export default class Signin extends Component {
       setTimeout(() => {
         const { SplashScreen } = Plugins;
         SplashScreen.hide();
-      }, 2000);
+      }, 3000);
     }
   }
 

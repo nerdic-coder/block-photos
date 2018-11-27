@@ -7,6 +7,7 @@ import packageJson from '../package.json';
 
 import './index.css';
 import MainApp from './MainApp';
+import * as serviceWorker from './serviceWorker';
 
 Sentry.init({
   dsn: "https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915",
@@ -15,21 +16,18 @@ Sentry.init({
 
 const { Device } = Plugins;
 
-// import registerServiceWorker from './registerServiceWorker';
 ReactDOM.render(
   <BrowserRouter>
     <MainApp />
   </BrowserRouter>,
   document.getElementById('root'));
 
-// registerServiceWorker();
-
 async function initCapacitor() {
-  const info = await Device.getInfo();
-  if (info.platform !== 'web') {
+  const device = await Device.getInfo();
+  if (device.platform !== 'web') {
     const { App, StatusBar } = Plugins;
     StatusBar.setStyle(StatusBarStyle.Light);
-    StatusBar.setBackgroundColor({ color: '#220631'});
+    StatusBar.setBackgroundColor({ color: '#220631' });
 
     App.addListener('appUrlOpen', (data) => {
       if (data.url) {
@@ -39,6 +37,11 @@ async function initCapacitor() {
         }
       }
     });
+  } else {
+    // If you want your app to work offline and load faster, you can change
+    // unregister() to register() below. Note this comes with some pitfalls.
+    // Learn more about service workers: http://bit.ly/CRA-PWA
+    serviceWorker.register();
   }
 }
 
