@@ -8,11 +8,6 @@ const IonicDistPlugin = new CopyWebpackPlugin([ { from: 'node_modules/@ionic/cor
 const WorkboxPlugin = require('workbox-webpack-plugin');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: './public/index.html',
-  filename: 'index.html',
-  inject: 'body'
-});
 
 
 let PUBLIC_PATH = './';
@@ -21,6 +16,13 @@ process.argv.forEach(function (val) {
   if (val.includes('target=web')) {
     PUBLIC_PATH = '/';
   }
+});
+
+const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
+  template: './public/index.html',
+  filename: 'index.html',
+  inject: 'body',
+  base: PUBLIC_PATH
 });
 
 module.exports = {

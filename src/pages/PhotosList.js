@@ -227,7 +227,7 @@ export default class PhotosList extends Component {
                 <ion-icon name="refresh"></ion-icon>
               </ion-button>
               <ion-button onClick={(event) => this.openFileDialog(event)}>
-                <ion-icon name="ios-cloud-upload"></ion-icon>
+                <ion-icon name="cloud-upload"></ion-icon>
               </ion-button>
               <input id="file-upload" type="file" multiple />
             </ion-buttons>

@@ -39,11 +39,10 @@
           "android",
           "ios",
           "public",
-          "resources",
-          "src",
           "www"
         ],
-        "prune": true
+        "prune": true,
+        "asar": true
       },
       "makers": [
         {
@@ -62,7 +61,9 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "block_photos"
+            "name": "block_photos",
+            "iconUrl": "https://raw.githubusercontent.com/nerdic-coder/block-photos/master/electron/icons/mac/icon.ico",
+            "setupIcon": "electron/icons/mac/icon.ico"
           }
         },
         {
@@ -116,15 +117,15 @@
     "@capacitor/cli": "^1.0.0-beta.11",
     "@capacitor/core": "^1.0.0-beta.11",
     "@capacitor/ios": "^1.0.0-beta.11",
-    "@electron-forge/cli": "6.0.0-beta.30",
-    "@electron-forge/maker-appx": "6.0.0-beta.30",
-    "@electron-forge/maker-deb": "6.0.0-beta.30",
-    "@electron-forge/maker-dmg": "6.0.0-beta.30",
-    "@electron-forge/maker-pkg": "6.0.0-beta.30",
-    "@electron-forge/maker-rpm": "6.0.0-beta.30",
-    "@electron-forge/maker-squirrel": "6.0.0-beta.30",
-    "@electron-forge/maker-zip": "6.0.0-beta.30",
-    "@electron-forge/publisher-github": "6.0.0-beta.30",
+    "@electron-forge/cli": "6.0.0-beta.22",
+    "@electron-forge/maker-appx": "6.0.0-beta.22",
+    "@electron-forge/maker-deb": "6.0.0-beta.22",
+    "@electron-forge/maker-dmg": "6.0.0-beta.22",
+    "@electron-forge/maker-pkg": "6.0.0-beta.22",
+    "@electron-forge/maker-rpm": "6.0.0-beta.22",
+    "@electron-forge/maker-squirrel": "6.0.0-beta.22",
+    "@electron-forge/maker-zip": "6.0.0-beta.22",
+    "@electron-forge/publisher-github": "6.0.0-beta.22",
     "@ionic/core": "4.0.0-beta.16",
     "@sentry/browser": "4.4.0",
     "@types/react": "16.7.7",
