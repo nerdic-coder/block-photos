@@ -27,7 +27,8 @@
     "start": "npm run build && npx cap copy electron && npm run electron",
     "start:react": "react-scripts start",
     "build:react": "react-scripts build",
-    "test": "react-scripts test"
+    "test": "react-scripts test",
+    "e2e": "nightwatch"
   },
   "config": {
     "forge": {
@@ -145,6 +146,7 @@
     "is-electron": "^2.2.0",
     "jest-enzyme": "7.0.1",
     "localforage": "1.7.3",
+    "nightwatch": "0.9.21",
     "path": "^0.12.7",
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
