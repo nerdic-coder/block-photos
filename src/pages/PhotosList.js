@@ -125,7 +125,7 @@ export default class PhotosList extends Component {
       }
       this.refresherScroll.complete();
       if (this._isMounted) {
-        const photosToLoad = this.photosLoaded + 21;
+        const photosToLoad = this.photosLoaded + 18;
         if (photosToLoad > this.photosListCached.length) {
           this.setState({ photosList: this.photosListCached, listLoaded: true });
           if (event) {
