@@ -37,6 +37,10 @@ ion-spinner {
   padding: 2px;
 }
 
+.square ion-checkbox {
+  position: absolute; top: 6px; left: 6px;
+}
+
 .square ion-spinner {
   position: absolute;
   left: 40%;

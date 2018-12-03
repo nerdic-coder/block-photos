@@ -100,7 +100,7 @@ export default class Signin extends Component {
     return (
       <React.Fragment>
         <ion-header>
-          <ion-toolbar color="primary">
+          <ion-toolbar mode="md" color="primary">
             <ion-title>Block Photos</ion-title>
           </ion-toolbar>
         </ion-header>

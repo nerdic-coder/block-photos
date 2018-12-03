@@ -157,7 +157,7 @@ describe('PhotosService Test Suites', () => {
 
     const photosService = new PhotosService();
     photosService.loadPhoto('fakeid.jpg').then((photo) => {
-      expect(photo).toEqual(mockResponse);
+      expect(photo).toEqual('"data:image/png;base64,' + mockResponse);
     });
   });
 

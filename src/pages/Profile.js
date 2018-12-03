@@ -107,7 +107,7 @@ export default class Profile extends Component {
     return (
       <React.Fragment>
         <ion-header>
-          <ion-toolbar color="primary">
+          <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
               <Link to="/photos">
                 <ion-button>

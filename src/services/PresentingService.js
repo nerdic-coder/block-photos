@@ -68,6 +68,46 @@ export default class PresentingService {
 
   }
 
+  async deletePhotos(ids, callbackComponent) {
+
+    if (!ids || ids.length < 1) {
+      return;
+    }
+
+    let header = "Delete " + ids.length + " photos?";
+    if (ids.length === 1) {
+      header = "Delete " + ids.length + " photo?";
+    }
+    const actionSheetController = document.querySelector('ion-action-sheet-controller');
+    await actionSheetController.componentOnReady();
+
+    const actionSheet = await actionSheetController.create({
+      header: header,
+      buttons: [{
+        text: 'Delete',
+        role: 'destructive',
+        icon: 'trash',
+        handler: async () => {
+          this.loading('Deleting photos...');
+          for (let id of ids) {
+            let result = await this.photosService.deletePhoto(id);
+            if (result !== true) {
+              this.errorAlert('Removal failed', 'The removal of the photo ' + id + ' failed. Please try again in a few minutes!');
+            }
+          }
+          this.dismissLoading();
+          callbackComponent.deletePhotoCallback(callbackComponent);
+        }
+      }, {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel'
+      }]
+    });
+    await actionSheet.present();
+
+  }
+
   async errorAlert(header, message) {
     const alertController = document.querySelector('ion-alert-controller');
     await alertController.componentOnReady();
