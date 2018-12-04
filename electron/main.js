@@ -97,5 +97,29 @@ app.on('activate', function () {
   }
 })
 
+app.on('open-url', function (event, url) {
+  // On OS X it's common to re-create a window in the app when the
+  // dock icon is clicked and there are no other windows open.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+    }
+    
+    var request = url.split(":");
+
+    if (request[1] && currentAuthResponse !== request[1]) {
+      currentAuthResponse = request[1];
+      
+      mainWindow.focus();
+      mainWindow.loadURL(BASE_URL + '?authResponse=' + request[1]);
+      return;
+    }
+  }
+  dialog.showMessageBox({ 
+    message: "Authentication failed, please try again!",
+    buttons: ["OK"] 
+  });
+})
+
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
