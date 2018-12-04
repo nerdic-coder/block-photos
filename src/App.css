@@ -132,3 +132,13 @@ ion-spinner {
   height: 100%;
   max-height: 100%;
 }
+
+ion-content {
+  --padding-end: env(safe-area-inset-right);
+  --padding-start: env(safe-area-inset-left);
+  --padding-bottom: env(safe-area-inset-bottom);
+}
+
+.ios .photo-page {
+  --offset-bottom: 35px + env(safe-area-inset-bottom) !important;
+}

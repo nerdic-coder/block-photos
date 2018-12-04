@@ -20,6 +20,7 @@ export default class PhotosList extends Component {
   lockTimer;
   // length of time we want the user to touch before we do something
   touchduration = 800;
+  activatedByTouch = false;
   
   static propTypes = {
     history: PropTypes.any,
@@ -221,7 +222,8 @@ export default class PhotosList extends Component {
     }
   }
 
-  activateEditor(event, id) {
+  activateEditor(event, id, activatedByTouch) {
+    this.activatedByTouch = activatedByTouch;
     if (event) {
       event.preventDefault();
     }
@@ -243,6 +245,10 @@ export default class PhotosList extends Component {
   handlePhotoClick(event, id) {
     if (this.state.editMode) {
       event.preventDefault();
+      if (this.lockTimer || this.activatedByTouch) {
+        this.activatedByTouch = false;
+        return;
+      }
 
       const tempItems = this.state.checkedItems;
 
@@ -279,14 +285,14 @@ export default class PhotosList extends Component {
       return;
     }
     this.timer = setTimeout(() => {
-      this.activateEditor(null, id);
+      this.activateEditor(null, id, true);
     }, this.touchduration); 
     this.lockTimer = true;
   }
 
   touchEnd() {
     // stops short touches from firing the event
-    if (this.timer){
+    if (this.timer) {
       clearTimeout(this.timer); // clearTimeout, not cleartimeout..
       this.lockTimer = false;
     }
@@ -335,7 +341,6 @@ export default class PhotosList extends Component {
                   <ion-button onClick={(event) => this.openFileDialog(event)}>
                     <ion-icon name="cloud-upload"></ion-icon>
                   </ion-button>
-                  <input id="file-upload" type="file" multiple />
                 </React.Fragment>
               )}
             </ion-buttons>
@@ -374,6 +379,7 @@ export default class PhotosList extends Component {
             loading-text="Loading more photos...">
           </ion-infinite-scroll-content>
           </ion-infinite-scroll>
+          <input id="file-upload" type="file" multiple />
         </ion-content>
         <ModalRoute path="*/photo/:id" component={Photo} props={{ updateCallback: this.updateCallback.bind(this) }} />
       </React.Fragment>
