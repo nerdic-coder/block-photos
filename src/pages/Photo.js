@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { isUserSignedIn } from 'blockstack';
 
+import AnalyticsService from '../services/AnalyticsService';
 import PhotosService from '../services/PhotosService';
 import PresentingService from '../services/PresentingService';
 import BlockImg from '../components/BlockImg';
@@ -51,9 +52,7 @@ export default class PhotosList extends Component {
     this._isMounted = true;
     this.loadPhotoWithId(this.props.match.params.id);
 
-    if (window.gtag) {
-      window.gtag('event', 'photo-page');
-    }
+    AnalyticsService.logEvent('photo-page');
   }
 
   componentDidUpdate(prevProps) {
@@ -99,9 +98,7 @@ export default class PhotosList extends Component {
       updateCallback(currentId);
     }
 
-    if (window.gtag) {
-      window.gtag('event', 'photo-page-rotate');
-    }
+    AnalyticsService.logEvent('photo-page-rotate');
   }
 
   deletePhotoCallback(callbackComponent) {
@@ -124,9 +121,7 @@ export default class PhotosList extends Component {
       }, 2000);
     }
 
-    if (window.gtag) {
-      window.gtag('event', 'photo-page-delete');
-    }
+    AnalyticsService.logEvent('photo-page-delete');
   }
 
   render() {

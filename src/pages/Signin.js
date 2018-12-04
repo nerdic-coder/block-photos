@@ -10,10 +10,14 @@ import {
   handlePendingSignIn,
   redirectToSignIn
 } from 'blockstack';
-import PresentingService from '../services/PresentingService';
+
 import isElectron from 'is-electron';
 
 import { Plugins } from '@capacitor/core';
+
+import AnalyticsService from '../services/AnalyticsService';
+import PresentingService from '../services/PresentingService';
+
 
 export default class Signin extends Component {
 
@@ -45,9 +49,7 @@ export default class Signin extends Component {
         if (history) {
           this.hideSplash();
           history.replace('/photos');
-          if (window.gtag) {
-            window.gtag('event', 'login', { method: 'Blockstack' });
-          }
+          AnalyticsService.logEvent('login', { method: 'Blockstack' });
         }
       });
       return;
@@ -74,9 +76,7 @@ export default class Signin extends Component {
   async handleSignIn(e) {
     e.preventDefault();
 
-    if (window.gtag) {
-      window.gtag('event', 'login-started');
-    }
+    AnalyticsService.logEvent('login-started');
 
     const { Device } = Plugins;
     const info = await Device.getInfo();

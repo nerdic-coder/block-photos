@@ -6,6 +6,7 @@ import { ModalRoute } from 'react-router-modal';
 import { isUserSignedIn } from 'blockstack';
 import _ from 'lodash';
 
+import AnalyticsService from '../services/AnalyticsService';
 import PhotosService from '../services/PhotosService';
 import PresentingService from '../services/PresentingService';
 import UploadService from '../services/UploadService';
@@ -71,9 +72,7 @@ export default class PhotosList extends Component {
     this.uploadService.addEventListeners(true);
     this.loadPhotosList(false);
 
-    if (window.gtag) {
-      window.gtag('event', 'photos-list');
-    }
+    AnalyticsService.logEvent('photos-list');
   }
 
   componentWillUnmount() {
@@ -164,25 +163,19 @@ export default class PhotosList extends Component {
       this.setState({refreshPhoto: tempRefreshPhoto});
     }
 
-    if (window.gtag) {
-      window.gtag('event', 'photos-list-rotate');
-    }
+    AnalyticsService.logEvent('photos-list-rotate');
   }
 
   uploadFilesDoneCallback() {
     this.loadPhotosList();
 
-    if (window.gtag) {
-      window.gtag('event', 'photos-list-uploaded');
-    }
+    AnalyticsService.logEvent('photos-list-uploaded');
   }
 
   deletePhotoCallback(callbackComponent) {
     callbackComponent.loadPhotosList();
 
-    if (window.gtag) {
-      window.gtag('event', 'photos-list-deleted');
-    }
+    AnalyticsService.logEvent('photos-list-deleted');
   }
 
   refreshPhoto(id) {
@@ -201,9 +194,7 @@ export default class PhotosList extends Component {
     }
     document.getElementById('file-upload').click();
 
-    if (window.gtag) {
-      window.gtag('event', 'photos-list-file-dialog');
-    }
+    AnalyticsService.logEvent('photos-list-file-dialog');
   }
 
   updateCallback(id) {
