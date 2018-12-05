@@ -82,7 +82,6 @@ export default class Signin extends Component {
     const info = await Device.getInfo();
 
     if (info.platform === 'android' || info.platform === 'ios' || isElectron()) {
-      this.present.loading('Waiting for authentication...', 60000, true);
       let appDomain = 'https://app.block-photos.com';
       const transitPrivateKey = generateAndStoreTransitKey();
       const redirectURI = appDomain + '/redirect.html';
