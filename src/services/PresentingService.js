@@ -15,7 +15,7 @@ export default class PresentingService {
       message: message,
       spinner: 'circles',
       duration: duration,
-      enableBackdropDismiss: enableBackdropDismiss
+      backdropDismiss: enableBackdropDismiss
     });
     return await this.loadingElement.present();
   }

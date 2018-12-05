@@ -33,6 +33,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
+        "name": "Block Photos",
         "icon": "electron/icons/mac/icon",
         "ignore": [
           ".vscode",
@@ -47,17 +48,7 @@
       },
       "makers": [
         {
-          "name": "@electron-forge/maker-dmg",
-          "config": {
-            "background": " ./assets/dmg-background.png",
-            "format": "UFLO"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-pkg",
-          "config": {
-            "keychain": "my-secret-ci-keychain"
-          }
+          "name": "@electron-forge/maker-dmg"
         },
         {
           "name": "@electron-forge/maker-squirrel",
