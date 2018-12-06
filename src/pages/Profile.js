@@ -8,10 +8,11 @@ import {
   isUserSignedIn
 } from 'blockstack';
 
+import packageJson from '../../package.json';
+import AnalyticsService from '../services/AnalyticsService';
 import CacheService from '../services/CacheService';
-import PictureService from '../services/PictureService';
+import PhotosService from '../services/PhotosService';
 import PresentingService from '../services/PresentingService';
-import UploadService from '../services/UploadService';
 
 const avatarFallbackImage = 'https://s3.amazonaws.com/onename/avatar-placeholder.png';
 
@@ -29,9 +30,8 @@ export default class Profile extends Component {
     super(props);
 
     this.cacheService = new CacheService();
-    this.pictureService = new PictureService();
+    this.photosService = new PhotosService();
     this.present = new PresentingService();
-    this.uploadService = new UploadService();
   }
 
   componentDidMount() {
@@ -44,13 +44,11 @@ export default class Profile extends Component {
       return;
     }
 
-    this.uploadService.addEventListeners(false);
     this.setState({ person: new Person(loadUserData().profile) });
+
+    AnalyticsService.logEvent('profile-page');
   }
 
-  componentWillUnmount() {
-    this.uploadService.removeEventListeners(false);
-  }
 
   handleSignOut(e) {
     if (e) {
@@ -65,6 +63,8 @@ export default class Profile extends Component {
     if (history) {
       history.replace('/');
     }
+
+    AnalyticsService.logEvent('logged-out');
   }
 
   visitBlockstackProfile(e) {
@@ -72,7 +72,9 @@ export default class Profile extends Component {
       e.preventDefault();
     }
 
-    window.open("https://browser.blockstack.org/profiles", "_blank");
+    this.present.openLink("https://browser.blockstack.org/profiles", "_blank");
+
+    AnalyticsService.logEvent('blockstack-profile-link');
   }
 
   reportIssue(e) {
@@ -80,11 +82,15 @@ export default class Profile extends Component {
       e.preventDefault();
     }
 
-    window.open("https://github.com/nerdic-coder/block-photos/issues/new", "_blank");
+    this.present.openLink("https://github.com/nerdic-coder/block-photos/issues/new", "_blank");
+
+    AnalyticsService.logEvent('report-issue-link');
   }
 
   sendEmail() {
-    window.open('mailto:johan@block-photos.com?subject=Block Photos Feedback');
+    this.present.openLink("mailto:johan@block-photos.com?subject=Block Photos Feedback");
+
+    AnalyticsService.logEvent('send-email-link');
   }
 
   render() {
@@ -92,9 +98,9 @@ export default class Profile extends Component {
     return (
       <React.Fragment>
         <ion-header>
-          <ion-toolbar color="primary">
+          <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <Link to="/pictures">
+              <Link to="/photos">
                 <ion-button>
                   <ion-icon color="light" name="arrow-back"></ion-icon>
                 </ion-button>
@@ -108,7 +114,7 @@ export default class Profile extends Component {
             <ion-row>
               <ion-col size="12" size-md="6" size-xl="4">
                 <ion-card color="light" no-margin margin-horizontal>
-                  <img src={person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage} />
+                  <img src={person.avatarUrl() ? person.avatarUrl() : avatarFallbackImage} alt="Your profile avatar" />
 
                   <ion-card-header>
                     <ion-card-title>{person.name() ? person.name() : 'Nameless Person'}</ion-card-title>
@@ -147,11 +153,10 @@ export default class Profile extends Component {
                 >
                   Report issue
                 </ion-button>
+                <p text-center="true">Version {packageJson.version}</p>
               </ion-col>
             </ion-row>
           </ion-grid>
-
-
         </ion-content>
       </React.Fragment>
     );

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
-import Picture from './Picture';
+import Photo from './Photo';
 
 import * as blockstack from 'blockstack';
 import UploadService from '../services/UploadService';
@@ -26,7 +26,7 @@ it('renders without crashing', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <BrowserRouter>
-      <Picture match={{params: {}}} />
+      <Photo match={{params: {}}} />
     </BrowserRouter>
     , div);
   ReactDOM.unmountComponentAtNode(div);
@@ -40,7 +40,7 @@ it('renders signed in', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <BrowserRouter>
-      <Picture match={{params: {}}} />
+      <Photo match={{params: {}}} />
     </BrowserRouter>
     , div);
   ReactDOM.unmountComponentAtNode(div);
@@ -54,7 +54,7 @@ it('renders with id', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <BrowserRouter>
-      <Picture match={{params: {id: 1 }}}  />
+      <Photo match={{params: {id: 1 }}}  />
     </BrowserRouter>
     , div);
   ReactDOM.unmountComponentAtNode(div);

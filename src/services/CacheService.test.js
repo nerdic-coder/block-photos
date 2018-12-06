@@ -9,7 +9,7 @@ describe('CacheService Test Suites', () => {
     new CacheService();
   });
 
-  it('get pictures list', async () => {
+  it('get photos list', async () => {
     const mockResponse = [{
       "id": 'test123.jpg',
       "uploadedDate": "2018-07-11T21:58:39.754Z"
@@ -18,7 +18,7 @@ describe('CacheService Test Suites', () => {
     localForage.getItem.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
 
     const cacheService = new CacheService();
-    const response = await cacheService.getItem('cachedPicturesList');
+    const response = await cacheService.getItem('cachedPhotosList');
 
     const jsonResponse = JSON.parse(response);
     expect(Array.isArray(jsonResponse)).toBe(true);
@@ -26,13 +26,13 @@ describe('CacheService Test Suites', () => {
 
   });
 
-  it('get empty pictures list', async () => {
+  it('get empty photos list', async () => {
     const mockResponse = [];
 
     localForage.getItem.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
 
     const cacheService = new CacheService();
-    const response = await cacheService.getItem('cachedPicturesList');
+    const response = await cacheService.getItem('cachedPhotosList');
 
     const jsonResponse = JSON.parse(response);
     expect(Array.isArray(jsonResponse)).toBe(true);
@@ -40,14 +40,14 @@ describe('CacheService Test Suites', () => {
 
   });
 
-  it('get null pictures list', async () => {
+  it('get null photos list', async () => {
 
     const mockResponse = null;
     
     localForage.getItem.mockReturnValue(Promise.resolve(JSON.stringify(mockResponse)));
 
     const cacheService = new CacheService();
-    const response = await cacheService.getItem('cachedPicturesList');
+    const response = await cacheService.getItem('cachedPhotosList');
 
     const jsonResponse = JSON.parse(response);
     expect(Array.isArray(jsonResponse)).toBe(false);
@@ -55,7 +55,7 @@ describe('CacheService Test Suites', () => {
 
   });
 
-  it('cache picture', async () => {
+  it('cache photo', async () => {
     const cacheService = new CacheService();
     await cacheService.setItem('test1.png', [{
       filename: 'test1.png',

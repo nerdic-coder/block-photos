@@ -103,7 +103,23 @@ npm run lint
 
 Run unit tests:
 ```bash
-npm run test
+npm test
+```
+
+Run e2e tests:
+1. Start the apps dev server:
+```bash
+npm run serve
+```
+
+2. Start selenium
+```bash
+npm run selenium
+```
+
+3. Run the tests
+```bash
+npm run e2e
 ```
 
 [![CodeFactor](https://www.codefactor.io/repository/github/nerdic-coder/block-photos/badge/master)](https://www.codefactor.io/repository/github/nerdic-coder/block-photos/overview/master)

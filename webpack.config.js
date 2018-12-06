@@ -5,12 +5,23 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HeadersPlugin = new CopyWebpackPlugin([{ from: 'public/', to: '.' }]);
 const IonicDistPlugin = new CopyWebpackPlugin([ { from: 'node_modules/@ionic/core/dist', to: 'ionic' } ]);
+const WorkboxPlugin = require('workbox-webpack-plugin');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+let PUBLIC_PATH = './';
+
+process.argv.forEach(function (val) {
+  if (val.includes('target=web')) {
+    PUBLIC_PATH = '/';
+  }
+});
+
 const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   template: './public/index.html',
   filename: 'index.html',
-  inject: 'body'
+  inject: 'body',
+  base: PUBLIC_PATH
 });
 
 module.exports = {
@@ -20,11 +31,13 @@ module.exports = {
     path: path.resolve('www'),
     filename: '[name].bundle.js',
     chunkFilename: '[name].bundle.js',
-    publicPath: '/'
+    publicPath: PUBLIC_PATH
   },
   devServer: {
     https: false,
-    historyApiFallback: true,
+    historyApiFallback: {
+      disableDotRule: true
+    },
     watchOptions: { aggregateTimeout: 300, poll: 1000 },
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -48,5 +61,9 @@ module.exports = {
       { test: /\.css$/, loader: 'style-loader!css-loader' }
     ]
   },
-  plugins: [HtmlWebpackPluginConfig, IonicDistPlugin, HeadersPlugin]
+  plugins: [HtmlWebpackPluginConfig, IonicDistPlugin, HeadersPlugin,
+    new WorkboxPlugin.InjectManifest({
+      swSrc: './public/service-worker.js',
+    })
+  ]
 }
