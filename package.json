@@ -28,7 +28,8 @@
     "start:react": "react-scripts start",
     "build:react": "react-scripts build",
     "test": "react-scripts test",
-    "e2e": "nightwatch"
+    "e2e": "nightwatch",
+    "selenium": "selenium-standalone install && selenium-standalone start"
   },
   "config": {
     "forge": {
@@ -145,6 +146,7 @@
     "react-router-dom": "^4.3.1",
     "react-router-modal": "1.5.2",
     "react-scripts": "2.1.1",
+    "selenium-standalone": "^6.15.4",
     "style-loader": "^0.23.1",
     "uniqid": "5.0.3",
     "url-loader": "1.1.2",

@@ -9,7 +9,6 @@ const WorkboxPlugin = require('workbox-webpack-plugin');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-
 let PUBLIC_PATH = './';
 
 process.argv.forEach(function (val) {
@@ -35,7 +34,7 @@ module.exports = {
     publicPath: PUBLIC_PATH
   },
   devServer: {
-    https: true,
+    https: false,
     historyApiFallback: {
       disableDotRule: true
     },
