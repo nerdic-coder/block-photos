@@ -6,8 +6,8 @@ const isDev = require('electron-is-dev');
 let BASE_URL = `file://${__dirname}/app/index.html`;
 let SCHEME = 'blockphotosapp';
 if (isDev) {
-  BASE_URL = 'http://localhost:9876';
-  
+//  BASE_URL = 'http://localhost:9876';
+
 }
 
 protocol.registerStandardSchemes([SCHEME]);
@@ -29,20 +29,20 @@ if (!gotTheLock) {
         if (mainWindow.isMinimized()) {
           mainWindow.restore();
         }
-        
+
         var request = commandLine[1].split(":");
 
         if (request[1] && currentAuthResponse !== request[1]) {
           currentAuthResponse = request[1];
-          
+
           mainWindow.focus();
           mainWindow.loadURL(BASE_URL + '?authResponse=' + request[1]);
           return true;
         }
     }
-    dialog.showMessageBox({ 
+    dialog.showMessageBox({
       message: "Authentication failed, please try again!",
-      buttons: ["OK"] 
+      buttons: ["OK"]
     });
   });
 }
@@ -104,20 +104,20 @@ app.on('open-url', function (event, url) {
     if (mainWindow.isMinimized()) {
       mainWindow.restore();
     }
-    
+
     var request = url.split(":");
 
     if (request[1] && currentAuthResponse !== request[1]) {
       currentAuthResponse = request[1];
-      
+
       mainWindow.focus();
       mainWindow.loadURL(BASE_URL + '?authResponse=' + request[1]);
       return;
     }
   }
-  dialog.showMessageBox({ 
+  dialog.showMessageBox({
     message: "Authentication failed, please try again!",
-    buttons: ["OK"] 
+    buttons: ["OK"]
   });
 })
 
