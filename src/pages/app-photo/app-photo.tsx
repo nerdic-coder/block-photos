@@ -17,13 +17,13 @@ export class AppPhoto {
   @Prop({ mutable: true }) photoId: string;
   @Prop() updateCallback: Function;
 
-  @State() nextAndPreviousPhoto: any;
+  @State() previousPhotoId: string;
+  @State() nextPhotoId: string;
 
   constructor() {
 
     this.photosService = new PhotosService();
     this.present = new PresentingService();
-    this.nextAndPreviousPhoto = {};
 
   }
 
@@ -64,10 +64,9 @@ export class AppPhoto {
   async setNextAndPreviousPhoto(photoId: string): Promise<void> {
     if (photoId && photoId !== 'loading') {
         const nextAndPreviousPhoto = await this.photosService.getNextAndPreviousPhoto(photoId);
-        this.nextAndPreviousPhoto = {
-          previousId: nextAndPreviousPhoto.previousId,
-          nextId: nextAndPreviousPhoto.nextId
-        }
+        this.previousPhotoId = nextAndPreviousPhoto.previousId;
+        this.nextPhotoId = nextAndPreviousPhoto.nextId;
+        console.log('setnext');
     }
   }
 
@@ -104,11 +103,11 @@ export class AppPhoto {
       this.updateCallback();
     }
 
-    if (this.nextAndPreviousPhoto && this.nextAndPreviousPhoto.nextId) {
-      this.gotoPhotoWithId(this.nextAndPreviousPhoto.nextId);
+    if (this.nextPhotoId) {
+      this.gotoPhotoWithId(this.nextPhotoId);
     }
-    else if(this.nextAndPreviousPhoto && this.nextAndPreviousPhoto.previousId) {
-      this.gotoPhotoWithId(this.nextAndPreviousPhoto.previousId);
+    else if(this.previousPhotoId) {
+      this.gotoPhotoWithId(this.previousPhotoId);
     } else {
       this.modalController.dismiss();
     }
@@ -134,10 +133,10 @@ export class AppPhoto {
               <ion-button onClick={() => this.present.deletePhoto(this.photoId, this.deletePhotoCallback.bind(this))}>
                 <ion-icon color="light" name="trash"></ion-icon>
               </ion-button>
-              <ion-button disabled={!this.nextAndPreviousPhoto.previousId} onClick={() => this.gotoPhotoWithId(this.nextAndPreviousPhoto.previousId)}>
+              <ion-button disabled={!this.previousPhotoId} onClick={() => this.gotoPhotoWithId(this.previousPhotoId)}>
                 <ion-icon color="light" name="arrow-back"></ion-icon>
               </ion-button>
-              <ion-button disabled={!this.nextAndPreviousPhoto.nextId} onClick={() => this.gotoPhotoWithId(this.nextAndPreviousPhoto.nextId)}>
+              <ion-button disabled={!this.nextPhotoId} onClick={() => this.gotoPhotoWithId(this.nextPhotoId)}>
                 <ion-icon color="light" name="arrow-forward"></ion-icon>
               </ion-button>
             </ion-buttons>

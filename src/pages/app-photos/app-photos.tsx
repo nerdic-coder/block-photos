@@ -289,15 +289,9 @@ export class AppPhotos {
   async touchEnd(): Promise<void> {
     // stops short touches from firing the event
     if (this.timer) {
-      clearTimeout(this.timer); // clearTimeout, not cleartimeout..
+      clearTimeout(this.timer);
+      // clearTimeout, not cleartimeout..
       this.lockTimer = false;
-
-      // if (!this.editMode) {
-      //   const router = document.querySelector('ion-router');
-      //   await router.componentOnReady();
-
-      //   router.push('/photo/' + id, 'forward');
-      // }
     }
   }
 

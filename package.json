@@ -93,7 +93,7 @@
   },
   "dependencies": {
     "@capacitor/core": "^1.0.0-beta.11",
-    "@ionic/core": "4.0.0-beta.19",
+    "@ionic/core": "4.0.0-rc.0",
     "@sentry/browser": "4.4.2",
     "blockstack": "18.1.0",
     "blueimp-load-image": "2.20.1",
@@ -117,7 +117,7 @@
     "@electron-forge/maker-zip": "6.0.0-beta.22",
     "@electron-forge/publisher-github": "6.0.0-beta.22",
     "@stencil/core": "0.16.1",
-    "electron": "3.0.10",
+    "electron": "3.0.13",
     "nightwatch": "1.0.16",
     "rollup-plugin-node-builtins": "^2.1.2",
     "selenium-standalone": "^6.15.4",
