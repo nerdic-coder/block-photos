@@ -22,9 +22,9 @@ export default class PresentingService {
     return await this.loadingElement.present();
   }
 
-  dismissLoading(): void {
+  async dismissLoading(): Promise<void> {
     if (this.loadingElement) {
-      this.loadingElement.dismiss();
+      await this.loadingElement.dismiss();
     }
   }
 
@@ -52,8 +52,8 @@ export default class PresentingService {
         icon: 'trash',
         handler: () => {
           this.loading('Deleting photo...');
-          this.photosService.deletePhoto(id).then(result => {
-            this.dismissLoading();
+          this.photosService.deletePhoto(id).then(async (result) => {
+            await this.dismissLoading();
             if (result === true) {
               callback();
             } else {
@@ -92,9 +92,9 @@ export default class PresentingService {
         icon: 'trash',
         handler: () => {
           this.loading('Deleting photos...');
-          this.photosService.deletePhotos(ids).then(result => {
+          this.photosService.deletePhotos(ids).then(async (result) => {
             if (result === true) {
-              this.dismissLoading();
+              await this.dismissLoading();
               callback();
             } else {
               this.errorAlert('Removal failed', 'The removal of some photos failed. Please try again in a few minutes!');

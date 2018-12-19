@@ -83,9 +83,10 @@ export default class UploadService {
   }
 
   async processUpload(list: any, currentIndex: number): Promise<void> {
-    if (currentIndex === 0) {
-      await this.present.loading('Uploading photos...');
+    if (currentIndex !== 0) {
+      await this.present.dismissLoading();
     }
+    await this.present.loading('Uploading photo ' + (currentIndex + 1) + ' of ' + list.length + '...');
     // If dropped items aren't files, reject them
     if (list[currentIndex]) {
       const file = list[currentIndex].file;

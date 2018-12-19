@@ -107,7 +107,7 @@ export class AppPhotos {
       let photosListResponse = await this.photosService.getPhotosList(sync);
       this.photosListCached = photosListResponse.photosList;
       if (!skipLoading) {
-        this.present.dismissLoading();
+        await this.present.dismissLoading();
       }
 
       this.loadPhotosRange();
@@ -124,7 +124,7 @@ export class AppPhotos {
 
     } catch (error) {
       if (!skipLoading) {
-        this.present.dismissLoading();
+        await this.present.dismissLoading();
       }
       this.present.toast('Could not load photos. Please try again!');
       this.refresherScroll.complete();
