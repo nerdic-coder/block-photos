@@ -1,14 +1,17 @@
 import CacheService from './cache-service';
 import uuidv4 from 'uuid/v4';
+import LargeStorageService from './large-storage-service';
 
 declare var blockstack;
 
 export default class PhotosService {
 
   private cache: CacheService;
+  private photoStorage: LargeStorageService;
 
   constructor() {
     this.cache = new CacheService();
+    this.photoStorage = new LargeStorageService();
   }
 
   async getPhotosList(sync?: boolean): Promise<any> {
@@ -49,7 +52,7 @@ export default class PhotosService {
     let cachedPhoto = await this.cache.getItem(id);
 
     if (!cachedPhoto) {
-      cachedPhoto = await blockstack.getFile(id);
+      cachedPhoto = await this.photoStorage.readFile(id);
       this.cache.setItem(id, cachedPhoto);
     }
 
@@ -75,7 +78,7 @@ export default class PhotosService {
       "stats": file.stats
     };
     try {
-      await blockstack.putFile(id, event.target.result);
+      await this.photoStorage.writeFile(id, event.target.result);
       await this.cache.setItem(id, event.target.result);
 
       photosList.unshift(metadata);
@@ -103,7 +106,7 @@ export default class PhotosService {
     let returnState = false;
     try {
       // Put empty file, since deleteFile is yet not supported
-      await blockstack.putFile(id, '');
+      await this.photoStorage.writeFile(id, 'deleted');
       // TODO: add back when available.
       // await deleteFile(id);
       returnState = true;

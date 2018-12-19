@@ -48,6 +48,7 @@ export class BlockImg {
     const { photoId, rotate } = this;
 
     if (photoId === 'loading') {
+      this.source = '';
       return;
     }
 

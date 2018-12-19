@@ -40,9 +40,7 @@ export class AppPhoto {
 
     // Go to photos list if photo id is missing
     if (!this.photoId) {
-      if (history) {
-        router.push('/photos', 'root');
-      }
+      router.push('/photos', 'root');
       return;
     }
 
@@ -66,7 +64,6 @@ export class AppPhoto {
         const nextAndPreviousPhoto = await this.photosService.getNextAndPreviousPhoto(photoId);
         this.previousPhotoId = nextAndPreviousPhoto.previousId;
         this.nextPhotoId = nextAndPreviousPhoto.nextId;
-        console.log('setnext');
     }
   }
 
@@ -115,13 +112,18 @@ export class AppPhoto {
     AnalyticsService.logEvent('photo-page-delete');
   }
 
+  closeModal() {
+    this.photoId = 'loading';
+    this.modalController.dismiss();
+  }
+
   render() {
 
     return [
       <ion-header>
         <ion-toolbar mode="md" color="primary">
             <ion-buttons slot="start">
-              <ion-button onClick={() => this.modalController.dismiss()}>
+              <ion-button onClick={() => this.closeModal()}>
                 <ion-icon color="light" name="close" size="large"></ion-icon>
               </ion-button>
             </ion-buttons>
