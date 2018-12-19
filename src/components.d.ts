@@ -24,6 +24,9 @@ export namespace Components {
     'rotate'?: boolean;
   }
 
+  interface AppAlbums {}
+  interface AppAlbumsAttributes extends StencilHTMLAttributes {}
+
   interface AppPhoto {
     'photoId': string;
     'updateCallback': Function;
@@ -53,6 +56,7 @@ export namespace Components {
 declare global {
   interface StencilElementInterfaces {
     'BlockImg': Components.BlockImg;
+    'AppAlbums': Components.AppAlbums;
     'AppPhoto': Components.AppPhoto;
     'AppPhotos': Components.AppPhotos;
     'AppProfile': Components.AppProfile;
@@ -62,6 +66,7 @@ declare global {
 
   interface StencilIntrinsicElements {
     'block-img': Components.BlockImgAttributes;
+    'app-albums': Components.AppAlbumsAttributes;
     'app-photo': Components.AppPhotoAttributes;
     'app-photos': Components.AppPhotosAttributes;
     'app-profile': Components.AppProfileAttributes;
@@ -74,6 +79,12 @@ declare global {
   var HTMLBlockImgElement: {
     prototype: HTMLBlockImgElement;
     new (): HTMLBlockImgElement;
+  };
+
+  interface HTMLAppAlbumsElement extends Components.AppAlbums, HTMLStencilElement {}
+  var HTMLAppAlbumsElement: {
+    prototype: HTMLAppAlbumsElement;
+    new (): HTMLAppAlbumsElement;
   };
 
   interface HTMLAppPhotoElement extends Components.AppPhoto, HTMLStencilElement {}
@@ -108,6 +119,7 @@ declare global {
 
   interface HTMLElementTagNameMap {
     'block-img': HTMLBlockImgElement
+    'app-albums': HTMLAppAlbumsElement
     'app-photo': HTMLAppPhotoElement
     'app-photos': HTMLAppPhotosElement
     'app-profile': HTMLAppProfileElement
@@ -117,6 +129,7 @@ declare global {
 
   interface ElementTagNameMap {
     'block-img': HTMLBlockImgElement;
+    'app-albums': HTMLAppAlbumsElement;
     'app-photo': HTMLAppPhotoElement;
     'app-photos': HTMLAppPhotosElement;
     'app-profile': HTMLAppProfileElement;

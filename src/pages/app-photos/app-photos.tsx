@@ -258,7 +258,8 @@ export class AppPhotos {
       component: this.appPhotoElement,
       componentProps: {
         photoId: photoId,
-        updateCallback: this.updateCallback.bind(this) },
+        updateCallback: this.updateCallback.bind(this)
+      },
       cssClass: 'router-modal'
     });
     modal.addEventListener('ionModalDidPresent', () => {
@@ -333,7 +334,8 @@ export class AppPhotos {
               </ion-button>,
               <ion-button onClick={(event) => this.openFileDialog(event)}>
                 <ion-icon name="cloud-upload"></ion-icon>
-              </ion-button>
+              </ion-button>,
+              <ion-menu-button/>
             ])}
           </ion-buttons>
         </ion-toolbar>

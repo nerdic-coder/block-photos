@@ -1,6 +1,11 @@
-import { Component, Prop, Listen } from '@stencil/core';
+import { Component, Prop, Listen, State } from '@stencil/core';
 import { Plugins } from '@capacitor/core';
 import * as Sentry from '@sentry/browser';
+
+import AnalyticsService from '../../services/analytics-service';
+import CacheService from '../../services/cache-service';
+
+declare var blockstack;
 
 @Component({
   tag: 'app-root',
@@ -8,8 +13,14 @@ import * as Sentry from '@sentry/browser';
 })
 export class AppRoot {
 
+  private cacheService: CacheService;
   @Prop({ connect: 'ion-toast-controller' }) toastCtrl: HTMLIonToastControllerElement;
 
+  @State() isAuthenticated: boolean;
+
+  constructor() {
+    this.cacheService = new CacheService();
+  }
   /**
    * Handle service worker updates correctly.
    * This code will show a toast letting the
@@ -38,8 +49,19 @@ export class AppRoot {
       release: "block-photos@2.0"
     });
 
+    this.isAuthenticated = blockstack.isUserSignedIn();
+
     this.initCapacitor();
 
+  }
+
+  async componentDidLoad() {
+
+    const router = document.querySelector('ion-router');
+    await router.componentOnReady();
+    router.addEventListener('ionRouteDidChange', () => {
+      this.isAuthenticated = blockstack.isUserSignedIn();
+    });
   }
 
   async initCapacitor() {
@@ -62,23 +84,70 @@ export class AppRoot {
     }
   }
 
+  async handleSignOut() {
+
+    // Clear all the users cache in localStorage
+    this.cacheService.clear();
+    // End users Blockstack session
+    blockstack.signUserOut();
+
+    AnalyticsService.logEvent('logged-out');
+  }
+
   render() {
     return (
-      <ion-app>
+      [<ion-app>
         <ion-router useHash={false}>
           <ion-route url="/" component="app-signin" />
           <ion-route url="/profile/" component="app-profile" />
           <ion-route url="/photos/" component="app-photos" />
-          <ion-route url="/photos/photo/:photoId" component="app-photos" />
           <ion-route url="/photo/:photoId" component="app-photo" />
+          <ion-route url="/albums/" component="app-albums" />
         </ion-router>
-        <ion-nav />
+        <ion-split-pane disabled={!this.isAuthenticated}>
+          <ion-menu side="end" menuId="first">
+            <ion-header>
+              <ion-toolbar mode="md" color="primary">
+                <ion-title>Menu</ion-title>
+              </ion-toolbar>
+            </ion-header>
+            <ion-content>
+              <ion-list>
+                <ion-menu-toggle autoHide={false}>
+                  <ion-item href="/photos">
+                    <ion-icon slot="start" color="primary" name="photos"></ion-icon>
+                    <ion-label>Photos</ion-label>
+                  </ion-item>
+                </ion-menu-toggle>
+                <ion-menu-toggle autoHide={false}>
+                  <ion-item href="/albums">
+                    <ion-icon slot="start" color="primary" name="albums"></ion-icon>
+                    <ion-label>Albums</ion-label>
+                  </ion-item>
+                </ion-menu-toggle>
+                <ion-menu-toggle autoHide={false}>
+                  <ion-item href="/profile">
+                    <ion-icon slot="start" color="primary" name="settings"></ion-icon>
+                    <ion-label>Settings</ion-label>
+                  </ion-item>
+                </ion-menu-toggle>
+                <ion-menu-toggle autoHide={false}>
+                  <ion-item href="/" onClick={() => this.handleSignOut()}>
+                    <ion-icon slot="start" color="primary" name="lock"></ion-icon>
+                    <ion-label>Logout</ion-label>
+                  </ion-item>
+                </ion-menu-toggle>
+              </ion-list>
+            </ion-content>
+          </ion-menu>
+          <ion-router-outlet animated={true} main></ion-router-outlet>
+        </ion-split-pane>
         <ion-alert-controller />
         <ion-action-sheet-controller />
         <ion-loading-controller />
         <ion-toast-controller />
         <ion-modal-controller />
-      </ion-app>
+      </ion-app>]
     );
   }
 }
