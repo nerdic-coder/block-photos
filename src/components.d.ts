@@ -29,11 +29,11 @@ export namespace Components {
 
   interface AppPhoto {
     'photoId': string;
-    'updateCallback': Function;
+    'updateCallback': any;
   }
   interface AppPhotoAttributes extends StencilHTMLAttributes {
     'photoId'?: string;
-    'updateCallback'?: Function;
+    'updateCallback'?: any;
   }
 
   interface AppPhotos {
