@@ -47,7 +47,7 @@ export class BlockImg {
   async getPhoto(): Promise<void> {
     const { photoId, rotate } = this;
 
-    if (photoId === 'loading') {
+    if (photoId === null) {
       this.source = '';
       return;
     }
@@ -109,7 +109,7 @@ export class BlockImg {
   }
 
   handleProcessedPhoto(processedPhoto: any): void {
-    if (processedPhoto.type === "error") {
+    if (processedPhoto.type === 'error') {
       // TODO: show error message
     } else if (processedPhoto.tagName === 'CANVAS') {
       this.source = processedPhoto.toDataURL();
@@ -122,7 +122,7 @@ export class BlockImg {
 
   iOS(): boolean {
 
-    var iDevices = [
+    const iDevices = [
       'iPad Simulator',
       'iPhone Simulator',
       'iPod Simulator',
@@ -133,7 +133,7 @@ export class BlockImg {
 
     if (navigator.platform) {
       while (iDevices.length) {
-        if (navigator.platform === iDevices.pop()){ return true; }
+        if (navigator.platform === iDevices.pop()) { return true; }
       }
     }
 
@@ -147,9 +147,9 @@ export class BlockImg {
 
   render() {
     const { isLoaded, source, rotation } = this;
-    if (isLoaded && source && this.photoId !== 'loading') {
+    if (isLoaded && source && this.photoId !== null) {
       return (
-        <img alt={this.photoId} draggable={false} src={source} class={ "rotation-" + rotation } onDragStart={(event) => this.preventDrag(event)} />
+        <img alt={this.photoId} draggable={false} src={source} class={ 'rotation-' + rotation } onDragStart={(event) => this.preventDrag(event)} />
       );
     } else {
       return (

@@ -15,7 +15,7 @@ export class AppPhoto {
   private modalController: HTMLIonModalControllerElement;
 
   @Prop({ mutable: true }) photoId: string;
-  @Prop() updateCallback: Function;
+  @Prop() updateCallback: any;
 
   @State() previousPhotoId: string;
   @State() nextPhotoId: string;
@@ -60,7 +60,7 @@ export class AppPhoto {
   }
 
   async setNextAndPreviousPhoto(photoId: string): Promise<void> {
-    if (photoId && photoId !== 'loading') {
+    if (photoId && photoId !== null) {
         const nextAndPreviousPhoto = await this.photosService.getNextAndPreviousPhoto(photoId);
         this.previousPhotoId = nextAndPreviousPhoto.previousId;
         this.nextPhotoId = nextAndPreviousPhoto.nextId;
@@ -78,11 +78,11 @@ export class AppPhoto {
     await this.photosService.rotatePhoto(this.photoId);
 
     const tempId = this.photoId;
-    this.photoId = 'loading';
+    this.photoId = null;
     setTimeout(() => {
       this.photoId = tempId;
 
-      if (this.updateCallback && typeof (this.updateCallback) === "function") {
+      if (this.updateCallback && typeof (this.updateCallback) === 'function') {
         // execute the callback, passing parameters as necessary
 
         this.updateCallback(this.photoId);
@@ -94,7 +94,7 @@ export class AppPhoto {
 
   async deletePhotoCallback() {
 
-    if (this.updateCallback && typeof (this.updateCallback) === "function") {
+    if (this.updateCallback && typeof (this.updateCallback) === 'function') {
       // execute the callback, passing parameters as necessary
 
       this.updateCallback();
@@ -102,8 +102,7 @@ export class AppPhoto {
 
     if (this.nextPhotoId) {
       this.gotoPhotoWithId(this.nextPhotoId);
-    }
-    else if(this.previousPhotoId) {
+    } else if (this.previousPhotoId) {
       this.gotoPhotoWithId(this.previousPhotoId);
     } else {
       this.modalController.dismiss();
@@ -113,7 +112,7 @@ export class AppPhoto {
   }
 
   closeModal() {
-    this.photoId = 'loading';
+    this.photoId = null;
     this.modalController.dismiss();
   }
 
