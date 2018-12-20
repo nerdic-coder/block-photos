@@ -1,4 +1,4 @@
-import { Component, Prop, Listen, State } from '@stencil/core';
+import { Component, Listen, Prop, State } from '@stencil/core';
 import { Plugins } from '@capacitor/core';
 import * as Sentry from '@sentry/browser';
 
@@ -45,8 +45,8 @@ export class AppRoot {
   componentWillLoad() {
 
     Sentry.init({
-      dsn: "https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915",
-      release: "block-photos@2.0"
+      dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
+      release: 'block-photos@2.0'
     });
 
     this.isAuthenticated = blockstack.isUserSignedIn();
@@ -75,7 +75,7 @@ export class AppRoot {
 
       App.addListener('appUrlOpen', (data) => {
         if (data.url) {
-          let authResponse = data.url.split(":")[1];
+          const authResponse = data.url.split(':')[1];
           if (authResponse) {
             window.location.href = window.location.href + '?authResponse=' + authResponse;
           }

@@ -29,7 +29,7 @@ export default class PhotosService {
     if (sync || !cachedPhotosList || cachedPhotosList.length === 0) {
       try {
         // Get the contents of the file picture-list.json
-        let rawPhotosList = await blockstack.getFile("picture-list.json");
+        const rawPhotosList = await blockstack.getFile('picture-list.json');
         if (rawPhotosList) {
           const photosList = JSON.parse(rawPhotosList);
           cachedPhotosList = photosList;
@@ -42,7 +42,7 @@ export default class PhotosService {
 
     return {
       photosList: cachedPhotosList,
-      errorsList: errorsList
+      errorsList
     };
 
   }
@@ -56,7 +56,7 @@ export default class PhotosService {
       this.cache.setItem(id, cachedPhoto);
     }
 
-    if (cachedPhoto && !cachedPhoto.match('data:image/.*') ) {
+    if (cachedPhoto && !cachedPhoto.match('data:image/.*')) {
       cachedPhoto = 'data:image/png;base64,' + cachedPhoto;
     }
     return cachedPhoto;
@@ -70,12 +70,12 @@ export default class PhotosService {
     }
 
     const errorsList = [];
-    let id = uuidv4(); + file.filename.replace(".", "");
-    let metadata = {
-      "id": id,
-      "filename": file.filename,
-      "uploadedDate": new Date(),
-      "stats": file.stats
+    const id = uuidv4() + file.filename.replace('.', '');
+    const metadata = {
+      'id': id,
+      'filename': file.filename,
+      'uploadedDate': new Date(),
+      'stats': file.stats
     };
     try {
       await this.photoStorage.writeFile(id, event.target.result);
@@ -86,20 +86,20 @@ export default class PhotosService {
       const fileSizeInMegabytes = file.stats.size / 1000000;
       if (fileSizeInMegabytes >= 5) {
         errorsList.push({
-          "id": file.filename,
-          "errorCode": "err_filesize"
+          'id': file.filename,
+          'errorCode': 'err_filesize'
         });
       } else {
         errorsList.push({
-          "id": file.filename,
-          "errorCode": "err_failed"
+          'id': file.filename,
+          'errorCode': 'err_failed'
         });
       }
     }
 
     await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
-    await blockstack.putFile("picture-list.json", JSON.stringify(photosList));
-    return { photosList: photosList, errorsList: errorsList };
+    await blockstack.putFile('picture-list.json', JSON.stringify(photosList));
+    return { photosList, errorsList };
   }
 
   async deletePhoto(id: string): Promise<boolean> {
@@ -118,15 +118,15 @@ export default class PhotosService {
       return false;
     }
 
-    let photosListResponse = await this.getPhotosList(true);
+    const photosListResponse = await this.getPhotosList(true);
     const photosList = photosListResponse.photosList;
 
     let index = 0;
-    for (let photo of photosList) {
+    for (const photo of photosList) {
       if (id === photo.id) {
         photosList.splice(index, 1);
         await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
-        await blockstack.putFile("picture-list.json", JSON.stringify(photosList));
+        await blockstack.putFile('picture-list.json', JSON.stringify(photosList));
         return true;
       }
       index++;
@@ -134,10 +134,10 @@ export default class PhotosService {
     return false;
   }
 
-  async deletePhotos(ids: Array<string>): Promise<boolean> {
+  async deletePhotos(ids: string[]): Promise<boolean> {
     let returnState = false;
     try {
-      for (let id of ids) {
+      for (const id of ids) {
         await this.deletePhoto(id);
       }
       returnState = true;
@@ -149,19 +149,19 @@ export default class PhotosService {
   }
 
   async getNextAndPreviousPhoto(id: string): Promise<any> {
-    const response = { "previousId": null, "nextId": null };
+    const response = { 'previousId': null, 'nextId': null };
     const photosListResponse = await this.getPhotosList(true);
     const photosList = photosListResponse.photosList;
 
     let index = 0;
-    for (let photo of photosList) {
+    for (const photo of photosList) {
       // Current photo
       if (photo.id === id) {
-        if (photosList[index-1]) {
-          response.previousId = photosList[index-1].id;
+        if (photosList[index - 1]) {
+          response.previousId = photosList[index - 1].id;
         }
-        if (photosList[index+1]) {
-          response.nextId = photosList[index+1].id;
+        if (photosList[index + 1]) {
+          response.nextId = photosList[index + 1].id;
         }
         break;
       }
@@ -177,7 +177,7 @@ export default class PhotosService {
     const photosList = photosListResponse.photosList;
 
     let index = 0;
-    for (let photo of photosList) {
+    for (const photo of photosList) {
       // Current photo
       if (photo.id === id) {
         response = photosList[index];
@@ -199,7 +199,7 @@ export default class PhotosService {
     const photosList = photosListResponse.photosList;
     let photoFound = false;
     let index = 0;
-    for (let photo of photosList) {
+    for (const photo of photosList) {
       // Current photo
       if (photo.id === id) {
         photosList[index] = metadata;
@@ -215,7 +215,7 @@ export default class PhotosService {
     }
 
     await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
-    await blockstack.putFile("picture-list.json", JSON.stringify(photosList));
+    await blockstack.putFile('picture-list.json', JSON.stringify(photosList));
 
     return photosList;
   }
@@ -231,11 +231,11 @@ export default class PhotosService {
     }
 
     if (!metadata.stats) {
-      metadata.stats = { exifdata: { tags: { }}};
+      metadata.stats = { exifdata: { tags: { } } };
     }
 
     if (!metadata.stats.exifdata) {
-      metadata.stats.exifdata = { tags: { }};
+      metadata.stats.exifdata = { tags: { } };
     }
 
     if (!metadata.stats.exifdata.tags) {
@@ -252,6 +252,6 @@ export default class PhotosService {
       metadata.stats.exifdata.tags.Orientation = 1;
     }
 
-    return await this.setPhotoMetaData(id, metadata);
+    return this.setPhotoMetaData(id, metadata);
   }
 }

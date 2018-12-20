@@ -1,4 +1,4 @@
-import localForage from "localforage";
+import localForage from 'localforage';
 
 export default class CacheService {
 
@@ -9,7 +9,7 @@ export default class CacheService {
   }
 
   async getItem(itemId: string) {
-    return await this.storage.getItem(itemId);
+    return this.storage.getItem(itemId);
   }
 
   async setItem(itemId: string, itemValue: any) {

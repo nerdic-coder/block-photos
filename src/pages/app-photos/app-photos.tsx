@@ -1,4 +1,4 @@
-import { Component, State, Prop } from '@stencil/core';
+import { Component, Prop, State } from '@stencil/core';
 import PhotosService from '../../services/photos-service';
 import PresentingService from '../../services/presenting-service';
 import UploadService from '../../services/upload-service';
@@ -23,15 +23,15 @@ export class AppPhotos {
   private photosLoaded: number;
   private infiniteScroll: any;
   private refresherScroll: any;
-  private photosListCached: Array<any> = [];
+  private photosListCached: any[] = [];
   private modalController: HTMLIonModalControllerElement;
   private appPhotoElement: HTMLAppPhotoElement;
 
-  @State() photosList: Array<any> = [];
+  @State() photosList: any[] = [];
   @State() refreshPhotos: any = {};
   @State() listLoaded: boolean;
   @State() editMode: boolean;
-  @State() checkedItems: Array<any> = [];
+  @State() checkedItems: any[] = [];
 
   @Prop({ mutable: true }) photoId: string;
 
@@ -104,7 +104,7 @@ export class AppPhotos {
       }
 
       // Get the contents of the file picture-list.json
-      let photosListResponse = await this.photosService.getPhotosList(sync);
+      const photosListResponse = await this.photosService.getPhotosList(sync);
       this.photosListCached = photosListResponse.photosList;
       if (!skipLoading) {
         await this.present.dismissLoading();
@@ -113,7 +113,7 @@ export class AppPhotos {
       this.loadPhotosRange();
 
       if (photosListResponse.errorsList && photosListResponse.errorsList.length > 0) {
-        for (let error of photosListResponse.errorsList) {
+        for (const error of photosListResponse.errorsList) {
           if (error.errorCode === 'err_cache') {
             this.present.toast('Failed to load cached list. Please try again!');
           } else if (error.errorCode) {
@@ -157,7 +157,7 @@ export class AppPhotos {
 
   async rotatePhotos(): Promise<void> {
     this.refreshPhotos = {};
-    for (let id of this.checkedItems) {
+    for (const id of this.checkedItems) {
       await this.photosService.rotatePhoto(id);
 
       this.refreshPhotos = { ...this.refreshPhotos, [id]: true };
@@ -215,11 +215,9 @@ export class AppPhotos {
         return;
       }
 
-      if (this.checkedItems.includes(photoId)) {
-        this.checkedItems = this.checkedItems.filter(item => item !== photoId);
-      } else {
-        this.checkedItems = [...this.checkedItems, photoId];
-      }
+      this.checkedItems = (this.checkedItems.includes(photoId) ?
+        this.checkedItems.filter(item => item !== photoId) :
+        this.checkedItems = [...this.checkedItems, photoId]);
 
       if (this.checkedItems.length < 1) {
         this.editMode = false;
@@ -231,11 +229,10 @@ export class AppPhotos {
 
   refreshPhoto(photoId: string): void {
 
-    if (this.refreshPhotos[photoId]) {
-      this.refreshPhotos = { ...this.refreshPhotos, [photoId]: false };
-    } else {
-      this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true };
-    }
+    this.refreshPhotos = (this.refreshPhotos[photoId] ?
+      this.refreshPhotos = { ...this.refreshPhotos, [photoId]: false } :
+      this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true });
+
   }
 
   updateCallback(photoId: string): void {
@@ -257,7 +254,7 @@ export class AppPhotos {
     const modal = await this.modalController.create({
       component: this.appPhotoElement,
       componentProps: {
-        photoId: photoId,
+        photoId,
         updateCallback: this.updateCallback.bind(this)
       },
       cssClass: 'router-modal'
@@ -335,7 +332,7 @@ export class AppPhotos {
               <ion-button onClick={(event) => this.openFileDialog(event)}>
                 <ion-icon name="cloud-upload"></ion-icon>
               </ion-button>,
-              <ion-menu-button/>
+              <ion-menu-button />
             ])}
           </ion-buttons>
         </ion-toolbar>
@@ -384,5 +381,5 @@ export class AppPhotos {
         ? [...arr, [item]]
         : [...arr.slice(0, -1), [...arr.slice(-1)[0], item]];
     }, []);
-  };
+  }
 }

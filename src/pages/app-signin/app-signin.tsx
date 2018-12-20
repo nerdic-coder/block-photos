@@ -1,5 +1,5 @@
 import { Component, Prop, State } from '@stencil/core';
-//import * as blockstack from 'blockstack';
+// import * as blockstack from 'blockstack';
 
 declare var blockstack;
 
@@ -65,12 +65,12 @@ export class AppSignin {
     const info = await Device.getInfo();
 
     if (info.platform === 'android' || info.platform === 'ios' || isElectron()) {
-      let appDomain = 'https://app.block-photos.com';
+      const appDomain = 'https://app.block-photos.com';
       const transitPrivateKey = blockstack.generateAndStoreTransitKey();
       const redirectURI = appDomain + '/redirect.html';
       const manifestURI = appDomain + '/manifest.json';
       const scopes = blockstack.DEFAULT_SCOPE;
-      let authRequest = blockstack.makeAuthRequest(transitPrivateKey, redirectURI, manifestURI, scopes, appDomain);
+      const authRequest = blockstack.makeAuthRequest(transitPrivateKey, redirectURI, manifestURI, scopes, appDomain);
       blockstack.redirectToSignInWithAuthRequest(authRequest);
     } else {
       blockstack.redirectToSignIn();

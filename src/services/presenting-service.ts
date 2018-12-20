@@ -15,11 +15,11 @@ export default class PresentingService {
     await loadingController.componentOnReady();
 
     this.loadingElement = await loadingController.create({
-      message: message,
+      message,
       spinner: 'circles',
-      duration: duration
+      duration
     });
-    return await this.loadingElement.present();
+    return this.loadingElement.present();
   }
 
   async dismissLoading(): Promise<void> {
@@ -33,11 +33,11 @@ export default class PresentingService {
     await toastController.componentOnReady();
 
     const toast = await toastController.create({
-      message: message,
+      message,
       showCloseButton: true,
       color: 'primary'
     });
-    return await toast.present();
+    return toast.present();
   }
 
   async deletePhoto(id: string, callback: any): Promise<void> {
@@ -45,7 +45,7 @@ export default class PresentingService {
     await actionSheetController.componentOnReady();
 
     const actionSheet = await actionSheetController.create({
-      header: "Delete photo?",
+      header: 'Delete photo?',
       buttons: [{
         text: 'Delete',
         role: 'destructive',
@@ -61,7 +61,8 @@ export default class PresentingService {
             }
           });
         }
-      }, {
+      },
+                {
         text: 'Cancel',
         icon: 'close',
         role: 'cancel'
@@ -71,21 +72,21 @@ export default class PresentingService {
 
   }
 
-  async deletePhotos(ids: Array<string>, callback: any): Promise<void> {
+  async deletePhotos(ids: string[], callback: any): Promise<void> {
 
     if (!ids || ids.length < 1) {
       return;
     }
 
-    let header = "Delete " + ids.length + " photos?";
+    let header = 'Delete ' + ids.length + ' photos?';
     if (ids.length === 1) {
-      header = "Delete " + ids.length + " photo?";
+      header = 'Delete ' + ids.length + ' photo?';
     }
     const actionSheetController = document.querySelector('ion-action-sheet-controller');
     await actionSheetController.componentOnReady();
 
     const actionSheet = await actionSheetController.create({
-      header: header,
+      header,
       buttons: [{
         text: 'Delete',
         role: 'destructive',
@@ -101,7 +102,8 @@ export default class PresentingService {
             }
           });
         }
-      }, {
+      },
+                {
         text: 'Cancel',
         icon: 'close',
         role: 'cancel'
@@ -116,17 +118,17 @@ export default class PresentingService {
     await alertController.componentOnReady();
 
     const alert = await alertController.create({
-      header: header,
+      header,
       subHeader: '',
-      message: message,
+      message,
       buttons: ['OK']
     });
-    return await alert.present();
+    return alert.present();
   }
 
   openLink(url: string, target: string): void {
     if (isElectron()) {
-      let electron = window['require']("electron");
+      const electron = window['require']('electron');
       electron.shell.openExternal(url);
     } else {
       window.open(url, target);

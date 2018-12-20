@@ -50,8 +50,8 @@ export default class UploadService {
 
     if (event.dataTransfer.items) {
       const photosToUpload = [];
-      for (var i = 0; i < event.dataTransfer.items.length; i++) {
-        let item = {
+      for (let i = 0; i < event.dataTransfer.items.length; i++) {
+        const item = {
           kind: event.dataTransfer.items[i].kind,
           file: event.dataTransfer.items[i].getAsFile()
         };
@@ -71,8 +71,8 @@ export default class UploadService {
 
     if (files) {
       const photosToUpload = [];
-      for (var i = 0; i < files.length; i++) {
-        let item = {
+      for (let i = 0; i < files.length; i++) {
+        const item = {
           kind: 'file',
           file: files[i]
         };
@@ -110,8 +110,8 @@ export default class UploadService {
                     loadedFile.exifdata = { tags: { Orientation: orientation, OriginalOrientation: orientation } };
                   }
                   const metadata = {
-                    "filename": loadedFile.name,
-                    "stats": loadedFile
+                    'filename': loadedFile.name,
+                    'stats': loadedFile
                   };
                   await this.uploadPhoto(metadata, event);
                   if (loadedList[currentIndex + 1]) {
@@ -164,7 +164,7 @@ export default class UploadService {
     if (metadata && event) {
       const response = await this.photosService.uploadPhoto(metadata, event);
       if (response.errorsList && response.errorsList.length > 0) {
-        for (let error of response.errorsList) {
+        for (const error of response.errorsList) {
           if (error.errorCode === 'err_filesize') {
             this.present.toast('Failed to upload "' + error.id + '", photo exceeds file size limit of 5MB.');
           } else {
@@ -179,7 +179,7 @@ export default class UploadService {
 
   uploadFilesDone(): void {
     this.present.dismissLoading();
-    if (this.callback && typeof (this.callback) === "function") {
+    if (this.callback && typeof (this.callback) === 'function') {
       // execute the callback, passing parameters as necessary
       this.callback();
     }

@@ -8,9 +8,6 @@ export default class LargeStorageService {
 
   private prefix = 'multifile:';
 
-  constructor() {
-  }
-
   private processFile(path: string, content: any, options?: any) {
     // Calculate array buffer size in MB
     const arrayBuffer = toArrayBuffer(content);
@@ -84,14 +81,14 @@ export default class LargeStorageService {
 
 
   /**
- * Write files to blockstack storage regardless of size
- * @param  {String} path - the path to store the data in
- * @param  {String|Buffer|File} - the data to store in the file
- * @param {Object} [options=null] - options object
- * @param {Boolean} [options.encrypt=true] - encrypt the data with the app private key
- * @return {Promise} that resolves if the operation succeed and rejects if it failed
- */
-  writeFile(path: string, content: any, options?: any): Promise<any> {
+   * Write files to blockstack storage regardless of size
+   * @param path - the path to store the data in
+   * @param  - the data to store in the file
+   * @param [options=null] - options object
+   * @param Boolean [options.encrypt=true] - encrypt the data with the app private key
+   * @return that resolves if the operation succeed and rejects if it failed
+   */
+  writeFile(path: string, content: string | Buffer | File, options?: any): Promise<any> {
     if (typeof window !== 'undefined') {
       if (content instanceof File || content instanceof Blob) {
         const reader = new FileReader();
@@ -111,20 +108,20 @@ export default class LargeStorageService {
   }
 
   /**
- * Retrieves the specified file from the app's data store and aggregates
- * if multifile file is found
- * @param {String} path - the path to the file to read
- * @param {Object} [options=null] - options object
- * @param {Boolean} [options.decrypt=true] - try to decrypt the data with the app private key
- * @param {String} options.username - the Blockstack ID to lookup for multi-player storage
- * @param {String} options.app - the app to lookup for multi-player storage -
- * defaults to current origin
- * @param {String} [options.zoneFileLookupURL=null] - The URL
- * to use for zonefile lookup. If falsey, this will use the
- * blockstack.js's getNameInfo function instead.
- * @returns {Promise} that resolves to the raw data in the file
- * or rejects with an error
- */
+   * Retrieves the specified file from the app's data store and aggregates
+   * if multifile file is found
+   * @param path - the path to the file to read
+   * @param [options=null] - options object
+   * @param [options.decrypt=true] - try to decrypt the data with the app private key
+   * @param options.username - the Blockstack ID to lookup for multi-player storage
+   * @param options.app - the app to lookup for multi-player storage -
+   * defaults to current origin
+   * @param [options.zoneFileLookupURL=null] - The URL
+   * to use for zonefile lookup. If falsey, this will use the
+   * blockstack.js's getNameInfo function instead.
+   * @returns that resolves to the raw data in the file
+   * or rejects with an error
+   */
   readFile(path: string, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       blockstack.getFile(path, options)
