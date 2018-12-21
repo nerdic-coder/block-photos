@@ -146,8 +146,12 @@ ion-spinner {
   -ms-user-select: none;
 }
 
-.square ion-checkbox {
+.floatInput {
   position: absolute; top: 6px; left: 6px;
+}
+
+.floatIcon {
+  position: absolute; top: 0px; left: 0px;
 }
 
 .square ion-spinner {

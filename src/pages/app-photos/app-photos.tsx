@@ -189,25 +189,26 @@ export class AppPhotos {
   }
 
   activateEditor(event: any, id?: string, activatedByTouch?: boolean): void {
+
     this.activatedByTouch = activatedByTouch;
     if (event) {
       event.preventDefault();
     }
-    if (id) {
-      this.editMode = true;
-      this.checkedItems = [id];
-    } else {
-      this.editMode = true;
-      this.checkedItems = [];
-    }
+
+    this.editMode = true;
+    this.checkedItems = (id ? [id] : []);
+
   }
 
   deactivateEditor(): void {
+
     this.editMode = false;
     this.checkedItems = [];
+
   }
 
   async handlePhotoClick(event: any, photoId: string): Promise<void> {
+
     if (this.editMode) {
       event.preventDefault();
       if (this.lockTimer || this.activatedByTouch) {
@@ -354,7 +355,7 @@ export class AppPhotos {
                         onClick={(event) => this.handlePhotoClick(event, col.id)}
                         onContextMenu={(event) => this.activateEditor(event, col.id)}
                         onDragStart={(event) => this.preventDrag(event)}>
-                        {this.editMode ? (<ion-checkbox checked={this.isChecked(col.id)} mode="ios"></ion-checkbox>) : (null)}
+                        {this.editMode ? (<ion-checkbox class="floatInput" checked={this.isChecked(col.id)} mode="ios"></ion-checkbox>) : (null)}
                         <block-img photoId={col.id} refresh={this.refreshPhotos[col.id]} />
                       </div>
                     </ion-col>

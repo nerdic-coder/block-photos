@@ -13,11 +13,20 @@ export class AppAlbums {
   private present: PresentingService;
 
   @State() albums: any[] = [];
+  @State() albumsLoaded: boolean;
+  @State() editMode: boolean;
 
   constructor() {
 
     this.albumsService = new AlbumsService();
     this.present = new PresentingService();
+  }
+
+  async componentWillLoad() {
+
+    this.albumsLoaded = false;
+    this.editMode = false;
+
   }
 
   async componentDidLoad() {
@@ -35,11 +44,13 @@ export class AppAlbums {
       this.albums = albumsResponse.albums;
 
       await this.present.dismissLoading();
+      this.albumsLoaded = true;
 
       this.handleAlbumErrors(albumsResponse);
     } catch (error) {
 
       await this.present.dismissLoading();
+      this.albumsLoaded = true;
 
       this.present.toast('Could not load albums. Please try again!');
 
@@ -87,6 +98,7 @@ export class AppAlbums {
 
               const albumsResponse = await this.albumsService.createAlbum(album.albumName);
               this.albums = albumsResponse.albums;
+              this.albumsLoaded = true;
 
               this.handleAlbumErrors(albumsResponse);
 
@@ -100,6 +112,100 @@ export class AppAlbums {
       ]
     });
     return alert.present();
+
+  }
+
+  activateEditor(event: any): void {
+
+    if (event) {
+      event.preventDefault();
+    }
+
+    this.editMode = true;
+
+  }
+
+  deactivateEditor(): void {
+
+    this.editMode = false;
+
+  }
+
+  async updateAlbumName(event: any, albumId: string, albumName: string) {
+
+    if (albumName !== event.target.value) {
+
+      try {
+
+        const albumsResponse = await this.albumsService.updateAlbumMetaData(albumId, event.target.value);
+
+        if (albumsResponse) {
+          this.albums = albumsResponse;
+          this.albumsLoaded = true;
+        } else {
+          throw new Error('error');
+        }
+
+      } catch (error) {
+
+        this.present.toast('Could not update album. Please try again!');
+
+      }
+
+    }
+
+  }
+
+  async deleteAlbum(albumId: string, albumName: string): Promise<void> {
+    const actionSheetController = document.querySelector('ion-action-sheet-controller');
+    await actionSheetController.componentOnReady();
+
+    const actionSheet = await actionSheetController.create({
+      header: 'Delete the album "' + albumName + '"?',
+      buttons: [{
+        text: 'Delete',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => {
+          this.deleteCallback(albumId);
+        }
+      },
+                {
+        text: 'Cancel',
+        icon: 'close',
+        role: 'cancel'
+      }]
+    });
+    await actionSheet.present();
+
+  }
+
+  async deleteCallback(albumId: string) {
+
+    try {
+
+      this.present.loading('Deleting album...');
+      const albumsResponse = await this.albumsService.deleteAlbum(albumId);
+      await this.present.dismissLoading();
+
+      if (albumsResponse) {
+        this.albums = albumsResponse;
+        this.albumsLoaded = true;
+      } else {
+        throw new Error('error');
+      }
+
+    } catch (error) {
+
+      this.present.toast('The removal of the album failed. Please try again in a few minutes!');
+
+    }
+
+  }
+
+  preventDrag(event: any): boolean {
+    event.preventDefault();
+    return false;
   }
 
   render() {
@@ -116,16 +222,25 @@ export class AppAlbums {
         <ion-toolbar color="primary">
           <ion-title>Albums</ion-title>
           <ion-buttons slot="end">
+          {this.editMode ? ([
+            <ion-button onClick={() => this.deactivateEditor()}>
+              <ion-icon color="light" name="close"></ion-icon>
+            </ion-button>
+          ]) : ([
+            <ion-button onClick={(event) => this.activateEditor(event)}>
+                <ion-icon name="create" mode="md"></ion-icon>
+            </ion-button>,
             <ion-button onClick={() => this.presentCreateAlbumPrompt()}>
               <ion-icon name="add-circle"></ion-icon>
             </ion-button>
+          ])}
             <ion-menu-button />
           </ion-buttons>
         </ion-toolbar>
       </ion-header>,
 
       <ion-content>
-        {empty ? (<ion-card padding text-center><h2>Welcome to Block Photos albums section.</h2><h3>Use the add button (<ion-icon size="small" name="add-circle"></ion-icon>) to add your first photo.</h3></ion-card>) : (
+        {empty && this.albumsLoaded ? (<ion-card padding text-center><h2>Welcome to Block Photos albums section.</h2><h3>Use the add button (<ion-icon size="small" name="add-circle"></ion-icon>) to add your first photo.</h3></ion-card>) : (
           <ion-grid no-padding>
             {rows.map((row) => (
               <ion-row align-items-center key={row[0].albumId}>
@@ -133,15 +248,29 @@ export class AppAlbums {
                   row.map((col) => (
                     <ion-col no-padding align-self-stretch key={col.albumId}>
                       <ion-card>
+                        {this.editMode ? (
+                          <ion-button no-padding
+                            size="small"
+                            shape="round"
+                            fill="clear"
+                            class="floatIcon"
+                            onClick={() => this.deleteAlbum(col.albumId, col.albumName)}>
+                            <ion-icon slot="icon-only" color="danger" name="remove-circle"></ion-icon>
+                          </ion-button>
+                        ) : (null)}
                         {col.thumbnailId ? (
-                          <div class="square" draggable={false}>
-                            <block-img photoId={col.thumbnailId} />
-                          </div>
+                          <block-img photoId={col.thumbnailId} />
                         ) : (
-                          <ion-img src="/assets/placeholder-image.jpg"></ion-img>
+                          <img draggable={false} src="/assets/placeholder-image.jpg" onDragStart={(event) => this.preventDrag(event)} />
                         )}
                         <ion-card-header>
-                          <ion-card-subtitle>{col.albumName}</ion-card-subtitle>
+                          <ion-card-subtitle>
+                            {this.editMode ? (
+                              <ion-item>
+                                <ion-input no-padding type="text" value={col.albumName} onBlur={(event) => this.updateAlbumName(event, col.albumId, col.albumName)}></ion-input>
+                              </ion-item>
+                            ) : (col.albumName)}
+                          </ion-card-subtitle>
                         </ion-card-header>
                       </ion-card>
                     </ion-col>

@@ -10,6 +10,7 @@ export default class AlbumsService {
   constructor() {
 
     this.cache = new CacheService();
+
   }
 
   async getAlbums(sync?: boolean): Promise<any> {
@@ -29,8 +30,8 @@ export default class AlbumsService {
         // Get the contents of the file albums-list.json
         const rawAlbums = await blockstack.getFile('albums-list.json');
         if (rawAlbums) {
-          const photosList = JSON.parse(rawAlbums);
-          cachedAlbums = photosList;
+          const albums = JSON.parse(rawAlbums);
+          cachedAlbums = albums;
           await this.cache.setItem('cachedAlbums', rawAlbums);
         }
       } catch (error) {
@@ -76,6 +77,70 @@ export default class AlbumsService {
     await this.cache.setItem('cachedAlbums', JSON.stringify(albums));
     await blockstack.putFile('albums-list.json', JSON.stringify(albums));
     return { albums, errorsList };
+
+  }
+
+  async updateAlbumMetaData(albumId: string, albumName: string): Promise<any> {
+
+    // id and metadata is required
+    if (!albumId || !albumName) {
+      return false;
+    }
+    const albumsResponse = await this.getAlbums(true);
+    const albums = albumsResponse.albums;
+    let albumFound = false;
+    let index = 0;
+    for (const album of albums) {
+      // Current album
+      if (album.albumId === albumId) {
+        albums[index].albumName = albumName;
+        albumFound = true;
+        break;
+      }
+      index++;
+    }
+
+    // Don't update if album don't exist
+    if (!albumFound) {
+      return false;
+    }
+
+    await this.cache.setItem('cachedAlbums', JSON.stringify(albums));
+    await blockstack.putFile('albums-list.json', JSON.stringify(albums));
+
+    return albums;
+  }
+
+  async deleteAlbum(albumId: string): Promise<any> {
+    let returnState = false;
+    try {
+      // Put empty file, since deleteFile is yet not supported
+      await blockstack.putFile(albumId, '');
+      // TODO: add back when available.
+      // await deleteFile(albumId);
+      returnState = true;
+    } catch (error) {
+      returnState = false;
+    }
+
+    if (!returnState) {
+      return false;
+    }
+
+    const albumResponse = await this.getAlbums(true);
+    const albums = albumResponse.albums;
+
+    let index = 0;
+    for (const photo of albums) {
+      if (albumId === photo.albumId) {
+        albums.splice(index, 1);
+        await this.cache.setItem('cachedAlbums', JSON.stringify(albums));
+        await blockstack.putFile('albums-list.json', JSON.stringify(albums));
+        return albums;
+      }
+      index++;
+    }
+    return false;
 
   }
 
