@@ -101,6 +101,7 @@ export class AppRoot {
           <ion-route url="/" component="app-signin" />
           <ion-route url="/profile/" component="app-profile" />
           <ion-route url="/photos/" component="app-photos" />
+          <ion-route url="/album/:albumId" component="app-photos" />
           <ion-route url="/photo/:photoId" component="app-photo" />
           <ion-route url="/albums/" component="app-albums" />
         </ion-router>

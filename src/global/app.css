@@ -239,3 +239,11 @@ ion-content {
 .ios .photo-page {
   --offset-bottom: 35px + env(safe-area-inset-bottom) !important;
 }
+
+ion-col ion-card img {
+  display: block;
+  width: 50vw;
+  height: 50vh;
+  object-fit: cover;
+
+}

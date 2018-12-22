@@ -1,6 +1,7 @@
 import CacheService from './cache-service';
 import uuidv4 from 'uuid/v4';
 import LargeStorageService from './large-storage-service';
+import AlbumsService from './albums-service';
 
 declare var blockstack;
 
@@ -14,11 +15,13 @@ export default class PhotosService {
     this.photoStorage = new LargeStorageService();
   }
 
-  async getPhotosList(sync?: boolean): Promise<any> {
+  async getPhotosList(sync?: boolean, albumId?: string): Promise<any> {
     let cachedPhotosList = [];
     const errorsList = [];
     try {
-      const rawCachedPhotosList = await this.cache.getItem('cachedPhotosList');
+
+      const rawCachedPhotosList = albumId ? await this.cache.getItem(albumId) : await this.cache.getItem('cachedPhotosList');
+
       if (rawCachedPhotosList) {
         cachedPhotosList = JSON.parse(rawCachedPhotosList);
       }
@@ -29,11 +32,15 @@ export default class PhotosService {
     if (sync || !cachedPhotosList || cachedPhotosList.length === 0) {
       try {
         // Get the contents of the file picture-list.json
-        const rawPhotosList = await blockstack.getFile('picture-list.json');
+        const rawPhotosList = albumId ? await blockstack.getFile(albumId) : await blockstack.getFile('picture-list.json');
         if (rawPhotosList) {
           const photosList = JSON.parse(rawPhotosList);
           cachedPhotosList = photosList;
-          await this.cache.setItem('cachedPhotosList', rawPhotosList);
+          if (albumId) {
+            await this.cache.setItem(albumId, rawPhotosList);
+          } else {
+            await this.cache.setItem('cachedPhotosList', rawPhotosList);
+          }
         }
       } catch (error) {
         errorsList.push('err_list');
@@ -62,26 +69,53 @@ export default class PhotosService {
     return cachedPhoto;
   }
 
-  async uploadPhoto(file: any, event: any): Promise<any> {
+  async uploadPhoto(file: any, event: any, albumId?: string): Promise<any> {
+
     const photosListResponse = await this.getPhotosList(true);
     let photosList = photosListResponse.photosList;
     if ((!photosList || photosList == null) && photosListResponse.errorsList.length === 0) {
       photosList = [];
     }
 
+    let album = [];
+    if (albumId) {
+      const albumsResponse = await this.getPhotosList(true, albumId);
+      album = albumsResponse.photosList;
+      if ((!album || album == null) && albumsResponse.errorsList.length === 0) {
+        album = [];
+      }
+    }
+
     const errorsList = [];
-    const id = uuidv4() + file.filename.replace('.', '');
+    const photoId = uuidv4() + file.filename.replace('.', '');
+    const listdata = {
+      'id': photoId,
+      'filename': file.filename
+    };
     const metadata = {
-      'id': id,
+      'id': photoId,
       'filename': file.filename,
       'uploadedDate': new Date(),
-      'stats': file.stats
+      'stats': file.stats,
+      'albums': [albumId]
     };
     try {
-      await this.photoStorage.writeFile(id, event.target.result);
-      await this.cache.setItem(id, event.target.result);
 
-      photosList.unshift(metadata);
+      // Save raw data to a file
+      await this.photoStorage.writeFile(photoId, event.target.result);
+      await this.cache.setItem(photoId, event.target.result);
+
+      // Save photos metadata to a file
+      await this.photoStorage.writeFile(photoId + '-meta', JSON.stringify(metadata));
+      await this.cache.setItem(photoId + '-meta', JSON.stringify(metadata));
+
+      photosList.unshift(listdata);
+      if (albumId) {
+        const albumsService = new AlbumsService();
+        await albumsService.updateAlbumThumbnail(albumId, photoId);
+
+        album.unshift(listdata);
+      }
     } catch (error) {
       const fileSizeInMegabytes = file.stats.size / 1000000;
       if (fileSizeInMegabytes >= 5) {
@@ -99,16 +133,23 @@ export default class PhotosService {
 
     await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
     await blockstack.putFile('picture-list.json', JSON.stringify(photosList));
+
+    if (albumId) {
+      await this.cache.setItem(albumId, JSON.stringify(album));
+      await blockstack.putFile(albumId, JSON.stringify(album));
+    }
+
     return { photosList, errorsList };
   }
 
-  async deletePhoto(id: string): Promise<boolean> {
+  async deletePhoto(photoId: string): Promise<boolean> {
     let returnState = false;
     try {
       // Put empty file, since deleteFile is yet not supported
-      await this.photoStorage.writeFile(id, 'deleted');
+      await this.photoStorage.writeFile(photoId, 'deleted');
+      await this.photoStorage.writeFile(photoId + '-meta', 'deleted');
       // TODO: add back when available.
-      // await deleteFile(id);
+      // await deleteFile(photoId);
       returnState = true;
     } catch (error) {
       returnState = false;
@@ -123,7 +164,7 @@ export default class PhotosService {
 
     let index = 0;
     for (const photo of photosList) {
-      if (id === photo.id) {
+      if (photoId === photo.id) {
         photosList.splice(index, 1);
         await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
         await blockstack.putFile('picture-list.json', JSON.stringify(photosList));
@@ -131,6 +172,9 @@ export default class PhotosService {
       }
       index++;
     }
+
+    // TODO: delete from albums
+
     return false;
   }
 
@@ -148,9 +192,9 @@ export default class PhotosService {
     return returnState;
   }
 
-  async getNextAndPreviousPhoto(id: string): Promise<any> {
+  async getNextAndPreviousPhoto(id: string, albumId?: string): Promise<any> {
     const response = { 'previousId': null, 'nextId': null };
-    const photosListResponse = await this.getPhotosList(true);
+    const photosListResponse = await this.getPhotosList(true, albumId);
     const photosList = photosListResponse.photosList;
 
     let index = 0;
@@ -171,53 +215,46 @@ export default class PhotosService {
     return response;
   }
 
-  async getPhotoMetaData(id: string): Promise<any> {
-    let response = { };
-    const photosListResponse = await this.getPhotosList();
-    const photosList = photosListResponse.photosList;
+  async getPhotoMetaData(photoId: string): Promise<any> {
 
-    let index = 0;
-    for (const photo of photosList) {
-      // Current photo
-      if (photo.id === id) {
-        response = photosList[index];
-        break;
-      }
-      index++;
+    let cachedPhotoMetaData = await this.cache.getItem(photoId + '-meta');
+
+    if (!cachedPhotoMetaData) {
+      cachedPhotoMetaData = await blockstack.getFile(photoId + '-meta');
+      this.cache.setItem(photoId + '-meta', cachedPhotoMetaData);
     }
 
-    return response;
+    if (!cachedPhotoMetaData) {
+      const photosListResponse = await this.getPhotosList();
+      const photosList = photosListResponse.photosList;
+
+      let index = 0;
+      for (const photo of photosList) {
+        // Current photo
+        if (photo.id === photoId) {
+          cachedPhotoMetaData = photosList[index];
+          this.setPhotoMetaData(photoId, cachedPhotoMetaData);
+          break;
+        }
+        index++;
+      }
+    }
+    return cachedPhotoMetaData;
+
   }
 
-  async setPhotoMetaData(id: string, metadata: any): Promise<any> {
+  async setPhotoMetaData(photoId: string, metadata: any): Promise<boolean> {
 
     // id and metadata is required
-    if (!id || !metadata) {
-      return false;
-    }
-    const photosListResponse = await this.getPhotosList();
-    const photosList = photosListResponse.photosList;
-    let photoFound = false;
-    let index = 0;
-    for (const photo of photosList) {
-      // Current photo
-      if (photo.id === id) {
-        photosList[index] = metadata;
-        photoFound = true;
-        break;
-      }
-      index++;
-    }
-
-    // Don't update if photo don't exist
-    if (!photoFound) {
+    if (!photoId || !metadata) {
       return false;
     }
 
-    await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
-    await blockstack.putFile('picture-list.json', JSON.stringify(photosList));
+    // Save photos metadata to a file
+    await this.photoStorage.writeFile(photoId + '-meta', JSON.stringify(metadata));
+    await this.cache.setItem(photoId + '-meta', JSON.stringify(metadata));
 
-    return photosList;
+    return true;
   }
 
   async rotatePhoto(id: string): Promise<any> {

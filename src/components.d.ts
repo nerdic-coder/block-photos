@@ -28,18 +28,22 @@ export namespace Components {
   interface AppAlbumsAttributes extends StencilHTMLAttributes {}
 
   interface AppPhoto {
+    'albumId': string;
     'photoId': string;
     'updateCallback': any;
   }
   interface AppPhotoAttributes extends StencilHTMLAttributes {
+    'albumId'?: string;
     'photoId'?: string;
     'updateCallback'?: any;
   }
 
   interface AppPhotos {
+    'albumId': string;
     'photoId': string;
   }
   interface AppPhotosAttributes extends StencilHTMLAttributes {
+    'albumId'?: string;
     'photoId'?: string;
   }
 

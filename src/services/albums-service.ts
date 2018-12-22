@@ -80,7 +80,7 @@ export default class AlbumsService {
 
   }
 
-  async updateAlbumMetaData(albumId: string, albumName: string): Promise<any> {
+  async updateAlbumName(albumId: string, albumName: string): Promise<any> {
 
     // id and metadata is required
     if (!albumId || !albumName) {
@@ -94,6 +94,37 @@ export default class AlbumsService {
       // Current album
       if (album.albumId === albumId) {
         albums[index].albumName = albumName;
+        albumFound = true;
+        break;
+      }
+      index++;
+    }
+
+    // Don't update if album don't exist
+    if (!albumFound) {
+      return false;
+    }
+
+    await this.cache.setItem('cachedAlbums', JSON.stringify(albums));
+    await blockstack.putFile('albums-list.json', JSON.stringify(albums));
+
+    return albums;
+  }
+
+  async updateAlbumThumbnail(albumId: string, thumbnailId: string): Promise<any> {
+
+    // id and metadata is required
+    if (!albumId || !thumbnailId) {
+      return false;
+    }
+    const albumsResponse = await this.getAlbums(true);
+    const albums = albumsResponse.albums;
+    let albumFound = false;
+    let index = 0;
+    for (const album of albums) {
+      // Current album
+      if (album.albumId === albumId) {
+        albums[index].thumbnailId = thumbnailId;
         albumFound = true;
         break;
       }
@@ -144,4 +175,21 @@ export default class AlbumsService {
 
   }
 
+  async getAlbumMetaData(albumId: string): Promise<any> {
+    let response = { };
+    const albumsResponse = await this.getAlbums();
+    const albums = albumsResponse.albums;
+
+    let index = 0;
+    for (const album of albums) {
+      // Current album
+      if (album.albumId === albumId) {
+        response = albums[index];
+        break;
+      }
+      index++;
+    }
+
+    return response;
+  }
 }

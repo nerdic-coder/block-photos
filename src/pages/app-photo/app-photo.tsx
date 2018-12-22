@@ -15,6 +15,7 @@ export class AppPhoto {
   private modalController: HTMLIonModalControllerElement;
 
   @Prop({ mutable: true }) photoId: string;
+  @Prop() albumId: string;
   @Prop() updateCallback: any;
 
   @State() previousPhotoId: string;
@@ -61,7 +62,7 @@ export class AppPhoto {
 
   async setNextAndPreviousPhoto(photoId: string): Promise<void> {
     if (photoId && photoId !== null) {
-        const nextAndPreviousPhoto = await this.photosService.getNextAndPreviousPhoto(photoId);
+        const nextAndPreviousPhoto = await this.photosService.getNextAndPreviousPhoto(photoId, this.albumId);
         this.previousPhotoId = nextAndPreviousPhoto.previousId;
         this.nextPhotoId = nextAndPreviousPhoto.nextId;
     }
@@ -113,6 +114,7 @@ export class AppPhoto {
 
   closeModal() {
     this.photoId = null;
+    this.albumId = null;
     this.modalController.dismiss();
   }
 

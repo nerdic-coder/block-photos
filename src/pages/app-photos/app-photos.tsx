@@ -1,4 +1,6 @@
 import { Component, Prop, State } from '@stencil/core';
+
+import AlbumsService from '../../services/albums-service';
 import PhotosService from '../../services/photos-service';
 import PresentingService from '../../services/presenting-service';
 import UploadService from '../../services/upload-service';
@@ -15,6 +17,7 @@ export class AppPhotos {
   private lockTimer;
   private touchduration = 800;
   private activatedByTouch = false;
+  private albumsService: AlbumsService;
   private photosService: PhotosService;
   private present: PresentingService;
   private uploadService: UploadService;
@@ -26,6 +29,7 @@ export class AppPhotos {
   private photosListCached: any[] = [];
   private modalController: HTMLIonModalControllerElement;
   private appPhotoElement: HTMLAppPhotoElement;
+  private album: any;
 
   @State() photosList: any[] = [];
   @State() refreshPhotos: any = {};
@@ -34,14 +38,28 @@ export class AppPhotos {
   @State() checkedItems: any[] = [];
 
   @Prop({ mutable: true }) photoId: string;
+  @Prop() albumId: string;
 
   constructor() {
 
+    this.albumsService = new AlbumsService();
     this.photosService = new PhotosService();
     this.present = new PresentingService();
-    this.uploadService = new UploadService(this.uploadFilesDoneCallback.bind(this));
     this.photosRangeListener = this.loadPhotosRange.bind(this);
     this.photosRefresherListener = this.refreshPhotosList.bind(this);
+
+  }
+
+  async componentWillLoad() {
+
+    this.uploadService = new UploadService(this.uploadFilesDoneCallback.bind(this), this.albumId);
+
+    if (this.albumId) {
+
+      // Load album list
+      this.album = await this.albumsService.getAlbumMetaData(this.albumId);
+
+    }
 
   }
 
@@ -84,6 +102,7 @@ export class AppPhotos {
   }
 
   componentDidUnload() {
+
     this.uploadService.removeEventListeners(true);
     if (this.infiniteScroll) {
       this.infiniteScroll.removeEventListener('ionInfinite', this.photosRangeListener);
@@ -91,20 +110,24 @@ export class AppPhotos {
     if (this.refresherScroll) {
       this.refresherScroll.removeEventListener('ionRefresh', this.photosRefresherListener);
     }
+
   }
 
   refreshPhotosList() {
+
     this.loadPhotosList(true, true);
+
   }
 
   async loadPhotosList(sync?: boolean, skipLoading?: boolean) {
+
     try {
       if (!skipLoading) {
         await this.present.loading('Loading photos...');
       }
 
       // Get the contents of the file picture-list.json
-      const photosListResponse = await this.photosService.getPhotosList(sync);
+      const photosListResponse = await this.photosService.getPhotosList(sync, this.albumId);
       this.photosListCached = photosListResponse.photosList;
       if (!skipLoading) {
         await this.present.dismissLoading();
@@ -129,9 +152,11 @@ export class AppPhotos {
       this.present.toast('Could not load photos. Please try again!');
       this.refresherScroll.complete();
     }
+
   }
 
   loadPhotosRange(event?: any) {
+
     setTimeout(() => {
       if (event) {
         this.infiniteScroll.complete();
@@ -153,9 +178,11 @@ export class AppPhotos {
         this.photosLoaded = photosToLoad;
       }
     }, 500);
+
   }
 
   async rotatePhotos(): Promise<void> {
+
     this.refreshPhotos = {};
     for (const id of this.checkedItems) {
       await this.photosService.rotatePhoto(id);
@@ -165,27 +192,34 @@ export class AppPhotos {
     }
 
     AnalyticsService.logEvent('photos-list-rotate');
+
   }
 
   uploadFilesDoneCallback() {
+
     this.loadPhotosList();
 
     AnalyticsService.logEvent('photos-list-uploaded');
+
   }
 
   deletePhotoCallback(): void {
+
     this.loadPhotosList();
 
     AnalyticsService.logEvent('photos-list-deleted');
+
   }
 
   openFileDialog(event: any): void {
+
     if (event) {
       event.preventDefault();
     }
     document.getElementById('file-upload').click();
 
     AnalyticsService.logEvent('photos-list-file-dialog');
+
   }
 
   activateEditor(event: any, id?: string, activatedByTouch?: boolean): void {
@@ -226,6 +260,7 @@ export class AppPhotos {
     } else {
       this.openPhotoModal(photoId);
     }
+
   }
 
   refreshPhoto(photoId: string): void {
@@ -247,6 +282,7 @@ export class AppPhotos {
         this.loadPhotosList(true, true);
       }, 1500);
     }
+
   }
 
   async openPhotoModal(photoId: string) {
@@ -256,6 +292,7 @@ export class AppPhotos {
       component: this.appPhotoElement,
       componentProps: {
         photoId,
+        albumId: this.albumId,
         updateCallback: this.updateCallback.bind(this)
       },
       cssClass: 'router-modal'
@@ -264,17 +301,21 @@ export class AppPhotos {
       this.present.dismissLoading();
     });
     await modal.present();
+
   }
 
   isChecked(id: string): boolean {
+
     if (this.checkedItems.includes(id)) {
       return true;
     } else {
       return false;
     }
+
   }
 
   touchStart(event: any, id: string): void {
+
     event.preventDefault();
     if (this.lockTimer) {
       return;
@@ -283,6 +324,7 @@ export class AppPhotos {
       this.activateEditor(null, id, true);
     }, this.touchduration);
     this.lockTimer = true;
+
   }
 
   async touchEnd(): Promise<void> {
@@ -292,11 +334,14 @@ export class AppPhotos {
       // clearTimeout, not cleartimeout..
       this.lockTimer = false;
     }
+
   }
 
   preventDrag(event: any): boolean {
+
     event.preventDefault();
     return false;
+
   }
 
   render() {
@@ -311,7 +356,14 @@ export class AppPhotos {
     return [
       <ion-header>
         <ion-toolbar mode="md" color="primary">
-          <ion-title class="unselectable">Block Photos</ion-title>
+          {this.album ? (
+            <ion-buttons slot="start">
+              <ion-back-button defaultHref="/albums" />
+            </ion-buttons>
+          ) : (null)}
+          <ion-title class="unselectable">
+            {this.album ? (this.album.albumName) : ('Block Photos')}
+          </ion-title>
           <ion-buttons slot="end">
             {this.editMode ? ([
               <ion-button onClick={() => this.rotatePhotos()}>
@@ -332,9 +384,11 @@ export class AppPhotos {
               </ion-button>,
               <ion-button onClick={(event) => this.openFileDialog(event)}>
                 <ion-icon name="cloud-upload"></ion-icon>
-              </ion-button>,
-              <ion-menu-button />
+              </ion-button>
             ])}
+            {!this.editMode && !this.album ? (
+              <ion-menu-button />
+            ) : (null)}
           </ion-buttons>
         </ion-toolbar>
       </ion-header>,

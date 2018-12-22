@@ -11,14 +11,16 @@ export default class UploadService {
   private callback: any;
   private dropEventBinding: any;
   private handleFileSelectEventBinding: any;
+  private albumId: string;
 
-  constructor(callback: any) {
+  constructor(callback: any, albumId?: string) {
     this.photosService = new PhotosService();
     this.present = new PresentingService();
     this.callback = callback;
     this.dropEventBinding = this.dropEvent.bind(this);
     this.handleFileSelectEventBinding = this.handleFileSelectEvent.bind(this);
     this.root = document.getElementById('photos-list');
+    this.albumId = albumId;
   }
 
   addEventListeners(fileDialog: boolean): void {
@@ -86,7 +88,7 @@ export default class UploadService {
     if (currentIndex !== 0) {
       await this.present.dismissLoading();
     }
-    await this.present.loading('Uploading photo ' + (currentIndex + 1) + ' of ' + list.length + '...');
+    await this.present.loading('Uploading photo ' + (currentIndex + 1) + '/' + list.length + '.');
     // If dropped items aren't files, reject them
     if (list[currentIndex]) {
       const file = list[currentIndex].file;
@@ -161,8 +163,10 @@ export default class UploadService {
   }
 
   async uploadPhoto(metadata: any, event: any): Promise<void> {
+
     if (metadata && event) {
-      const response = await this.photosService.uploadPhoto(metadata, event);
+
+      const response = await this.photosService.uploadPhoto(metadata, event, this.albumId);
       if (response.errorsList && response.errorsList.length > 0) {
         for (const error of response.errorsList) {
           if (error.errorCode === 'err_filesize') {

@@ -4,6 +4,8 @@ import AlbumsService from '../../services/albums-service';
 import AnalyticsService from '../../services/analytics-service';
 import PresentingService from '../../services/presenting-service';
 
+declare var blockstack;
+
 @Component({
   tag: 'app-albums'
 })
@@ -22,7 +24,7 @@ export class AppAlbums {
     this.present = new PresentingService();
   }
 
-  async componentWillLoad() {
+  componentWillLoad() {
 
     this.albumsLoaded = false;
     this.editMode = false;
@@ -30,6 +32,14 @@ export class AppAlbums {
   }
 
   async componentDidLoad() {
+
+    // Go to signin page if no active session exist
+    if (!blockstack.isUserSignedIn()) {
+      const router = document.querySelector('ion-router');
+      await router.componentOnReady();
+      router.push('/', 'root');
+      return;
+    }
 
     this.loadAlbums(false);
 
@@ -137,7 +147,7 @@ export class AppAlbums {
 
       try {
 
-        const albumsResponse = await this.albumsService.updateAlbumMetaData(albumId, event.target.value);
+        const albumsResponse = await this.albumsService.updateAlbumName(albumId, event.target.value);
 
         if (albumsResponse) {
           this.albums = albumsResponse;
@@ -157,6 +167,7 @@ export class AppAlbums {
   }
 
   async deleteAlbum(albumId: string, albumName: string): Promise<void> {
+
     const actionSheetController = document.querySelector('ion-action-sheet-controller');
     await actionSheetController.componentOnReady();
 
@@ -203,9 +214,25 @@ export class AppAlbums {
 
   }
 
+  async openAlbum(event: any, albumId: string) {
+
+    event.preventDefault();
+
+    if (!this.editMode) {
+
+      const router = document.querySelector('ion-router');
+      await router.componentOnReady();
+      router.push('/album/' + albumId, 'forward');
+
+    }
+
+  }
+
   preventDrag(event: any): boolean {
+
     event.preventDefault();
     return false;
+
   }
 
   render() {
@@ -247,7 +274,7 @@ export class AppAlbums {
                 {
                   row.map((col) => (
                     <ion-col no-padding align-self-stretch key={col.albumId}>
-                      <ion-card>
+                      <ion-card class={this.editMode ? '' : 'pointer'} onClick={(event) => this.openAlbum(event, col.albumId)}>
                         {this.editMode ? (
                           <ion-button no-padding
                             size="small"
@@ -259,7 +286,7 @@ export class AppAlbums {
                           </ion-button>
                         ) : (null)}
                         {col.thumbnailId ? (
-                          <block-img photoId={col.thumbnailId} />
+                          <block-img photoId={col.thumbnailId} rotate={true} />
                         ) : (
                           <img draggable={false} src="/assets/placeholder-image.jpg" onDragStart={(event) => this.preventDrag(event)} />
                         )}
