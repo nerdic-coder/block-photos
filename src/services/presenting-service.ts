@@ -2,7 +2,6 @@ import PhotosService from './photos-service';
 import isElectron from 'is-electron';
 
 export default class PresentingService {
-
   private photosService: PhotosService;
   private loadingElement: HTMLIonLoadingElement;
 
@@ -41,39 +40,44 @@ export default class PresentingService {
   }
 
   async deletePhoto(id: string, callback: any): Promise<void> {
-    const actionSheetController = document.querySelector('ion-action-sheet-controller');
+    const actionSheetController = document.querySelector(
+      'ion-action-sheet-controller'
+    );
     await actionSheetController.componentOnReady();
 
     const actionSheet = await actionSheetController.create({
       header: 'Delete photo?',
-      buttons: [{
-        text: 'Delete',
-        role: 'destructive',
-        icon: 'trash',
-        handler: () => {
-          this.loading('Deleting photo...');
-          this.photosService.deletePhoto(id).then(async (result) => {
-            await this.dismissLoading();
-            if (result === true) {
-              callback();
-            } else {
-              this.errorAlert('Removal failed', 'The removal of the photo failed. Please try again in a few minutes!');
-            }
-          });
+      buttons: [
+        {
+          text: 'Delete',
+          role: 'destructive',
+          icon: 'trash',
+          handler: () => {
+            this.loading('Deleting photo...');
+            this.photosService.deletePhoto(id).then(async result => {
+              await this.dismissLoading();
+              if (result === true) {
+                callback();
+              } else {
+                this.errorAlert(
+                  'Removal failed',
+                  'The removal of the photo failed. Please try again in a few minutes!'
+                );
+              }
+            });
+          }
+        },
+        {
+          text: 'Cancel',
+          icon: 'close',
+          role: 'cancel'
         }
-      },
-                {
-        text: 'Cancel',
-        icon: 'close',
-        role: 'cancel'
-      }]
+      ]
     });
     await actionSheet.present();
-
   }
 
   async deletePhotos(ids: string[], callback: any): Promise<void> {
-
     if (!ids || ids.length < 1) {
       return;
     }
@@ -82,35 +86,41 @@ export default class PresentingService {
     if (ids.length === 1) {
       header = 'Delete ' + ids.length + ' photo?';
     }
-    const actionSheetController = document.querySelector('ion-action-sheet-controller');
+    const actionSheetController = document.querySelector(
+      'ion-action-sheet-controller'
+    );
     await actionSheetController.componentOnReady();
 
     const actionSheet = await actionSheetController.create({
       header,
-      buttons: [{
-        text: 'Delete',
-        role: 'destructive',
-        icon: 'trash',
-        handler: () => {
-          this.loading('Deleting photos...');
-          this.photosService.deletePhotos(ids).then(async (result) => {
-            if (result === true) {
-              await this.dismissLoading();
-              callback();
-            } else {
-              this.errorAlert('Removal failed', 'The removal of some photos failed. Please try again in a few minutes!');
-            }
-          });
+      buttons: [
+        {
+          text: 'Delete',
+          role: 'destructive',
+          icon: 'trash',
+          handler: () => {
+            this.loading('Deleting photos...');
+            this.photosService.deletePhotos(ids).then(async result => {
+              if (result === true) {
+                await this.dismissLoading();
+                callback();
+              } else {
+                this.errorAlert(
+                  'Removal failed',
+                  'The removal of some photos failed. Please try again in a few minutes!'
+                );
+              }
+            });
+          }
+        },
+        {
+          text: 'Cancel',
+          icon: 'close',
+          role: 'cancel'
         }
-      },
-                {
-        text: 'Cancel',
-        icon: 'close',
-        role: 'cancel'
-      }]
+      ]
     });
     await actionSheet.present();
-
   }
 
   async errorAlert(header: string, message: string): Promise<void> {
@@ -134,5 +144,4 @@ export default class PresentingService {
       window.open(url, target);
     }
   }
-
 }

@@ -6,7 +6,6 @@ import AlbumsService from './albums-service';
 declare var blockstack;
 
 export default class PhotosService {
-
   private cache: CacheService;
   private photoStorage: LargeStorageService;
 
@@ -19,8 +18,9 @@ export default class PhotosService {
     let cachedPhotosList = [];
     const errorsList = [];
     try {
-
-      const rawCachedPhotosList = albumId ? await this.cache.getItem(albumId) : await this.cache.getItem('cachedPhotosList');
+      const rawCachedPhotosList = albumId
+        ? await this.cache.getItem(albumId)
+        : await this.cache.getItem('cachedPhotosList');
 
       if (rawCachedPhotosList) {
         cachedPhotosList = JSON.parse(rawCachedPhotosList);
@@ -32,7 +32,9 @@ export default class PhotosService {
     if (sync || !cachedPhotosList || cachedPhotosList.length === 0) {
       try {
         // Get the contents of the file picture-list.json
-        const rawPhotosList = albumId ? await blockstack.getFile(albumId) : await blockstack.getFile('picture-list.json');
+        const rawPhotosList = albumId
+          ? await blockstack.getFile(albumId)
+          : await blockstack.getFile('picture-list.json');
         if (rawPhotosList) {
           const photosList = JSON.parse(rawPhotosList);
           cachedPhotosList = photosList;
@@ -51,11 +53,9 @@ export default class PhotosService {
       photosList: cachedPhotosList,
       errorsList
     };
-
   }
 
   async loadPhoto(id: string): Promise<any> {
-
     let cachedPhoto = await this.cache.getItem(id);
 
     if (!cachedPhoto) {
@@ -70,10 +70,12 @@ export default class PhotosService {
   }
 
   async uploadPhoto(file: any, event: any, albumId?: string): Promise<any> {
-
     const photosListResponse = await this.getPhotosList(true);
     let photosList = photosListResponse.photosList;
-    if ((!photosList || photosList == null) && photosListResponse.errorsList.length === 0) {
+    if (
+      (!photosList || photosList == null) &&
+      photosListResponse.errorsList.length === 0
+    ) {
       photosList = [];
     }
 
@@ -89,24 +91,26 @@ export default class PhotosService {
     const errorsList = [];
     const photoId = uuidv4() + file.filename.replace('.', '');
     const listdata = {
-      'id': photoId,
-      'filename': file.filename
+      id: photoId,
+      filename: file.filename
     };
     const metadata = {
-      'id': photoId,
-      'filename': file.filename,
-      'uploadedDate': new Date(),
-      'stats': file.stats,
-      'albums': [albumId]
+      id: photoId,
+      filename: file.filename,
+      uploadedDate: new Date(),
+      stats: file.stats,
+      albums: [albumId]
     };
     try {
-
       // Save raw data to a file
       await this.photoStorage.writeFile(photoId, event.target.result);
       await this.cache.setItem(photoId, event.target.result);
 
       // Save photos metadata to a file
-      await this.photoStorage.writeFile(photoId + '-meta', JSON.stringify(metadata));
+      await this.photoStorage.writeFile(
+        photoId + '-meta',
+        JSON.stringify(metadata)
+      );
       await this.cache.setItem(photoId + '-meta', JSON.stringify(metadata));
 
       photosList.unshift(listdata);
@@ -120,13 +124,13 @@ export default class PhotosService {
       const fileSizeInMegabytes = file.stats.size / 1000000;
       if (fileSizeInMegabytes >= 5) {
         errorsList.push({
-          'id': file.filename,
-          'errorCode': 'err_filesize'
+          id: file.filename,
+          errorCode: 'err_filesize'
         });
       } else {
         errorsList.push({
-          'id': file.filename,
-          'errorCode': 'err_failed'
+          id: file.filename,
+          errorCode: 'err_failed'
         });
       }
     }
@@ -166,8 +170,14 @@ export default class PhotosService {
     for (const photo of photosList) {
       if (photoId === photo.id) {
         photosList.splice(index, 1);
-        await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
-        await blockstack.putFile('picture-list.json', JSON.stringify(photosList));
+        await this.cache.setItem(
+          'cachedPhotosList',
+          JSON.stringify(photosList)
+        );
+        await blockstack.putFile(
+          'picture-list.json',
+          JSON.stringify(photosList)
+        );
         return true;
       }
       index++;
@@ -193,7 +203,7 @@ export default class PhotosService {
   }
 
   async getNextAndPreviousPhoto(id: string, albumId?: string): Promise<any> {
-    const response = { 'previousId': null, 'nextId': null };
+    const response = { previousId: null, nextId: null };
     const photosListResponse = await this.getPhotosList(true, albumId);
     const photosList = photosListResponse.photosList;
 
@@ -216,7 +226,6 @@ export default class PhotosService {
   }
 
   async getPhotoMetaData(photoId: string): Promise<any> {
-
     let cachedPhotoMetaData = await this.cache.getItem(photoId + '-meta');
 
     if (!cachedPhotoMetaData) {
@@ -240,18 +249,19 @@ export default class PhotosService {
       }
     }
     return cachedPhotoMetaData;
-
   }
 
   async setPhotoMetaData(photoId: string, metadata: any): Promise<boolean> {
-
     // id and metadata is required
     if (!photoId || !metadata) {
       return false;
     }
 
     // Save photos metadata to a file
-    await this.photoStorage.writeFile(photoId + '-meta', JSON.stringify(metadata));
+    await this.photoStorage.writeFile(
+      photoId + '-meta',
+      JSON.stringify(metadata)
+    );
     await this.cache.setItem(photoId + '-meta', JSON.stringify(metadata));
 
     return true;
@@ -262,21 +272,25 @@ export default class PhotosService {
 
     let currentOrientation = 1;
 
-    if (metadata && metadata.stats && metadata.stats.exifdata
-      && metadata.stats.exifdata.tags.Orientation) {
-        currentOrientation = metadata.stats.exifdata.tags.Orientation;
+    if (
+      metadata &&
+      metadata.stats &&
+      metadata.stats.exifdata &&
+      metadata.stats.exifdata.tags.Orientation
+    ) {
+      currentOrientation = metadata.stats.exifdata.tags.Orientation;
     }
 
     if (!metadata.stats) {
-      metadata.stats = { exifdata: { tags: { } } };
+      metadata.stats = { exifdata: { tags: {} } };
     }
 
     if (!metadata.stats.exifdata) {
-      metadata.stats.exifdata = { tags: { } };
+      metadata.stats.exifdata = { tags: {} };
     }
 
     if (!metadata.stats.exifdata.tags) {
-      metadata.stats.exifdata.tags = { };
+      metadata.stats.exifdata.tags = {};
     }
 
     if (currentOrientation === 1) {

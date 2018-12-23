@@ -1,0 +1,10 @@
+*.jpg
+*.xml
+*.svg
+*.png
+*_headers
+*_redirects
+*.ico
+*blockstack.js
+*components.d.ts
+*index.html

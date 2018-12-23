@@ -4,13 +4,10 @@ import uuidv4 from 'uuid/v4';
 declare var blockstack;
 
 export default class AlbumsService {
-
   private cache: CacheService;
 
   constructor() {
-
     this.cache = new CacheService();
-
   }
 
   async getAlbums(sync?: boolean): Promise<any> {
@@ -43,11 +40,9 @@ export default class AlbumsService {
       albums: cachedAlbums,
       errorsList
     };
-
   }
 
   async createAlbum(albumName: string) {
-
     const albumsResponse = await this.getAlbums(true);
     let albums = albumsResponse.albums;
     if ((!albums || albums == null) && albumsResponse.errorsList.length === 0) {
@@ -57,10 +52,10 @@ export default class AlbumsService {
     const errorsList = [];
     const albumId = uuidv4();
     const metadata = {
-      'albumId': albumId,
-      'albumName': albumName,
-      'createdDate': new Date(),
-      'thumbnailId': null
+      albumId: albumId,
+      albumName: albumName,
+      createdDate: new Date(),
+      thumbnailId: null
     };
     try {
       await blockstack.putFile(albumId, '[]');
@@ -69,19 +64,17 @@ export default class AlbumsService {
       albums.unshift(metadata);
     } catch (error) {
       errorsList.push({
-        'id': albumId,
-        'errorCode': 'err_failed'
+        id: albumId,
+        errorCode: 'err_failed'
       });
     }
 
     await this.cache.setItem('cachedAlbums', JSON.stringify(albums));
     await blockstack.putFile('albums-list.json', JSON.stringify(albums));
     return { albums, errorsList };
-
   }
 
   async updateAlbumName(albumId: string, albumName: string): Promise<any> {
-
     // id and metadata is required
     if (!albumId || !albumName) {
       return false;
@@ -111,8 +104,10 @@ export default class AlbumsService {
     return albums;
   }
 
-  async updateAlbumThumbnail(albumId: string, thumbnailId: string): Promise<any> {
-
+  async updateAlbumThumbnail(
+    albumId: string,
+    thumbnailId: string
+  ): Promise<any> {
     // id and metadata is required
     if (!albumId || !thumbnailId) {
       return false;
@@ -172,11 +167,10 @@ export default class AlbumsService {
       index++;
     }
     return false;
-
   }
 
   async getAlbumMetaData(albumId: string): Promise<any> {
-    let response = { };
+    let response = {};
     const albumsResponse = await this.getAlbums();
     const albums = albumsResponse.albums;
 

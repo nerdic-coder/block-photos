@@ -1,9 +1,9 @@
-importScripts('workbox-v3.4.1/workbox-sw.js')
+importScripts('workbox-v3.4.1/workbox-sw.js');
 
 /*
   This is our code to handle push events.
 */
-self.addEventListener('push', (event) => {
+self.addEventListener('push', event => {
   console.log('[Service Worker] Push Received.');
   console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
 

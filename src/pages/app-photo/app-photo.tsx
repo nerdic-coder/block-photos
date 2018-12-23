@@ -9,7 +9,6 @@ declare var blockstack;
   tag: 'app-photo'
 })
 export class AppPhoto {
-
   private photosService: PhotosService;
   private present: PresentingService;
   private modalController: HTMLIonModalControllerElement;
@@ -22,14 +21,11 @@ export class AppPhoto {
   @State() nextPhotoId: string;
 
   constructor() {
-
     this.photosService = new PhotosService();
     this.present = new PresentingService();
-
   }
 
   async componentDidLoad() {
-
     const router = document.querySelector('ion-router');
     await router.componentOnReady();
 
@@ -62,9 +58,12 @@ export class AppPhoto {
 
   async setNextAndPreviousPhoto(photoId: string): Promise<void> {
     if (photoId && photoId !== null) {
-        const nextAndPreviousPhoto = await this.photosService.getNextAndPreviousPhoto(photoId, this.albumId);
-        this.previousPhotoId = nextAndPreviousPhoto.previousId;
-        this.nextPhotoId = nextAndPreviousPhoto.nextId;
+      const nextAndPreviousPhoto = await this.photosService.getNextAndPreviousPhoto(
+        photoId,
+        this.albumId
+      );
+      this.previousPhotoId = nextAndPreviousPhoto.previousId;
+      this.nextPhotoId = nextAndPreviousPhoto.nextId;
     }
   }
 
@@ -83,7 +82,7 @@ export class AppPhoto {
     setTimeout(() => {
       this.photoId = tempId;
 
-      if (this.updateCallback && typeof (this.updateCallback) === 'function') {
+      if (this.updateCallback && typeof this.updateCallback === 'function') {
         // execute the callback, passing parameters as necessary
 
         this.updateCallback(this.photoId);
@@ -94,8 +93,7 @@ export class AppPhoto {
   }
 
   async deletePhotoCallback() {
-
-    if (this.updateCallback && typeof (this.updateCallback) === 'function') {
+    if (this.updateCallback && typeof this.updateCallback === 'function') {
       // execute the callback, passing parameters as necessary
 
       this.updateCallback();
@@ -119,31 +117,43 @@ export class AppPhoto {
   }
 
   render() {
-
     return [
       <ion-header>
         <ion-toolbar mode="md" color="primary">
-            <ion-buttons slot="start">
-              <ion-button onClick={() => this.closeModal()}>
-                <ion-icon color="light" name="close" size="large"></ion-icon>
-              </ion-button>
-            </ion-buttons>
-            <ion-title>Photo</ion-title>
-            <ion-buttons slot="end">
-              <ion-button onClick={() => this.rotatePhoto()}>
-                <ion-icon color="light" name="sync"></ion-icon>
-              </ion-button>
-              <ion-button onClick={() => this.present.deletePhoto(this.photoId, this.deletePhotoCallback.bind(this))}>
-                <ion-icon color="light" name="trash"></ion-icon>
-              </ion-button>
-              <ion-button disabled={!this.previousPhotoId} onClick={() => this.gotoPhotoWithId(this.previousPhotoId)}>
-                <ion-icon color="light" name="arrow-back"></ion-icon>
-              </ion-button>
-              <ion-button disabled={!this.nextPhotoId} onClick={() => this.gotoPhotoWithId(this.nextPhotoId)}>
-                <ion-icon color="light" name="arrow-forward"></ion-icon>
-              </ion-button>
-            </ion-buttons>
-          </ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button onClick={() => this.closeModal()}>
+              <ion-icon color="light" name="close" size="large" />
+            </ion-button>
+          </ion-buttons>
+          <ion-title>Photo</ion-title>
+          <ion-buttons slot="end">
+            <ion-button onClick={() => this.rotatePhoto()}>
+              <ion-icon color="light" name="sync" />
+            </ion-button>
+            <ion-button
+              onClick={() =>
+                this.present.deletePhoto(
+                  this.photoId,
+                  this.deletePhotoCallback.bind(this)
+                )
+              }
+            >
+              <ion-icon color="light" name="trash" />
+            </ion-button>
+            <ion-button
+              disabled={!this.previousPhotoId}
+              onClick={() => this.gotoPhotoWithId(this.previousPhotoId)}
+            >
+              <ion-icon color="light" name="arrow-back" />
+            </ion-button>
+            <ion-button
+              disabled={!this.nextPhotoId}
+              onClick={() => this.gotoPhotoWithId(this.nextPhotoId)}
+            >
+              <ion-icon color="light" name="arrow-forward" />
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
       </ion-header>,
 
       <ion-content text-center class="photo-page">

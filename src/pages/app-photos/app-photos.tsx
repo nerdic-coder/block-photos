@@ -12,7 +12,6 @@ declare var blockstack;
   tag: 'app-photos'
 })
 export class AppPhotos {
-
   private timer;
   private lockTimer;
   private touchduration = 800;
@@ -41,30 +40,26 @@ export class AppPhotos {
   @Prop() albumId: string;
 
   constructor() {
-
     this.albumsService = new AlbumsService();
     this.photosService = new PhotosService();
     this.present = new PresentingService();
     this.photosRangeListener = this.loadPhotosRange.bind(this);
     this.photosRefresherListener = this.refreshPhotosList.bind(this);
-
   }
 
   async componentWillLoad() {
-
-    this.uploadService = new UploadService(this.uploadFilesDoneCallback.bind(this), this.albumId);
+    this.uploadService = new UploadService(
+      this.uploadFilesDoneCallback.bind(this),
+      this.albumId
+    );
 
     if (this.albumId) {
-
       // Load album list
       this.album = await this.albumsService.getAlbumMetaData(this.albumId);
-
     }
-
   }
 
   async componentDidLoad() {
-
     // Go to signin page if no active session exist
     if (!blockstack.isUserSignedIn()) {
       const router = document.querySelector('ion-router');
@@ -81,12 +76,18 @@ export class AppPhotos {
 
     this.infiniteScroll = document.getElementById('infinite-scroll');
     if (this.infiniteScroll) {
-      this.infiniteScroll.addEventListener('ionInfinite', this.photosRangeListener);
+      this.infiniteScroll.addEventListener(
+        'ionInfinite',
+        this.photosRangeListener
+      );
     }
 
     this.refresherScroll = document.getElementById('refresher-scroll');
     if (this.refresherScroll) {
-      this.refresherScroll.addEventListener('ionRefresh', this.photosRefresherListener);
+      this.refresherScroll.addEventListener(
+        'ionRefresh',
+        this.photosRefresherListener
+      );
     }
 
     this.uploadService.addEventListeners(true);
@@ -102,32 +103,36 @@ export class AppPhotos {
   }
 
   componentDidUnload() {
-
     this.uploadService.removeEventListeners(true);
     if (this.infiniteScroll) {
-      this.infiniteScroll.removeEventListener('ionInfinite', this.photosRangeListener);
+      this.infiniteScroll.removeEventListener(
+        'ionInfinite',
+        this.photosRangeListener
+      );
     }
     if (this.refresherScroll) {
-      this.refresherScroll.removeEventListener('ionRefresh', this.photosRefresherListener);
+      this.refresherScroll.removeEventListener(
+        'ionRefresh',
+        this.photosRefresherListener
+      );
     }
-
   }
 
   refreshPhotosList() {
-
     this.loadPhotosList(true, true);
-
   }
 
   async loadPhotosList(sync?: boolean, skipLoading?: boolean) {
-
     try {
       if (!skipLoading) {
         await this.present.loading('Loading photos...');
       }
 
       // Get the contents of the file picture-list.json
-      const photosListResponse = await this.photosService.getPhotosList(sync, this.albumId);
+      const photosListResponse = await this.photosService.getPhotosList(
+        sync,
+        this.albumId
+      );
       this.photosListCached = photosListResponse.photosList;
       if (!skipLoading) {
         await this.present.dismissLoading();
@@ -135,16 +140,20 @@ export class AppPhotos {
 
       this.loadPhotosRange();
 
-      if (photosListResponse.errorsList && photosListResponse.errorsList.length > 0) {
+      if (
+        photosListResponse.errorsList &&
+        photosListResponse.errorsList.length > 0
+      ) {
         for (const error of photosListResponse.errorsList) {
           if (error.errorCode === 'err_cache') {
             this.present.toast('Failed to load cached list. Please try again!');
           } else if (error.errorCode) {
-            this.present.toast('Could not load photos from blockstack. Please try again or upload some photos if you have none!');
+            this.present.toast(
+              'Could not load photos from blockstack. Please try again or upload some photos if you have none!'
+            );
           }
         }
       }
-
     } catch (error) {
       if (!skipLoading) {
         await this.present.dismissLoading();
@@ -152,11 +161,9 @@ export class AppPhotos {
       this.present.toast('Could not load photos. Please try again!');
       this.refresherScroll.complete();
     }
-
   }
 
   loadPhotosRange(event?: any) {
-
     setTimeout(() => {
       if (event) {
         this.infiniteScroll.complete();
@@ -178,71 +185,56 @@ export class AppPhotos {
         this.photosLoaded = photosToLoad;
       }
     }, 500);
-
   }
 
   async rotatePhotos(): Promise<void> {
-
     this.refreshPhotos = {};
     for (const id of this.checkedItems) {
       await this.photosService.rotatePhoto(id);
 
       this.refreshPhotos = { ...this.refreshPhotos, [id]: true };
-
     }
 
     AnalyticsService.logEvent('photos-list-rotate');
-
   }
 
   uploadFilesDoneCallback() {
-
     this.loadPhotosList();
 
     AnalyticsService.logEvent('photos-list-uploaded');
-
   }
 
   deletePhotoCallback(): void {
-
     this.loadPhotosList();
 
     AnalyticsService.logEvent('photos-list-deleted');
-
   }
 
   openFileDialog(event: any): void {
-
     if (event) {
       event.preventDefault();
     }
     document.getElementById('file-upload').click();
 
     AnalyticsService.logEvent('photos-list-file-dialog');
-
   }
 
   activateEditor(event: any, id?: string, activatedByTouch?: boolean): void {
-
     this.activatedByTouch = activatedByTouch;
     if (event) {
       event.preventDefault();
     }
 
     this.editMode = true;
-    this.checkedItems = (id ? [id] : []);
-
+    this.checkedItems = id ? [id] : [];
   }
 
   deactivateEditor(): void {
-
     this.editMode = false;
     this.checkedItems = [];
-
   }
 
   async handlePhotoClick(event: any, photoId: string): Promise<void> {
-
     if (this.editMode) {
       event.preventDefault();
       if (this.lockTimer || this.activatedByTouch) {
@@ -250,9 +242,9 @@ export class AppPhotos {
         return;
       }
 
-      this.checkedItems = (this.checkedItems.includes(photoId) ?
-        this.checkedItems.filter(item => item !== photoId) :
-        this.checkedItems = [...this.checkedItems, photoId]);
+      this.checkedItems = this.checkedItems.includes(photoId)
+        ? this.checkedItems.filter(item => item !== photoId)
+        : (this.checkedItems = [...this.checkedItems, photoId]);
 
       if (this.checkedItems.length < 1) {
         this.editMode = false;
@@ -260,19 +252,15 @@ export class AppPhotos {
     } else {
       this.openPhotoModal(photoId);
     }
-
   }
 
   refreshPhoto(photoId: string): void {
-
-    this.refreshPhotos = (this.refreshPhotos[photoId] ?
-      this.refreshPhotos = { ...this.refreshPhotos, [photoId]: false } :
-      this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true });
-
+    this.refreshPhotos = this.refreshPhotos[photoId]
+      ? (this.refreshPhotos = { ...this.refreshPhotos, [photoId]: false })
+      : (this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true });
   }
 
   updateCallback(photoId: string): void {
-
     if (photoId) {
       setTimeout(() => {
         this.refreshPhoto(photoId);
@@ -282,11 +270,9 @@ export class AppPhotos {
         this.loadPhotosList(true, true);
       }, 1500);
     }
-
   }
 
   async openPhotoModal(photoId: string) {
-
     await this.present.loading('');
     const modal = await this.modalController.create({
       component: this.appPhotoElement,
@@ -301,21 +287,17 @@ export class AppPhotos {
       this.present.dismissLoading();
     });
     await modal.present();
-
   }
 
   isChecked(id: string): boolean {
-
     if (this.checkedItems.includes(id)) {
       return true;
     } else {
       return false;
     }
-
   }
 
   touchStart(event: any, id: string): void {
-
     event.preventDefault();
     if (this.lockTimer) {
       return;
@@ -324,7 +306,6 @@ export class AppPhotos {
       this.activateEditor(null, id, true);
     }, this.touchduration);
     this.lockTimer = true;
-
   }
 
   async touchEnd(): Promise<void> {
@@ -334,18 +315,14 @@ export class AppPhotos {
       // clearTimeout, not cleartimeout..
       this.lockTimer = false;
     }
-
   }
 
   preventDrag(event: any): boolean {
-
     event.preventDefault();
     return false;
-
   }
 
   render() {
-
     let rows = [];
     let empty = true;
     if (this.photosList && this.photosList.length > 0) {
@@ -360,61 +337,91 @@ export class AppPhotos {
             <ion-buttons slot="start">
               <ion-back-button defaultHref="/albums" />
             </ion-buttons>
-          ) : (null)}
+          ) : null}
           <ion-title class="unselectable">
-            {this.album ? (this.album.albumName) : ('Block Photos')}
+            {this.album ? this.album.albumName : 'Block Photos'}
           </ion-title>
           <ion-buttons slot="end">
-            {this.editMode ? ([
-              <ion-button onClick={() => this.rotatePhotos()}>
-                <ion-icon color="light" name="sync"></ion-icon>
-              </ion-button>,
-              <ion-button onClick={() => this.present.deletePhotos(this.checkedItems, this.deletePhotoCallback.bind(this))}>
-                <ion-icon color="light" name="trash"></ion-icon>
-              </ion-button>,
-              <ion-button onClick={() => this.deactivateEditor()}>
-                <ion-icon color="light" name="close"></ion-icon>
-              </ion-button>
-            ]) : ([
-              <ion-button onClick={() => this.loadPhotosList(true)}>
-                <ion-icon name="refresh"></ion-icon>
-              </ion-button>,
-              <ion-button onClick={(event) => this.activateEditor(event, null)}>
-                <ion-icon name="checkmark-circle"></ion-icon>
-              </ion-button>,
-              <ion-button onClick={(event) => this.openFileDialog(event)}>
-                <ion-icon name="cloud-upload"></ion-icon>
-              </ion-button>
-            ])}
-            {!this.editMode && !this.album ? (
-              <ion-menu-button />
-            ) : (null)}
+            {this.editMode
+              ? [
+                  <ion-button onClick={() => this.rotatePhotos()}>
+                    <ion-icon color="light" name="sync" />
+                  </ion-button>,
+                  <ion-button
+                    onClick={() =>
+                      this.present.deletePhotos(
+                        this.checkedItems,
+                        this.deletePhotoCallback.bind(this)
+                      )
+                    }
+                  >
+                    <ion-icon color="light" name="trash" />
+                  </ion-button>,
+                  <ion-button onClick={() => this.deactivateEditor()}>
+                    <ion-icon color="light" name="close" />
+                  </ion-button>
+                ]
+              : [
+                  <ion-button onClick={() => this.loadPhotosList(true)}>
+                    <ion-icon name="refresh" />
+                  </ion-button>,
+                  <ion-button
+                    onClick={event => this.activateEditor(event, null)}
+                  >
+                    <ion-icon name="checkmark-circle" />
+                  </ion-button>,
+                  <ion-button onClick={event => this.openFileDialog(event)}>
+                    <ion-icon name="cloud-upload" />
+                  </ion-button>
+                ]}
+            {!this.editMode && !this.album ? <ion-menu-button /> : null}
           </ion-buttons>
         </ion-toolbar>
       </ion-header>,
 
       <ion-content id="photos-list">
         <ion-refresher slot="fixed" id="refresher-scroll">
-          <ion-refresher-content></ion-refresher-content>
+          <ion-refresher-content />
         </ion-refresher>
-        {empty && this.listLoaded ? (<ion-card padding text-center><h2>Welcome to Block Photos.</h2><h3>Use the upload button (<ion-icon size="small" name="ios-cloud-upload"></ion-icon>) to add your first photo.</h3></ion-card>) : (
+        {empty && this.listLoaded ? (
+          <ion-card padding text-center>
+            <h2>Welcome to Block Photos.</h2>
+            <h3>
+              Use the upload button (
+              <ion-icon size="small" name="ios-cloud-upload" />) to add your
+              first photo.
+            </h3>
+          </ion-card>
+        ) : (
           <ion-grid no-padding>
-            {rows.map((row) => (
+            {rows.map(row => (
               <ion-row align-items-center key={row[0].id}>
-                {
-                  row.map((col) => (
-                    <ion-col no-padding align-self-center key={col.id}>
-                      <div class="square" draggable={false}
-                        onTouchEnd={() => this.touchEnd()}
-                        onClick={(event) => this.handlePhotoClick(event, col.id)}
-                        onContextMenu={(event) => this.activateEditor(event, col.id)}
-                        onDragStart={(event) => this.preventDrag(event)}>
-                        {this.editMode ? (<ion-checkbox class="floatInput" checked={this.isChecked(col.id)} mode="ios"></ion-checkbox>) : (null)}
-                        <block-img photoId={col.id} refresh={this.refreshPhotos[col.id]} />
-                      </div>
-                    </ion-col>
-                  ))
-                }
+                {row.map(col => (
+                  <ion-col no-padding align-self-center key={col.id}>
+                    <div
+                      class="square"
+                      draggable={false}
+                      onTouchEnd={() => this.touchEnd()}
+                      onClick={event => this.handlePhotoClick(event, col.id)}
+                      onContextMenu={event =>
+                        this.activateEditor(event, col.id)
+                      }
+                      onDragStart={event => this.preventDrag(event)}
+                    >
+                      {this.editMode ? (
+                        <ion-checkbox
+                          class="floatInput"
+                          checked={this.isChecked(col.id)}
+                          mode="ios"
+                        />
+                      ) : null}
+                      <block-img
+                        photoId={col.id}
+                        refresh={this.refreshPhotos[col.id]}
+                      />
+                    </div>
+                  </ion-col>
+                ))}
               </ion-row>
             ))}
           </ion-grid>
@@ -422,8 +429,8 @@ export class AppPhotos {
         <ion-infinite-scroll threshold="100px" id="infinite-scroll">
           <ion-infinite-scroll-content
             loading-spinner="bubbles"
-            loading-text="Loading more photos...">
-          </ion-infinite-scroll-content>
+            loading-text="Loading more photos..."
+          />
         </ion-infinite-scroll>
         <input id="file-upload" type="file" multiple />
       </ion-content>
@@ -436,5 +443,5 @@ export class AppPhotos {
         ? [...arr, [item]]
         : [...arr.slice(0, -1), [...arr.slice(-1)[0], item]];
     }, []);
-  }
+  };
 }

@@ -7,7 +7,6 @@ import PhotosService from '../services/photos-service';
   tag: 'block-img'
 })
 export class BlockImg {
-
   @Prop() photoId: string;
   @Prop() rotate: boolean;
   @Prop() refresh: boolean;
@@ -20,13 +19,11 @@ export class BlockImg {
   private photosService: PhotosService;
 
   constructor() {
-
     this.photosService = new PhotosService();
     this.rotation = 1;
   }
 
   componentWillLoad(): void {
-
     this.getPhoto();
   }
 
@@ -57,55 +54,64 @@ export class BlockImg {
     const base64 = await this.photosService.loadPhoto(photoId);
 
     let rotation = 1;
-    if (metadata && metadata.stats && metadata.stats.exifdata
-      && metadata.stats.exifdata.tags.Orientation) {
-        rotation = metadata.stats.exifdata.tags.Orientation;
-        // Handle correct orientation for iOS
-        if (this.iOS() && metadata.stats.exifdata.tags.OriginalOrientation) {
-          const originalOrientation = metadata.stats.exifdata.tags.OriginalOrientation;
-          // If the orientation is unchanged don't rotate at all with CSS, iOS handles it automatic
-          if (rotation === originalOrientation) {
-            rotation = 1;
-          } else if (rotation === 1
-            && originalOrientation === 6) {
-              rotation = 8;
-          } else if (rotation === 1) {
-            rotation = originalOrientation;
-          } else if (rotation === 3
-            && originalOrientation === 6) {
-              rotation = 6;
-          } else if (rotation === 8
-            && originalOrientation === 6) {
-              rotation = 3;
-          } else if (rotation === 3
-            && originalOrientation === 8) {
-              rotation = 6;
-          } else if (rotation === 6
-            && originalOrientation === 8) {
-              rotation = 3;
-          } else if (rotation === 8
-            && originalOrientation === 3) {
-              rotation = 6;
-          } else if (rotation === 6
-            && originalOrientation === 3) {
-              rotation = 8;
-          }
+    if (
+      metadata &&
+      metadata.stats &&
+      metadata.stats.exifdata &&
+      metadata.stats.exifdata.tags.Orientation
+    ) {
+      rotation = metadata.stats.exifdata.tags.Orientation;
+      // Handle correct orientation for iOS
+      if (this.iOS() && metadata.stats.exifdata.tags.OriginalOrientation) {
+        const originalOrientation =
+          metadata.stats.exifdata.tags.OriginalOrientation;
+        // If the orientation is unchanged don't rotate at all with CSS, iOS handles it automatic
+        if (rotation === originalOrientation) {
+          rotation = 1;
+        } else if (rotation === 1 && originalOrientation === 6) {
+          rotation = 8;
+        } else if (rotation === 1) {
+          rotation = originalOrientation;
+        } else if (rotation === 3 && originalOrientation === 6) {
+          rotation = 6;
+        } else if (rotation === 8 && originalOrientation === 6) {
+          rotation = 3;
+        } else if (rotation === 3 && originalOrientation === 8) {
+          rotation = 6;
+        } else if (rotation === 6 && originalOrientation === 8) {
+          rotation = 3;
+        } else if (rotation === 8 && originalOrientation === 3) {
+          rotation = 6;
+        } else if (rotation === 6 && originalOrientation === 3) {
+          rotation = 8;
         }
+      }
     }
 
     // Set photo orientation from exif if it exist
-    if (rotate && metadata && metadata.stats && metadata.stats.exifdata
-      && metadata.stats.exifdata.tags.Orientation && rotation !== 1) {
-        const imageOptions = { orientation: metadata.stats.exifdata.tags.Orientation };
-        loadImage(base64, (processedPhoto) => {
+    if (
+      rotate &&
+      metadata &&
+      metadata.stats &&
+      metadata.stats.exifdata &&
+      metadata.stats.exifdata.tags.Orientation &&
+      rotation !== 1
+    ) {
+      const imageOptions = {
+        orientation: metadata.stats.exifdata.tags.Orientation
+      };
+      loadImage(
+        base64,
+        processedPhoto => {
           this.handleProcessedPhoto(processedPhoto);
-        }, imageOptions);
+        },
+        imageOptions
+      );
     } else {
       this.source = base64;
       this.isLoaded = true;
       this.rotation = rotation;
     }
-
   }
 
   handleProcessedPhoto(processedPhoto: any): void {
@@ -121,7 +127,6 @@ export class BlockImg {
   }
 
   iOS(): boolean {
-
     const iDevices = [
       'iPad Simulator',
       'iPhone Simulator',
@@ -133,7 +138,9 @@ export class BlockImg {
 
     if (navigator.platform) {
       while (iDevices.length) {
-        if (navigator.platform === iDevices.pop()) { return true; }
+        if (navigator.platform === iDevices.pop()) {
+          return true;
+        }
       }
     }
 
@@ -149,13 +156,16 @@ export class BlockImg {
     const { isLoaded, source, rotation } = this;
     if (isLoaded && source && this.photoId !== null) {
       return (
-        <img alt={this.photoId} draggable={false} src={source} class={ 'rotation-' + rotation } onDragStart={(event) => this.preventDrag(event)} />
+        <img
+          alt={this.photoId}
+          draggable={false}
+          src={source}
+          class={'rotation-' + rotation}
+          onDragStart={event => this.preventDrag(event)}
+        />
       );
     } else {
-      return (
-        <ion-spinner name="circles" color="tertiary" />
-      );
+      return <ion-spinner name="circles" color="tertiary" />;
     }
   }
-
 }

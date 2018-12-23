@@ -4,7 +4,6 @@ import { Component } from '@stencil/core';
   tag: 'app-profile'
 })
 export class AppProfile {
-
   render() {
     return [
       <ion-header>
@@ -16,9 +15,7 @@ export class AppProfile {
         </ion-toolbar>
       </ion-header>,
 
-      <ion-content padding>
-
-      </ion-content>
+      <ion-content padding />
     ];
   }
 }

@@ -4,7 +4,6 @@ import PhotosService from './photos-service';
 import PresentingService from './presenting-service';
 
 export default class UploadService {
-
   private root: any;
   private photosService: PhotosService;
   private present: PresentingService;
@@ -28,7 +27,9 @@ export default class UploadService {
     this.root.addEventListener('dragover', this.dragoverEvent);
     this.root.addEventListener('drop', this.dropEventBinding);
     if (fileDialog && document.getElementById('file-upload')) {
-      document.getElementById('file-upload').addEventListener('change', this.handleFileSelectEventBinding, false);
+      document
+        .getElementById('file-upload')
+        .addEventListener('change', this.handleFileSelectEventBinding, false);
     }
   }
 
@@ -36,7 +37,9 @@ export default class UploadService {
     this.root.removeEventListener('dragover', this.dragoverEvent);
     this.root.removeEventListener('drop', this.dropEventBinding);
     if (fileDialog && document.getElementById('file-upload')) {
-      document.getElementById('file-upload').removeEventListener('change', this.handleFileSelectEventBinding);
+      document
+        .getElementById('file-upload')
+        .removeEventListener('change', this.handleFileSelectEventBinding);
     }
   }
 
@@ -88,16 +91,17 @@ export default class UploadService {
     if (currentIndex !== 0) {
       await this.present.dismissLoading();
     }
-    await this.present.loading('Uploading photo ' + (currentIndex + 1) + '/' + list.length + '.');
+    await this.present.loading(
+      'Uploading photo ' + (currentIndex + 1) + '/' + list.length + '.'
+    );
     // If dropped items aren't files, reject them
     if (list[currentIndex]) {
       const file = list[currentIndex].file;
       if (list[currentIndex].kind === 'file') {
         if (file.type.indexOf('image') !== -1) {
-
           loadImage.parseMetaData(
             file,
-            (data) => {
+            data => {
               const reader = new FileReader();
 
               let orientation = 1;
@@ -107,13 +111,18 @@ export default class UploadService {
 
               // Closure to capture the file information.
               reader.onload = ((loadedFile, loadedList, orientation) => {
-                return async (event) => {
+                return async event => {
                   if (orientation) {
-                    loadedFile.exifdata = { tags: { Orientation: orientation, OriginalOrientation: orientation } };
+                    loadedFile.exifdata = {
+                      tags: {
+                        Orientation: orientation,
+                        OriginalOrientation: orientation
+                      }
+                    };
                   }
                   const metadata = {
-                    'filename': loadedFile.name,
-                    'stats': loadedFile
+                    filename: loadedFile.name,
+                    stats: loadedFile
                   };
                   await this.uploadPhoto(metadata, event);
                   if (loadedList[currentIndex + 1]) {
@@ -127,12 +136,16 @@ export default class UploadService {
               reader.readAsDataURL(file);
             },
             {
-                maxMetaDataSize: 262144,
-                disableImageHead: false
+              maxMetaDataSize: 262144,
+              disableImageHead: false
             }
           );
         } else {
-          this.present.toast('The file "' + file.name + '" could not be uploaded, are you sure it\'s a photo?');
+          this.present.toast(
+            'The file "' +
+              file.name +
+              '" could not be uploaded, are you sure it\'s a photo?'
+          );
           if (list[currentIndex + 1]) {
             this.processUpload(list, currentIndex + 1);
           } else {
@@ -140,11 +153,16 @@ export default class UploadService {
           }
         }
       } else {
-
         if (file && file.name) {
-          this.present.toast('The file "' + file.name + '" could not be uploaded, are you sure it\'s a photo?');
+          this.present.toast(
+            'The file "' +
+              file.name +
+              '" could not be uploaded, are you sure it\'s a photo?'
+          );
         } else {
-          this.present.toast('One of the files could not be uploaded, are you sure it\'s a photo?');
+          this.present.toast(
+            "One of the files could not be uploaded, are you sure it's a photo?"
+          );
         }
         if (list[currentIndex + 1]) {
           this.processUpload(list, currentIndex + 1);
@@ -153,7 +171,9 @@ export default class UploadService {
         }
       }
     } else {
-      this.present.toast('The file could not be uploaded, are you sure it\'s a photo?');
+      this.present.toast(
+        "The file could not be uploaded, are you sure it's a photo?"
+      );
       if (list[currentIndex + 1]) {
         this.processUpload(list, currentIndex + 1);
       } else {
@@ -163,14 +183,20 @@ export default class UploadService {
   }
 
   async uploadPhoto(metadata: any, event: any): Promise<void> {
-
     if (metadata && event) {
-
-      const response = await this.photosService.uploadPhoto(metadata, event, this.albumId);
+      const response = await this.photosService.uploadPhoto(
+        metadata,
+        event,
+        this.albumId
+      );
       if (response.errorsList && response.errorsList.length > 0) {
         for (const error of response.errorsList) {
           if (error.errorCode === 'err_filesize') {
-            this.present.toast('Failed to upload "' + error.id + '", photo exceeds file size limit of 5MB.');
+            this.present.toast(
+              'Failed to upload "' +
+                error.id +
+                '", photo exceeds file size limit of 5MB.'
+            );
           } else {
             this.present.toast('Failed to upload "' + error.id + '".');
           }
@@ -183,7 +209,7 @@ export default class UploadService {
 
   uploadFilesDone(): void {
     this.present.dismissLoading();
-    if (this.callback && typeof (this.callback) === 'function') {
+    if (this.callback && typeof this.callback === 'function') {
       // execute the callback, passing parameters as necessary
       this.callback();
     }

@@ -1,7 +1,6 @@
 import localForage from 'localforage';
 
 export default class CacheService {
-
   private storage: any;
 
   constructor() {

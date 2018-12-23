@@ -5,7 +5,6 @@ import toArrayBuffer from 'to-array-buffer';
 declare var blockstack;
 
 export default class LargeStorageService {
-
   private prefix = 'multifile:';
 
   private processFile(path: string, content: any, options?: any) {
@@ -14,7 +13,10 @@ export default class LargeStorageService {
     const mb = arrayBuffer.byteLength / 1000000.0;
     // Adjust the MB cap according to encryption
     const processedOptions = options || {};
-    const mbCap = (processedOptions.encrypt === true || processedOptions.encrypt == null) ? 4 : 5;
+    const mbCap =
+      processedOptions.encrypt === true || processedOptions.encrypt == null
+        ? 4
+        : 5;
 
     // If the size of the buffer is larger than the cap, chunk file
     if (mb > mbCap) {
@@ -22,14 +24,17 @@ export default class LargeStorageService {
         const array = new Uint8Array(arrayBuffer);
 
         let chunkSize = 4000000;
-        if (processedOptions.encrypt === true || processedOptions.encrypt == null) {
+        if (
+          processedOptions.encrypt === true ||
+          processedOptions.encrypt == null
+        ) {
           chunkSize = 2500000;
         }
         const arrayOfFilesBytes = this.chunkArray(array, chunkSize);
 
         // Write main file
         let paths = '';
-        arrayOfFilesBytes.forEach((index) => {
+        arrayOfFilesBytes.forEach(index => {
           const newPath = `${path}_part${index}`;
           paths = `${paths}${newPath},`;
         });
@@ -79,7 +84,6 @@ export default class LargeStorageService {
     return tempArray;
   }
 
-
   /**
    * Write files to blockstack storage regardless of size
    * @param path - the path to store the data in
@@ -88,11 +92,15 @@ export default class LargeStorageService {
    * @param Boolean [options.encrypt=true] - encrypt the data with the app private key
    * @return that resolves if the operation succeed and rejects if it failed
    */
-  writeFile(path: string, content: string | Buffer | File, options?: any): Promise<any> {
+  writeFile(
+    path: string,
+    content: string | Buffer | File,
+    options?: any
+  ): Promise<any> {
     if (typeof window !== 'undefined') {
       if (content instanceof File || content instanceof Blob) {
         const reader = new FileReader();
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           reader.onload = () => {
             const arrayBuffer = reader.result;
             resolve(this.processFile(path, arrayBuffer, options));
@@ -124,38 +132,43 @@ export default class LargeStorageService {
    */
   readFile(path: string, options?: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      blockstack.getFile(path, options)
-        .then((file) => {
+      blockstack
+        .getFile(path, options)
+        .then(file => {
           if (typeof file === 'string') {
             const fileString = String(file);
-            if (fileString.length > 10 && fileString.substring(0, 10) === this.prefix) {
+            if (
+              fileString.length > 10 &&
+              fileString.substring(0, 10) === this.prefix
+            ) {
               // Get file parts
-              let fileNames = fileString.substring(10, fileString.length).split(',');
+              let fileNames = fileString
+                .substring(10, fileString.length)
+                .split(',');
               fileNames = fileNames.filter(e => e);
               const promises = [];
-              fileNames.forEach((element) => {
+              fileNames.forEach(element => {
                 promises.push(blockstack.getFile(element, options));
               });
-              Promise.all(promises)
-                .then((values) => {
-                  let totalBytes = values[0];
-                  values.forEach((element, index) => {
-                    if (index !== 0) {
-                      totalBytes = this.appendBuffer(totalBytes, element);
-                    }
-                  });
-                  resolve(totalBytes);
+              Promise.all(promises).then(values => {
+                let totalBytes = values[0];
+                values.forEach((element, index) => {
+                  if (index !== 0) {
+                    totalBytes = this.appendBuffer(totalBytes, element);
+                  }
                 });
+                resolve(totalBytes);
+              });
             } else {
               resolve(file);
             }
           } else {
             resolve(file);
           }
-        }).catch(() => {
+        })
+        .catch(() => {
           reject();
         });
     });
   }
-
 }
