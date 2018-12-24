@@ -27,7 +27,7 @@
     "test.watch": "stencil test --spec --e2e --watch",
     "e2e": "nightwatch",
     "selenium": "selenium-standalone install && selenium-standalone start",
-    "format": "npx prettier --write src/** --single-quote"
+    "format": "npx prettier --write src/**"
   },
   "config": {
     "forge": {
@@ -120,8 +120,10 @@
     "@electron-forge/publisher-github": "6.0.0-beta.22",
     "@stencil/core": "0.16.1",
     "electron": "3.0.13",
+    "husky": "^1.2.1",
     "nightwatch": "1.0.16",
     "prettier": "1.15.3",
+    "pretty-quick": "^1.8.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "selenium-standalone": "^6.15.4",
     "tslint": "^5.12.0",
@@ -134,5 +136,10 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "productName": "block-photos"
+  "productName": "block-photos",
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  }
 }
