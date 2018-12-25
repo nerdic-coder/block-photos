@@ -22,6 +22,7 @@ export class AppPhotos {
   private uploadService: UploadService;
   private photosRangeListener: any;
   private photosRefresherListener: any;
+  private ionRouteDidChangeListener: any;
   private photosLoaded: number;
   private infiniteScroll: any;
   private refresherScroll: any;
@@ -29,6 +30,7 @@ export class AppPhotos {
   private modalController: HTMLIonModalControllerElement;
   private appPhotoElement: HTMLAppPhotoElement;
   private album: any;
+  private router: HTMLIonRouterElement;
 
   @State() photosList: any[] = [];
   @State() refreshPhotos: any = {};
@@ -37,7 +39,7 @@ export class AppPhotos {
   @State() checkedItems: any[] = [];
 
   @Prop({ mutable: true }) photoId: string;
-  @Prop() albumId: string;
+  @Prop({ mutable: true }) albumId: string;
 
   constructor() {
     this.albumsService = new AlbumsService();
@@ -45,6 +47,7 @@ export class AppPhotos {
     this.present = new PresentingService();
     this.photosRangeListener = this.loadPhotosRange.bind(this);
     this.photosRefresherListener = this.refreshPhotosList.bind(this);
+    this.ionRouteDidChangeListener = this.ionRouteDidChange.bind(this);
   }
 
   async componentWillLoad() {
@@ -60,13 +63,18 @@ export class AppPhotos {
   }
 
   async componentDidLoad() {
+    this.router = document.querySelector('ion-router');
+    await this.router.componentOnReady();
     // Go to signin page if no active session exist
     if (!blockstack.isUserSignedIn()) {
-      const router = document.querySelector('ion-router');
-      await router.componentOnReady();
-      router.push('/', 'root');
+      this.router.push('/', 'root');
       return;
     }
+
+    this.router.addEventListener(
+      'ionRouteDidChange',
+      this.ionRouteDidChangeListener
+    );
 
     if (this.photoId) {
       this.openPhotoModal(this.photoId);
@@ -102,7 +110,7 @@ export class AppPhotos {
     AnalyticsService.logEvent('photos-list');
   }
 
-  componentDidUnload() {
+  async componentDidUnload() {
     this.uploadService.removeEventListeners(true);
     if (this.infiniteScroll) {
       this.infiniteScroll.removeEventListener(
@@ -115,6 +123,18 @@ export class AppPhotos {
         'ionRefresh',
         this.photosRefresherListener
       );
+    }
+    this.router.removeEventListener(
+      'ionRouteDidChange',
+      this.ionRouteDidChangeListener
+    );
+  }
+
+  ionRouteDidChange(event: any) {
+    if (event && event.detail && event.detail.to === '/photos') {
+      this.albumId = null;
+      this.album = null;
+      this.refreshPhotosList();
     }
   }
 
@@ -435,11 +455,11 @@ export class AppPhotos {
     ];
   }
 
-  chunk = (input, size) => {
+  chunk(input: any, size: number): any {
     return input.reduce((arr, item, idx) => {
       return idx % size === 0
         ? [...arr, [item]]
         : [...arr.slice(0, -1), [...arr.slice(-1)[0], item]];
     }, []);
-  };
+  }
 }
