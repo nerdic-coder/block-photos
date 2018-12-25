@@ -101,8 +101,8 @@ export default class PresentingService {
           handler: () => {
             this.loading('Deleting photos...');
             this.photosService.deletePhotos(ids).then(async result => {
+              await this.dismissLoading();
               if (result === true) {
-                await this.dismissLoading();
                 callback();
               } else {
                 this.errorAlert(

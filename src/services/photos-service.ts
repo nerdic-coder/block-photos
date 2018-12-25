@@ -20,7 +20,7 @@ export default class PhotosService {
     try {
       const rawCachedPhotosList = albumId
         ? await this.cache.getItem(albumId)
-        : await this.cache.getItem('cachedPhotosList');
+        : await this.cache.getItem('picture-list.json');
 
       if (rawCachedPhotosList) {
         cachedPhotosList = JSON.parse(rawCachedPhotosList);
@@ -41,7 +41,7 @@ export default class PhotosService {
           if (albumId) {
             await this.cache.setItem(albumId, rawPhotosList);
           } else {
-            await this.cache.setItem('cachedPhotosList', rawPhotosList);
+            await this.cache.setItem('picture-list.json', rawPhotosList);
           }
         }
       } catch (error) {
@@ -135,7 +135,7 @@ export default class PhotosService {
       }
     }
 
-    await this.cache.setItem('cachedPhotosList', JSON.stringify(photosList));
+    await this.cache.setItem('picture-list.json', JSON.stringify(photosList));
     await blockstack.putFile('picture-list.json', JSON.stringify(photosList));
 
     if (albumId) {
@@ -148,6 +148,8 @@ export default class PhotosService {
 
   async deletePhoto(photoId: string): Promise<boolean> {
     let returnState = false;
+    const metadata = await this.getPhotoMetaData(photoId);
+
     try {
       // Put empty file, since deleteFile is yet not supported
       await this.photoStorage.writeFile(photoId, 'deleted');
@@ -163,36 +165,50 @@ export default class PhotosService {
       return false;
     }
 
-    const photosListResponse = await this.getPhotosList(true);
+    // Remove photo from main list
+    returnState = await this.removePhotoFromList(photoId);
+
+    // Remove photo from albums
+    if (metadata.albums && metadata.albums.length > 0) {
+      for (const albumId of metadata.albums) {
+        returnState = await this.removePhotoFromList(photoId, albumId);
+        if (!returnState) {
+          return false;
+        }
+      }
+    }
+    return returnState;
+  }
+
+  async removePhotoFromList(
+    photoId: string,
+    albumId?: string
+  ): Promise<boolean> {
+    const photosListResponse = await this.getPhotosList(true, albumId);
     const photosList = photosListResponse.photosList;
+    const listName = albumId ? albumId : 'picture-list.json';
 
     let index = 0;
     for (const photo of photosList) {
       if (photoId === photo.id) {
         photosList.splice(index, 1);
-        await this.cache.setItem(
-          'cachedPhotosList',
-          JSON.stringify(photosList)
-        );
-        await blockstack.putFile(
-          'picture-list.json',
-          JSON.stringify(photosList)
-        );
+        await this.cache.setItem(listName, JSON.stringify(photosList));
+        await blockstack.putFile(listName, JSON.stringify(photosList));
         return true;
       }
       index++;
     }
-
-    // TODO: delete from albums
-
     return false;
   }
 
-  async deletePhotos(ids: string[]): Promise<boolean> {
+  async deletePhotos(photoIds: string[]): Promise<boolean> {
     let returnState = false;
     try {
-      for (const id of ids) {
-        await this.deletePhoto(id);
+      for (const photoId of photoIds) {
+        const result = await this.deletePhoto(photoId);
+        if (!result) {
+          throw result;
+        }
       }
       returnState = true;
     } catch (error) {
@@ -266,8 +282,8 @@ export default class PhotosService {
     return true;
   }
 
-  async rotatePhoto(id: string): Promise<any> {
-    const metadata = await this.getPhotoMetaData(id);
+  async rotatePhoto(photoId: string): Promise<any> {
+    const metadata = await this.getPhotoMetaData(photoId);
 
     let currentOrientation = 1;
 
@@ -302,6 +318,6 @@ export default class PhotosService {
       metadata.stats.exifdata.tags.Orientation = 1;
     }
 
-    return this.setPhotoMetaData(id, metadata);
+    return this.setPhotoMetaData(photoId, metadata);
   }
 }

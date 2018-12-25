@@ -21,7 +21,7 @@ describe('CacheService Test Suites', () => {
     );
 
     const cacheService = new CacheService();
-    const response = await cacheService.getItem('cachedPhotosList');
+    const response = await cacheService.getItem('picture-list.json');
 
     const jsonResponse = JSON.parse(response);
     expect(Array.isArray(jsonResponse)).toBe(true);
@@ -36,7 +36,7 @@ describe('CacheService Test Suites', () => {
     );
 
     const cacheService = new CacheService();
-    const response = await cacheService.getItem('cachedPhotosList');
+    const response = await cacheService.getItem('picture-list.json');
 
     const jsonResponse = JSON.parse(response);
     expect(Array.isArray(jsonResponse)).toBe(true);
@@ -51,7 +51,7 @@ describe('CacheService Test Suites', () => {
     );
 
     const cacheService = new CacheService();
-    const response = await cacheService.getItem('cachedPhotosList');
+    const response = await cacheService.getItem('picture-list.json');
 
     const jsonResponse = JSON.parse(response);
     expect(Array.isArray(jsonResponse)).toBe(false);

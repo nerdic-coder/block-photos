@@ -14,7 +14,7 @@ export default class AlbumsService {
     let cachedAlbums = [];
     const errorsList = [];
     try {
-      const rawCachedAlbums = await this.cache.getItem('cachedAlbums');
+      const rawCachedAlbums = await this.cache.getItem('albums-list.json');
       if (rawCachedAlbums) {
         cachedAlbums = JSON.parse(rawCachedAlbums);
       }
@@ -29,7 +29,7 @@ export default class AlbumsService {
         if (rawAlbums) {
           const albums = JSON.parse(rawAlbums);
           cachedAlbums = albums;
-          await this.cache.setItem('cachedAlbums', rawAlbums);
+          await this.cache.setItem('albums-list.json', rawAlbums);
         }
       } catch (error) {
         errorsList.push('err_list');
@@ -52,8 +52,8 @@ export default class AlbumsService {
     const errorsList = [];
     const albumId = uuidv4();
     const metadata = {
-      albumId: albumId,
-      albumName: albumName,
+      albumId,
+      albumName,
       createdDate: new Date(),
       thumbnailId: null
     };
@@ -69,7 +69,7 @@ export default class AlbumsService {
       });
     }
 
-    await this.cache.setItem('cachedAlbums', JSON.stringify(albums));
+    await this.cache.setItem('albums-list.json', JSON.stringify(albums));
     await blockstack.putFile('albums-list.json', JSON.stringify(albums));
     return { albums, errorsList };
   }
@@ -98,7 +98,7 @@ export default class AlbumsService {
       return false;
     }
 
-    await this.cache.setItem('cachedAlbums', JSON.stringify(albums));
+    await this.cache.setItem('albums-list.json', JSON.stringify(albums));
     await blockstack.putFile('albums-list.json', JSON.stringify(albums));
 
     return albums;
@@ -131,7 +131,7 @@ export default class AlbumsService {
       return false;
     }
 
-    await this.cache.setItem('cachedAlbums', JSON.stringify(albums));
+    await this.cache.setItem('albums-list.json', JSON.stringify(albums));
     await blockstack.putFile('albums-list.json', JSON.stringify(albums));
 
     return albums;
@@ -160,7 +160,7 @@ export default class AlbumsService {
     for (const photo of albums) {
       if (albumId === photo.albumId) {
         albums.splice(index, 1);
-        await this.cache.setItem('cachedAlbums', JSON.stringify(albums));
+        await this.cache.setItem('albums-list.json', JSON.stringify(albums));
         await blockstack.putFile('albums-list.json', JSON.stringify(albums));
         return albums;
       }
