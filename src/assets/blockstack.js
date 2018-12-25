@@ -344,7 +344,7 @@ var _encryption = require('../encryption');
 
 var _logger = require('../logger');
 
-var VERSION = '1.3.0';
+var VERSION = '1.3.1';
 
 /**
  * Generates an authentication request that can be sent to the Blockstack
@@ -363,6 +363,9 @@ var VERSION = '1.3.0';
  * @param {Array<String>} scopes - the permissions this app is requesting
  * @param {String} appDomain - the origin of this app
  * @param {Number} expiresAt - the time at which this request is no longer valid
+ * @param {Object} extraParams - Any extra parameters you'd like to pass to the authenticator.
+ * Use this to pass options that aren't part of the Blockstack auth spec, but might be supported
+ * by special authenticators.
  * @return {String} the authentication request
  */
 function makeAuthRequest() {
@@ -372,9 +375,10 @@ function makeAuthRequest() {
   var scopes = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : _authConstants.DEFAULT_SCOPE;
   var appDomain = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : window.location.origin;
   var expiresAt = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : (0, _index.nextHour)().getTime();
+  var extraParams = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : {};
 
   /* Create the payload */
-  var payload = {
+  var payload = Object.assign({}, extraParams, {
     jti: (0, _index.makeUUID4)(),
     iat: Math.floor(new Date().getTime() / 1000), // JWT times are in seconds
     exp: Math.floor(expiresAt / 1000), // JWT times are in seconds
@@ -387,7 +391,7 @@ function makeAuthRequest() {
     do_not_include_profile: true,
     supports_hub_url: true,
     scopes: scopes
-  };
+  });
 
   _logger.Logger.info('blockstack.js: generating v' + VERSION + ' auth request');
 
@@ -2437,7 +2441,7 @@ var BlockstackNetwork = exports.BlockstackNetwork = function () {
 
       return fetch(this.blockstackAPIUrl + '/v2/prices/names/' + fullyQualifiedName).then(function (resp) {
         if (resp.status !== 200) {
-          // old core node
+          // old core node 
           throw new Error('The upstream node does not handle the /v2/ price namespace');
         }
         return resp;
@@ -2478,7 +2482,7 @@ var BlockstackNetwork = exports.BlockstackNetwork = function () {
 
       return fetch(this.blockstackAPIUrl + '/v2/prices/namespaces/' + namespaceID).then(function (resp) {
         if (resp.status !== 200) {
-          // old core node
+          // old core node 
           throw new Error('The upstream node does not handle the /v2/ price namespace');
         }
         return resp;
@@ -2509,7 +2513,7 @@ var BlockstackNetwork = exports.BlockstackNetwork = function () {
      * @return {Promise} a promise to an Object with { units: String, amount: BigInteger }, where
      *   .units encodes the cryptocurrency units to pay (e.g. BTC, STACKS), and
      *   .amount encodes the number of units, in the smallest denominiated amount
-     *   (e.g. if .units is BTC, .amount will be satoshis; if .units is STACKS,
+     *   (e.g. if .units is BTC, .amount will be satoshis; if .units is STACKS, 
      *   .amount will be microStacks)
      */
 
@@ -2518,7 +2522,7 @@ var BlockstackNetwork = exports.BlockstackNetwork = function () {
     value: function getNamePrice(fullyQualifiedName) {
       var _this5 = this;
 
-      // handle v1 or v2
+      // handle v1 or v2 
       return Promise.resolve().then(function () {
         return _this5.getNamePriceV2(fullyQualifiedName);
       }).catch(function () {
@@ -2532,7 +2536,7 @@ var BlockstackNetwork = exports.BlockstackNetwork = function () {
      * @return {Promise} a promise to an Object with { units: String, amount: BigInteger }, where
      *   .units encodes the cryptocurrency units to pay (e.g. BTC, STACKS), and
      *   .amount encodes the number of units, in the smallest denominiated amount
-     *   (e.g. if .units is BTC, .amount will be satoshis; if .units is STACKS,
+     *   (e.g. if .units is BTC, .amount will be satoshis; if .units is STACKS, 
      *   .amount will be microStacks)
      */
 
@@ -2541,7 +2545,7 @@ var BlockstackNetwork = exports.BlockstackNetwork = function () {
     value: function getNamespacePrice(namespaceID) {
       var _this6 = this;
 
-      // handle v1 or v2
+      // handle v1 or v2 
       return Promise.resolve().then(function () {
         return _this6.getNamespacePriceV2(namespaceID);
       }).catch(function () {
@@ -2624,7 +2628,7 @@ var BlockstackNetwork = exports.BlockstackNetwork = function () {
      * Get WHOIS-like information for a name, including the address that owns it,
      * the block at which it expires, and the zone file anchored to it (if available).
      * @param {String} fullyQualifiedName the name to query.  Can be on-chain of off-chain.
-     * @return {Promise} a promise that resolves to the WHOIS-like information
+     * @return {Promise} a promise that resolves to the WHOIS-like information 
      */
 
   }, {
@@ -2809,7 +2813,7 @@ var BlockstackNetwork = exports.BlockstackNetwork = function () {
         if (historyList.error) {
           throw new Error('Unable to get historic account state: ' + historyList.error);
         }
-        // coerce all addresses
+        // coerce all addresses 
         return historyList.map(function (histEntry) {
           histEntry.address = _this12.coerceAddress(histEntry.address);
           histEntry.debit_value = _bigi2.default.fromByteArrayUnsigned(String(histEntry.debit_value));
@@ -2822,7 +2826,7 @@ var BlockstackNetwork = exports.BlockstackNetwork = function () {
     /**
      * Get the set of token types that this account owns
      * @param {String} address the account's address
-     * @return {Promise} a promise that resolves to an Array of Strings, where each item encodes the
+     * @return {Promise} a promise that resolves to an Array of Strings, where each item encodes the 
      *   type of token this account holds (excluding the underlying blockchain's tokens)
      */
 
@@ -2850,7 +2854,7 @@ var BlockstackNetwork = exports.BlockstackNetwork = function () {
      * tokens of this type, then 0 will be returned.
      * @param {String} address the account's address
      * @param {String} tokenType the type of token to query.
-     * @return {Promise} a promise that resolves to a BigInteger that encodes the number of tokens
+     * @return {Promise} a promise that resolves to a BigInteger that encodes the number of tokens 
      *   held by this account.
      */
 
@@ -3359,7 +3363,7 @@ var BitcoindAPI = exports.BitcoindAPI = function (_BitcoinNetwork) {
         return resp.json();
       }).then(function (respObj) {
         if (!respObj || !respObj.result) {
-          // unconfirmed
+          // unconfirmed 
           throw new Error('Unconfirmed transaction');
         } else {
           return { block_height: respObj.result.height };
@@ -4222,7 +4226,7 @@ function makeRenewalSkeleton(fullyQualifiedName, nextOwnerAddress, lastOwnerAddr
   if (!!burnTokenAmount) {
     var burnHex = burnTokenAmount.toHex();
     if (burnHex.length > 16) {
-      // exceeds 2**64; can't fit
+      // exceeds 2**64; can't fit 
       throw new Error('Cannot renew \'' + fullyQualifiedName + '\': cannot fit price into 8 bytes');
     }
     burnTokenHex = ('0000000000000000' + burnHex).slice(-16);
@@ -4415,7 +4419,7 @@ function makeNamespaceRevealSkeleton(namespace, revealAddress) {
    magic  op  life coeff. base 1-2  3-4  5-6  7-8  9-10 11-12 13-14 15-16 nonalpha version  ns ID
                                                   bucket exponents        no-vowel
                                                                           discounts
-
+   
    output 0: namespace reveal code
    output 1: reveal address
   */
@@ -6235,12 +6239,12 @@ exports.validateProofs = validateProofs;
 var _services = require('./services');
 
 /**
- * Validates the social proofs in a user's profile. Currently supports validation of
+ * Validates the social proofs in a user's profile. Currently supports validation of 
  * Facebook, Twitter, GitHub, Instagram, LinkedIn and HackerNews accounts.
  *
  * @param {Object} profile The JSON of the profile to be validated
  * @param {string} ownerAddress The owner bitcoin address to be validated
- * @param {string} [name=null] The Blockstack name to be validated
+ * @param {string} [name=null] The Blockstack name to be validated 
  * @returns {Promise} that resolves to an array of validated proof objects
  */
 function validateProofs(profile, ownerAddress) {
@@ -8610,7 +8614,7 @@ function putFile(path, content, options) {
   var contentType = opt.contentType;
 
   if (!contentType) {
-    contentType = typeof content === 'string' ? 'text/plain' : 'application/octet-stream';
+    contentType = typeof content === 'string' ? 'text/plain; charset=utf-8' : 'application/octet-stream';
   }
 
   // First, let's figure out if we need to get public/private keys,
@@ -13027,7 +13031,7 @@ module.exports={
   "_args": [
     [
       "bigi@1.4.2",
-      "/Users/larry/git/blockstack.js"
+      "/Users/Yukan/Desktop/work/blockstack/blockstack.js"
     ]
   ],
   "_from": "bigi@1.4.2",
@@ -13052,7 +13056,7 @@ module.exports={
   ],
   "_resolved": "https://registry.npmjs.org/bigi/-/bigi-1.4.2.tgz",
   "_spec": "1.4.2",
-  "_where": "/Users/larry/git/blockstack.js",
+  "_where": "/Users/Yukan/Desktop/work/blockstack/blockstack.js",
   "bugs": {
     "url": "https://github.com/cryptocoinjs/bigi/issues"
   },
@@ -30232,13 +30236,13 @@ module.exports={
   "OP_CHECKMULTISIGVERIFY": 175,
 
   "OP_NOP1": 176,
-
+  
   "OP_NOP2": 177,
   "OP_CHECKLOCKTIMEVERIFY": 177,
 
   "OP_NOP3": 178,
   "OP_CHECKSEQUENCEVERIFY": 178,
-
+  
   "OP_NOP4": 179,
   "OP_NOP5": 180,
   "OP_NOP6": 181,
@@ -45570,7 +45574,7 @@ module.exports = function privateDecrypt(private_key, enc, reverse) {
   } else {
     padding = 4;
   }
-
+  
   var key = parseKeys(private_key);
   var k = key.modulus.byteLength();
   if (enc.length > k || new bn(enc).cmp(key.modulus) >= 0) {
@@ -51985,13 +51989,13 @@ Script.prototype.runInContext = function (context) {
     if (!(context instanceof Context)) {
         throw new TypeError("needs a 'context' argument.");
     }
-
+    
     var iframe = document.createElement('iframe');
     if (!iframe.style) iframe.style = {};
     iframe.style.display = 'none';
-
+    
     document.body.appendChild(iframe);
-
+    
     var win = iframe.contentWindow;
     var wEval = win.eval, wExecScript = win.execScript;
 
@@ -52000,7 +52004,7 @@ Script.prototype.runInContext = function (context) {
         wExecScript.call(win, 'null');
         wEval = win.eval;
     }
-
+    
     forEach(Object_keys(context), function (key) {
         win[key] = context[key];
     });
@@ -52009,11 +52013,11 @@ Script.prototype.runInContext = function (context) {
             win[key] = context[key];
         }
     });
-
+    
     var winKeys = Object_keys(win);
 
     var res = wEval.call(win, this.code);
-
+    
     forEach(Object_keys(win), function (key) {
         // Avoid copying circular objects like `top` and `window` by only
         // updating existing context properties or new properties in the `win`
@@ -52028,9 +52032,9 @@ Script.prototype.runInContext = function (context) {
             defineProp(context, key, win[key]);
         }
     });
-
+    
     document.body.removeChild(iframe);
-
+    
     return res;
 };
 
@@ -52314,7 +52318,7 @@ exports.attr = function(name, value) {
 
 var getProp = function (el, name) {
   if (!el || !isTag(el)) return;
-
+  
   return el.hasOwnProperty(name)
       ? el[name]
       : rboolean.test(name)
@@ -54283,7 +54287,7 @@ module.exports={
   "_args": [
     [
       "cheerio@0.22.0",
-      "/Users/larry/git/blockstack.js"
+      "/Users/Yukan/Desktop/work/blockstack/blockstack.js"
     ]
   ],
   "_from": "cheerio@0.22.0",
@@ -54307,7 +54311,7 @@ module.exports={
   ],
   "_resolved": "https://registry.npmjs.org/cheerio/-/cheerio-0.22.0.tgz",
   "_spec": "0.22.0",
-  "_where": "/Users/larry/git/blockstack.js",
+  "_where": "/Users/Yukan/Desktop/work/blockstack/blockstack.js",
   "author": {
     "name": "Matt Mueller",
     "email": "mattmuelle@gmail.com",
@@ -55038,7 +55042,7 @@ var attributeRules = {
 		if(len === 0){
 			return falseFunc;
 		}
-
+		
 		if(data.ignoreCase){
 			value = value.toLowerCase();
 
@@ -56674,7 +56678,7 @@ DomHandler.prototype.onerror = function(error){
 
 DomHandler.prototype.onclosetag = function(){
 	//if(this._tagStack.pop().name !== name) this._handleCallback(Error("Tagname didn't match!"));
-
+	
 	var elem = this._tagStack.pop();
 
 	if(this._options.withEndIndices){
@@ -57219,7 +57223,7 @@ exports.prepend = function(elem, prev){
 	if(elem.prev){
 		elem.prev.next = prev;
 	}
-
+	
 	prev.parent = parent;
 	prev.prev = elem.prev;
 	prev.next = elem;
@@ -62625,7 +62629,7 @@ module.exports={
   "_args": [
     [
       "elliptic@6.4.0",
-      "/Users/larry/git/blockstack.js"
+      "/Users/Yukan/Desktop/work/blockstack/blockstack.js"
     ]
   ],
   "_from": "elliptic@6.4.0",
@@ -62653,7 +62657,7 @@ module.exports={
   ],
   "_resolved": "https://registry.npmjs.org/elliptic/-/elliptic-6.4.0.tgz",
   "_spec": "6.4.0",
-  "_where": "/Users/larry/git/blockstack.js",
+  "_where": "/Users/Yukan/Desktop/work/blockstack/blockstack.js",
   "author": {
     "name": "Fedor Indutny",
     "email": "fedor@indutny.com"
@@ -65725,7 +65729,7 @@ arguments[4][203][0].apply(exports,arguments)
 /*
  * This code is taken from https://github.com/Brightspace/node-ecdsa-sig-formatter
  * which is licensed under the Apache 2.0 license.
- *
+ * 
  * It got copied over here to make some adjustments for being compatible with browserify.
  * Going forward would be either simplifying this code (as we only need 256 bit signatures),
  * or moving back to the direct dependency; both is future work(TM) for some other day.
@@ -75739,7 +75743,7 @@ module.exports={
   "_args": [
     [
       "elliptic@5.2.1",
-      "/Users/larry/git/blockstack.js"
+      "/Users/Yukan/Desktop/work/blockstack/blockstack.js"
     ]
   ],
   "_from": "elliptic@5.2.1",
@@ -75763,7 +75767,7 @@ module.exports={
   ],
   "_resolved": "https://registry.npmjs.org/elliptic/-/elliptic-5.2.1.tgz",
   "_spec": "5.2.1",
-  "_where": "/Users/larry/git/blockstack.js",
+  "_where": "/Users/Yukan/Desktop/work/blockstack/blockstack.js",
   "author": {
     "name": "Fedor Indutny",
     "email": "fedor@indutny.com"
@@ -98603,7 +98607,7 @@ module.exports = require('./lib/schema-inspector');
         var memoized = _restParam(function memoized(args) {
             var callback = args.pop();
             var key = hasher.apply(null, args);
-            if (has.call(memo, key)) {
+            if (has.call(memo, key)) {   
                 async.setImmediate(function () {
                     callback.apply(null, memo[key]);
                 });
