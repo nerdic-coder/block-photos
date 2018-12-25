@@ -19,6 +19,7 @@ export class AppPhoto {
 
   @State() previousPhotoId: string;
   @State() nextPhotoId: string;
+  @State() refresh: boolean;
 
   constructor() {
     this.photosService = new PhotosService();
@@ -51,7 +52,7 @@ export class AppPhoto {
 
   @Watch('photoId')
   photoIdDidUpdate(newValue: string, oldValue: string): void {
-    if (newValue !== oldValue) {
+    if (newValue && newValue !== oldValue) {
       this.setNextAndPreviousPhoto(this.photoId);
     }
   }
@@ -77,17 +78,12 @@ export class AppPhoto {
   async rotatePhoto(): Promise<void> {
     await this.photosService.rotatePhoto(this.photoId);
 
-    const tempId = this.photoId;
-    this.photoId = null;
-    setTimeout(() => {
-      this.photoId = tempId;
+    this.refresh = !this.refresh;
 
-      if (this.updateCallback && typeof this.updateCallback === 'function') {
-        // execute the callback, passing parameters as necessary
-
-        this.updateCallback(this.photoId);
-      }
-    }, 500);
+    if (this.updateCallback && typeof this.updateCallback === 'function') {
+      // execute the callback, passing parameters as necessary
+      this.updateCallback(this.photoId);
+    }
 
     AnalyticsService.logEvent('photo-page-rotate');
   }
@@ -110,10 +106,9 @@ export class AppPhoto {
     AnalyticsService.logEvent('photo-page-delete');
   }
 
-  closeModal() {
+  async closeModal() {
+    await this.modalController.dismiss();
     this.photoId = null;
-    this.albumId = null;
-    this.modalController.dismiss();
   }
 
   render() {
@@ -157,7 +152,11 @@ export class AppPhoto {
       </ion-header>,
 
       <ion-content text-center class="photo-page">
-        <block-img photoId={this.photoId} rotate={true} />
+        <block-img
+          photoId={this.photoId}
+          rotate={true}
+          refresh={this.refresh}
+        />
       </ion-content>
     ];
   }

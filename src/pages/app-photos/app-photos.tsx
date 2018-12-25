@@ -262,9 +262,7 @@ export class AppPhotos {
 
   updateCallback(photoId: string): void {
     if (photoId) {
-      setTimeout(() => {
-        this.refreshPhoto(photoId);
-      }, 1500);
+      this.refreshPhoto(photoId);
     } else {
       setTimeout(() => {
         this.loadPhotosList(true, true);

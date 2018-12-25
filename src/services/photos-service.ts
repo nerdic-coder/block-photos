@@ -247,8 +247,10 @@ export default class PhotosService {
         }
         index++;
       }
+      return cachedPhotoMetaData;
+    } else {
+      return JSON.parse(cachedPhotoMetaData);
     }
-    return cachedPhotoMetaData;
   }
 
   async setPhotoMetaData(photoId: string, metadata: any): Promise<boolean> {
@@ -258,10 +260,7 @@ export default class PhotosService {
     }
 
     // Save photos metadata to a file
-    await this.photoStorage.writeFile(
-      photoId + '-meta',
-      JSON.stringify(metadata)
-    );
+    await blockstack.putFile(photoId + '-meta', JSON.stringify(metadata));
     await this.cache.setItem(photoId + '-meta', JSON.stringify(metadata));
 
     return true;
