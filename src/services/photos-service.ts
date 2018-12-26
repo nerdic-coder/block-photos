@@ -149,7 +149,6 @@ export default class PhotosService {
   async deletePhoto(photoId: string): Promise<boolean> {
     let returnState = false;
     const metadata = await this.getPhotoMetaData(photoId);
-
     try {
       // Put empty file, since deleteFile is yet not supported
       await this.photoStorage.writeFile(photoId, 'deleted');
@@ -194,11 +193,20 @@ export default class PhotosService {
         photosList.splice(index, 1);
         await this.cache.setItem(listName, JSON.stringify(photosList));
         await blockstack.putFile(listName, JSON.stringify(photosList));
-        return true;
+        break;
       }
       index++;
     }
-    return false;
+
+    const metadata = await this.getPhotoMetaData(photoId);
+    if (metadata && metadata !== 'deleted') {
+      metadata.albums = metadata.albums.includes(albumId)
+        ? metadata.albums.filter(album => album !== albumId)
+        : metadata.albums;
+      await this.setPhotoMetaData(photoId, metadata);
+    }
+
+    return true;
   }
 
   async deletePhotos(photoIds: string[]): Promise<boolean> {
@@ -206,6 +214,26 @@ export default class PhotosService {
     try {
       for (const photoId of photoIds) {
         const result = await this.deletePhoto(photoId);
+        if (!result) {
+          throw result;
+        }
+      }
+      returnState = true;
+    } catch (error) {
+      returnState = false;
+    }
+
+    return returnState;
+  }
+
+  async removePhotosFromList(
+    photoIds: string[],
+    albumId?: string
+  ): Promise<boolean> {
+    let returnState = false;
+    try {
+      for (const photoId of photoIds) {
+        const result = await this.removePhotoFromList(photoId, albumId);
         if (!result) {
           throw result;
         }

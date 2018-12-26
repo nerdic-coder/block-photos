@@ -369,7 +369,8 @@ export class AppPhotos {
                     onClick={() =>
                       this.present.deletePhotos(
                         this.checkedItems,
-                        this.deletePhotoCallback.bind(this)
+                        this.deletePhotoCallback.bind(this),
+                        this.albumId
                       )
                     }
                   >

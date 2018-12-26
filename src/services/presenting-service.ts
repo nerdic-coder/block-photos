@@ -39,45 +39,11 @@ export default class PresentingService {
     return toast.present();
   }
 
-  async deletePhoto(id: string, callback: any): Promise<void> {
-    const actionSheetController = document.querySelector(
-      'ion-action-sheet-controller'
-    );
-    await actionSheetController.componentOnReady();
-
-    const actionSheet = await actionSheetController.create({
-      header: 'Delete photo?',
-      buttons: [
-        {
-          text: 'Delete',
-          role: 'destructive',
-          icon: 'trash',
-          handler: () => {
-            this.loading('Deleting photo...');
-            this.photosService.deletePhoto(id).then(async result => {
-              await this.dismissLoading();
-              if (result === true) {
-                callback();
-              } else {
-                this.errorAlert(
-                  'Removal failed',
-                  'The removal of the photo failed. Please try again in a few minutes!'
-                );
-              }
-            });
-          }
-        },
-        {
-          text: 'Cancel',
-          icon: 'close',
-          role: 'cancel'
-        }
-      ]
-    });
-    await actionSheet.present();
-  }
-
-  async deletePhotos(ids: string[], callback: any): Promise<void> {
+  async deletePhotos(
+    ids: string[],
+    callback: any,
+    albumId?: string
+  ): Promise<void> {
     if (!ids || ids.length < 1) {
       return;
     }
@@ -91,16 +57,38 @@ export default class PresentingService {
     );
     await actionSheetController.componentOnReady();
 
-    const actionSheet = await actionSheetController.create({
-      header,
-      buttons: [
-        {
-          text: 'Delete',
-          role: 'destructive',
-          icon: 'trash',
-          handler: () => {
-            this.loading('Deleting photos...');
-            this.photosService.deletePhotos(ids).then(async result => {
+    const buttons = [
+      {
+        text: 'Delete from app',
+        role: 'destructive',
+        icon: 'trash',
+        handler: () => {
+          this.loading('Deleting photos...');
+          this.photosService.deletePhotos(ids).then(async result => {
+            await this.dismissLoading();
+            if (result === true) {
+              callback();
+            } else {
+              this.errorAlert(
+                'Removal failed',
+                'The removal of some photos failed. Please try again in a few minutes!'
+              );
+            }
+          });
+        }
+      }
+    ];
+
+    if (albumId) {
+      buttons.push({
+        text: 'Remove from album',
+        role: 'destructive',
+        icon: 'remove-circle',
+        handler: () => {
+          this.loading('Removing photos...');
+          this.photosService
+            .removePhotosFromList(ids, albumId)
+            .then(async result => {
               await this.dismissLoading();
               if (result === true) {
                 callback();
@@ -111,14 +99,20 @@ export default class PresentingService {
                 );
               }
             });
-          }
-        },
-        {
-          text: 'Cancel',
-          icon: 'close',
-          role: 'cancel'
         }
-      ]
+      });
+    }
+
+    buttons.push({
+      text: 'Cancel',
+      icon: 'close',
+      role: 'cancel',
+      handler: null
+    });
+
+    const actionSheet = await actionSheetController.create({
+      header,
+      buttons
     });
     await actionSheet.present();
   }

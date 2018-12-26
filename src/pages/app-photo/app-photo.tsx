@@ -127,9 +127,10 @@ export class AppPhoto {
             </ion-button>
             <ion-button
               onClick={() =>
-                this.present.deletePhoto(
-                  this.photoId,
-                  this.deletePhotoCallback.bind(this)
+                this.present.deletePhotos(
+                  [this.photoId],
+                  this.deletePhotoCallback.bind(this),
+                  this.albumId
                 )
               }
             >
