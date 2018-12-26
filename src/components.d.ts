@@ -24,6 +24,13 @@ export namespace Components {
     'rotate'?: boolean;
   }
 
+  interface SelectAlbum {
+    'selectedPhotos': any[];
+  }
+  interface SelectAlbumAttributes extends StencilHTMLAttributes {
+    'selectedPhotos'?: any[];
+  }
+
   interface AppAlbums {}
   interface AppAlbumsAttributes extends StencilHTMLAttributes {}
 
@@ -60,6 +67,7 @@ export namespace Components {
 declare global {
   interface StencilElementInterfaces {
     'BlockImg': Components.BlockImg;
+    'SelectAlbum': Components.SelectAlbum;
     'AppAlbums': Components.AppAlbums;
     'AppPhoto': Components.AppPhoto;
     'AppPhotos': Components.AppPhotos;
@@ -70,6 +78,7 @@ declare global {
 
   interface StencilIntrinsicElements {
     'block-img': Components.BlockImgAttributes;
+    'select-album': Components.SelectAlbumAttributes;
     'app-albums': Components.AppAlbumsAttributes;
     'app-photo': Components.AppPhotoAttributes;
     'app-photos': Components.AppPhotosAttributes;
@@ -83,6 +92,12 @@ declare global {
   var HTMLBlockImgElement: {
     prototype: HTMLBlockImgElement;
     new (): HTMLBlockImgElement;
+  };
+
+  interface HTMLSelectAlbumElement extends Components.SelectAlbum, HTMLStencilElement {}
+  var HTMLSelectAlbumElement: {
+    prototype: HTMLSelectAlbumElement;
+    new (): HTMLSelectAlbumElement;
   };
 
   interface HTMLAppAlbumsElement extends Components.AppAlbums, HTMLStencilElement {}
@@ -123,6 +138,7 @@ declare global {
 
   interface HTMLElementTagNameMap {
     'block-img': HTMLBlockImgElement
+    'select-album': HTMLSelectAlbumElement
     'app-albums': HTMLAppAlbumsElement
     'app-photo': HTMLAppPhotoElement
     'app-photos': HTMLAppPhotosElement
@@ -133,6 +149,7 @@ declare global {
 
   interface ElementTagNameMap {
     'block-img': HTMLBlockImgElement;
+    'select-album': HTMLSelectAlbumElement;
     'app-albums': HTMLAppAlbumsElement;
     'app-photo': HTMLAppPhotoElement;
     'app-photos': HTMLAppPhotosElement;

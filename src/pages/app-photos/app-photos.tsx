@@ -335,6 +335,20 @@ export class AppPhotos {
     }
   }
 
+  async presentAlbumSelector(event: any) {
+    const popoverController = document.querySelector('ion-popover-controller');
+    await popoverController.componentOnReady();
+
+    const popover = await popoverController.create({
+      component: 'select-album',
+      componentProps: {
+        selectedPhotos: this.checkedItems
+      },
+      event
+    });
+    return popover.present();
+  }
+
   preventDrag(event: any): boolean {
     event.preventDefault();
     return false;
@@ -362,6 +376,11 @@ export class AppPhotos {
           <ion-buttons slot="end">
             {this.editMode
               ? [
+                  <ion-button
+                    onClick={event => this.presentAlbumSelector(event)}
+                  >
+                    <ion-icon color="light" name="add-circle" />
+                  </ion-button>,
                   <ion-button onClick={() => this.rotatePhotos()}>
                     <ion-icon color="light" name="sync" />
                   </ion-button>,

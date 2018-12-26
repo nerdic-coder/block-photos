@@ -142,6 +142,7 @@ export class AppRoot {
         <ion-alert-controller />
         <ion-action-sheet-controller />
         <ion-loading-controller />
+        <ion-popover-controller />
         <ion-toast-controller />
         <ion-modal-controller />
       </ion-app>

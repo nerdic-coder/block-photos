@@ -111,6 +111,20 @@ export class AppPhoto {
     this.photoId = null;
   }
 
+  async presentAlbumSelector(event: any) {
+    const popoverController = document.querySelector('ion-popover-controller');
+    await popoverController.componentOnReady();
+
+    const popover = await popoverController.create({
+      component: 'select-album',
+      componentProps: {
+        selectedPhotos: [this.photoId]
+      },
+      event
+    });
+    return popover.present();
+  }
+
   render() {
     return [
       <ion-header>
@@ -122,6 +136,9 @@ export class AppPhoto {
           </ion-buttons>
           <ion-title>Photo</ion-title>
           <ion-buttons slot="end">
+            <ion-button onClick={event => this.presentAlbumSelector(event)}>
+              <ion-icon color="light" name="add-circle" />
+            </ion-button>
             <ion-button onClick={() => this.rotatePhoto()}>
               <ion-icon color="light" name="sync" />
             </ion-button>
