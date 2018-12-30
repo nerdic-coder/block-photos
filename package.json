@@ -17,6 +17,7 @@
     "build": "stencil build",
     "build:android": "npm run build && npx cap copy android",
     "build:ios": "npm run build && npx cap copy ios",
+    "build:web": "npm run build",
     "electron": "electron-forge start",
     "make": "npm run build && npx cap copy electron && electron-forge make",
     "package": "npm run build && npx cap copy electron && electron-forge package",
