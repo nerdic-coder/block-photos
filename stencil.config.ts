@@ -21,9 +21,8 @@ export const config: Config = {
   globalScript: 'src/global/app.ts',
   globalStyle: 'src/global/app.css',
   nodeResolve: {
-    preferBuiltins: true, browser: true
+    preferBuiltins: true,
+    browser: true
   },
-  plugins: [
-    builtins()
-  ]
+  plugins: [builtins()]
 };

@@ -95,7 +95,7 @@ export class AppRoot {
       <ion-app>
         <ion-router useHash={false}>
           <ion-route url="/" component="app-signin" />
-          <ion-route url="/profile/" component="app-profile" />
+          <ion-route url="/settings/" component="app-settings" />
           <ion-route url="/photos/" component="app-photos" />
           <ion-route url="/album/:albumId" component="app-photos" />
           <ion-route url="/photo/:photoId" component="app-photo" />
@@ -123,7 +123,7 @@ export class AppRoot {
                   </ion-item>
                 </ion-menu-toggle>
                 <ion-menu-toggle autoHide={false}>
-                  <ion-item href="/profile">
+                  <ion-item href="/settings">
                     <ion-icon slot="start" color="primary" name="settings" />
                     <ion-label>Settings</ion-label>
                   </ion-item>

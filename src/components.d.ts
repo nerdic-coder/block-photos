@@ -54,11 +54,11 @@ export namespace Components {
     'photoId'?: string;
   }
 
-  interface AppProfile {}
-  interface AppProfileAttributes extends StencilHTMLAttributes {}
-
   interface AppRoot {}
   interface AppRootAttributes extends StencilHTMLAttributes {}
+
+  interface AppSettings {}
+  interface AppSettingsAttributes extends StencilHTMLAttributes {}
 
   interface AppSignin {}
   interface AppSigninAttributes extends StencilHTMLAttributes {}
@@ -71,8 +71,8 @@ declare global {
     'AppAlbums': Components.AppAlbums;
     'AppPhoto': Components.AppPhoto;
     'AppPhotos': Components.AppPhotos;
-    'AppProfile': Components.AppProfile;
     'AppRoot': Components.AppRoot;
+    'AppSettings': Components.AppSettings;
     'AppSignin': Components.AppSignin;
   }
 
@@ -82,8 +82,8 @@ declare global {
     'app-albums': Components.AppAlbumsAttributes;
     'app-photo': Components.AppPhotoAttributes;
     'app-photos': Components.AppPhotosAttributes;
-    'app-profile': Components.AppProfileAttributes;
     'app-root': Components.AppRootAttributes;
+    'app-settings': Components.AppSettingsAttributes;
     'app-signin': Components.AppSigninAttributes;
   }
 
@@ -118,16 +118,16 @@ declare global {
     new (): HTMLAppPhotosElement;
   };
 
-  interface HTMLAppProfileElement extends Components.AppProfile, HTMLStencilElement {}
-  var HTMLAppProfileElement: {
-    prototype: HTMLAppProfileElement;
-    new (): HTMLAppProfileElement;
-  };
-
   interface HTMLAppRootElement extends Components.AppRoot, HTMLStencilElement {}
   var HTMLAppRootElement: {
     prototype: HTMLAppRootElement;
     new (): HTMLAppRootElement;
+  };
+
+  interface HTMLAppSettingsElement extends Components.AppSettings, HTMLStencilElement {}
+  var HTMLAppSettingsElement: {
+    prototype: HTMLAppSettingsElement;
+    new (): HTMLAppSettingsElement;
   };
 
   interface HTMLAppSigninElement extends Components.AppSignin, HTMLStencilElement {}
@@ -142,8 +142,8 @@ declare global {
     'app-albums': HTMLAppAlbumsElement
     'app-photo': HTMLAppPhotoElement
     'app-photos': HTMLAppPhotosElement
-    'app-profile': HTMLAppProfileElement
     'app-root': HTMLAppRootElement
+    'app-settings': HTMLAppSettingsElement
     'app-signin': HTMLAppSigninElement
   }
 
@@ -153,8 +153,8 @@ declare global {
     'app-albums': HTMLAppAlbumsElement;
     'app-photo': HTMLAppPhotoElement;
     'app-photos': HTMLAppPhotosElement;
-    'app-profile': HTMLAppProfileElement;
     'app-root': HTMLAppRootElement;
+    'app-settings': HTMLAppSettingsElement;
     'app-signin': HTMLAppSigninElement;
   }
 

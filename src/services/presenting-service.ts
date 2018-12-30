@@ -130,7 +130,7 @@ export default class PresentingService {
     return alert.present();
   }
 
-  openLink(url: string, target: string): void {
+  openLink(url: string, target?: string): void {
     if (isElectron()) {
       const electron = window['require']('electron');
       electron.shell.openExternal(url);
