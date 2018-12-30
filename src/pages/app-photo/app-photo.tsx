@@ -76,15 +76,34 @@ export class AppPhoto {
   }
 
   async rotatePhoto(): Promise<void> {
-    await this.photosService.rotatePhoto(this.photoId);
+    await this.present.loading('Rotating photo...');
+    this.photosService.rotatePhoto(
+      this.photoId,
+      this.rotatePhotoCallback.bind(this)
+    );
+  }
 
-    this.refresh = !this.refresh;
+  async rotatePhotoCallback(
+    photoId: string,
+    currentIndex: number,
+    result: boolean
+  ): Promise<void> {
+    if (!result) {
+      await this.present.dismissLoading();
+      const metadata = await this.photosService.getPhotoMetaData(photoId);
+      await this.present.toast(
+        'Failed to rotate photo "' + metadata.filename + '".'
+      );
+    } else {
+      this.refresh = !this.refresh;
 
-    if (this.updateCallback && typeof this.updateCallback === 'function') {
-      // execute the callback, passing parameters as necessary
-      this.updateCallback(this.photoId);
+      if (this.updateCallback && typeof this.updateCallback === 'function') {
+        // execute the callback, passing parameters as necessary
+        this.updateCallback(photoId, currentIndex);
+      }
+
+      this.present.dismissLoading();
     }
-
     AnalyticsService.logEvent('photo-page-rotate');
   }
 
@@ -172,7 +191,7 @@ export class AppPhoto {
       <ion-content text-center class="photo-page">
         <block-img
           photoId={this.photoId}
-          rotate={true}
+          rotate={false}
           refresh={this.refresh}
         />
       </ion-content>

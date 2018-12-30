@@ -256,42 +256,46 @@ export class AppAlbums {
                 {row.map(col => (
                   <ion-col no-padding align-self-stretch key={col.albumId}>
                     <ion-card
+                      color="primary"
                       class={this.editMode ? '' : 'pointer'}
                       onClick={event => this.openAlbum(event, col.albumId)}
                     >
-                      {this.editMode ? (
-                        <ion-button
-                          no-padding
-                          size="small"
-                          shape="round"
-                          fill="clear"
-                          class="floatIcon"
-                          onClick={() =>
-                            this.deleteAlbum(col.albumId, col.albumName)
-                          }
-                        >
-                          <ion-icon
-                            slot="icon-only"
-                            color="danger"
-                            name="remove-circle"
+                      <div class="square">
+                        {col.thumbnailId ? (
+                          <block-img photoId={col.thumbnailId} rotate={false} />
+                        ) : (
+                          <img
+                            draggable={false}
+                            src="/assets/placeholder-image.jpg"
+                            onDragStart={event => this.preventDrag(event)}
                           />
-                        </ion-button>
-                      ) : null}
-                      {col.thumbnailId ? (
-                        <block-img photoId={col.thumbnailId} rotate={true} />
-                      ) : (
-                        <img
-                          draggable={false}
-                          src="/assets/placeholder-image.jpg"
-                          onDragStart={event => this.preventDrag(event)}
-                        />
-                      )}
-                      <ion-card-header>
+                        )}
+                        {this.editMode ? (
+                          <ion-button
+                            no-padding
+                            size="small"
+                            shape="round"
+                            fill="clear"
+                            class="floatIcon"
+                            onClick={() =>
+                              this.deleteAlbum(col.albumId, col.albumName)
+                            }
+                          >
+                            <ion-icon
+                              slot="icon-only"
+                              color="danger"
+                              name="remove-circle"
+                            />
+                          </ion-button>
+                        ) : null}
+                      </div>
+                      <ion-card-header color="primary">
                         <ion-card-subtitle>
                           {this.editMode ? (
-                            <ion-item>
+                            <ion-item color="secondary">
                               <ion-input
                                 no-padding
+                                no-margin
                                 type="text"
                                 value={col.albumName}
                                 onBlur={event =>

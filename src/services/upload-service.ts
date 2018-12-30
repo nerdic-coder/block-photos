@@ -99,45 +99,23 @@ export default class UploadService {
       const file = list[currentIndex].file;
       if (list[currentIndex].kind === 'file') {
         if (file.type.indexOf('image') !== -1) {
-          loadImage.parseMetaData(
+          loadImage(
             file,
-            data => {
-              const reader = new FileReader();
+            async data => {
+              const metadata = {
+                filename: file.name,
+                stats: file
+              };
 
-              let orientation = 1;
-              if (data && data.exif) {
-                orientation = data.exif.get('Orientation');
+              await this.uploadPhoto(metadata, data.toDataURL());
+              if (list[currentIndex + 1]) {
+                this.processUpload(list, currentIndex + 1);
+              } else {
+                this.uploadFilesDone();
               }
-
-              // Closure to capture the file information.
-              reader.onload = ((loadedFile, loadedList, orientation) => {
-                return async event => {
-                  if (orientation) {
-                    loadedFile.exifdata = {
-                      tags: {
-                        Orientation: orientation,
-                        OriginalOrientation: orientation
-                      }
-                    };
-                  }
-                  const metadata = {
-                    filename: loadedFile.name,
-                    stats: loadedFile
-                  };
-                  await this.uploadPhoto(metadata, event);
-                  if (loadedList[currentIndex + 1]) {
-                    this.processUpload(loadedList, currentIndex + 1);
-                  } else {
-                    this.uploadFilesDone();
-                  }
-                };
-              })(file, list, orientation);
-              // Read in the image file as a data URL.
-              reader.readAsDataURL(file);
             },
             {
-              maxMetaDataSize: 262144,
-              disableImageHead: false
+              orientation: true
             }
           );
         } else {
@@ -182,11 +160,11 @@ export default class UploadService {
     }
   }
 
-  async uploadPhoto(metadata: any, event: any): Promise<void> {
-    if (metadata && event) {
+  async uploadPhoto(metadata: any, data: any): Promise<void> {
+    if (metadata && data) {
       const response = await this.photosService.uploadPhoto(
         metadata,
-        event,
+        data,
         this.albumId
       );
       if (response.errorsList && response.errorsList.length > 0) {

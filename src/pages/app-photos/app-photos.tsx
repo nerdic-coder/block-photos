@@ -208,14 +208,40 @@ export class AppPhotos {
   }
 
   async rotatePhotos(): Promise<void> {
+    await this.present.loading('Rotating photos...');
     this.refreshPhotos = {};
-    for (const id of this.checkedItems) {
-      await this.photosService.rotatePhoto(id);
-
-      this.refreshPhotos = { ...this.refreshPhotos, [id]: true };
-    }
+    this.photosService.rotatePhoto(
+      this.checkedItems[0],
+      this.rotatePhotoCallback.bind(this)
+    );
 
     AnalyticsService.logEvent('photos-list-rotate');
+  }
+
+  async rotatePhotoCallback(
+    photoId: string,
+    currentIndex: number,
+    result: boolean
+  ): Promise<void> {
+    if (!result) {
+      await this.present.dismissLoading();
+      const metadata = await this.photosService.getPhotoMetaData(photoId);
+      await this.present.toast(
+        'Failed to rotate photo "' + metadata.filename + '".'
+      );
+    } else {
+      this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true };
+
+      if (this.checkedItems[currentIndex]) {
+        await this.photosService.rotatePhoto(
+          this.checkedItems[currentIndex],
+          this.rotatePhotoCallback.bind(this),
+          currentIndex
+        );
+      } else {
+        this.present.dismissLoading();
+      }
+    }
   }
 
   uploadFilesDoneCallback() {
@@ -291,7 +317,6 @@ export class AppPhotos {
   }
 
   async openPhotoModal(photoId: string) {
-    await this.present.loading('');
     const modal = await this.modalController.create({
       component: this.appPhotoElement,
       componentProps: {
@@ -301,9 +326,7 @@ export class AppPhotos {
       },
       cssClass: 'router-modal'
     });
-    modal.addEventListener('ionModalDidPresent', () => {
-      this.present.dismissLoading();
-    });
+
     await modal.present();
   }
 
@@ -437,7 +460,7 @@ export class AppPhotos {
                 {row.map(col => (
                   <ion-col no-padding align-self-center key={col.id}>
                     <div
-                      class="square"
+                      class="square pointer"
                       draggable={false}
                       onTouchEnd={() => this.touchEnd()}
                       onClick={event => this.handlePhotoClick(event, col.id)}

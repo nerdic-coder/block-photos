@@ -1,17 +1,16 @@
 import CacheService from './cache-service';
 import uuidv4 from 'uuid/v4';
-import LargeStorageService from './large-storage-service';
+import loadImage from 'blueimp-load-image';
+
 import AlbumsService from './albums-service';
 
 declare var blockstack;
 
 export default class PhotosService {
   private cache: CacheService;
-  private photoStorage: LargeStorageService;
 
   constructor() {
     this.cache = new CacheService();
-    this.photoStorage = new LargeStorageService();
   }
 
   async getPhotosList(sync?: boolean, albumId?: string): Promise<any> {
@@ -59,7 +58,7 @@ export default class PhotosService {
     let cachedPhoto = await this.cache.getItem(id);
 
     if (!cachedPhoto) {
-      cachedPhoto = await this.photoStorage.readFile(id);
+      cachedPhoto = await blockstack.getFile(id);
       this.cache.setItem(id, cachedPhoto);
     }
 
@@ -69,7 +68,7 @@ export default class PhotosService {
     return cachedPhoto;
   }
 
-  async uploadPhoto(file: any, event: any, albumId?: string): Promise<any> {
+  async uploadPhoto(file: any, data: any, albumId?: string): Promise<any> {
     const photosListResponse = await this.getPhotosList(true);
     let photosList = photosListResponse.photosList;
     if (
@@ -89,7 +88,7 @@ export default class PhotosService {
     }
 
     const errorsList = [];
-    const photoId = uuidv4() + file.filename.replace('.', '');
+    const photoId = uuidv4() + file.filename.replace('.', '').replace(' ', '');
     const listdata = {
       id: photoId,
       filename: file.filename
@@ -103,14 +102,11 @@ export default class PhotosService {
     };
     try {
       // Save raw data to a file
-      await this.photoStorage.writeFile(photoId, event.target.result);
-      await this.cache.setItem(photoId, event.target.result);
+      await blockstack.putFile(photoId, data);
+      await this.cache.setItem(photoId, data);
 
       // Save photos metadata to a file
-      await this.photoStorage.writeFile(
-        photoId + '-meta',
-        JSON.stringify(metadata)
-      );
+      await blockstack.putFile(photoId + '-meta', JSON.stringify(metadata));
       await this.cache.setItem(photoId + '-meta', JSON.stringify(metadata));
 
       photosList.unshift(listdata);
@@ -190,8 +186,8 @@ export default class PhotosService {
     const metadata = await this.getPhotoMetaData(photoId);
     try {
       // Put empty file, since deleteFile is yet not supported
-      await this.photoStorage.writeFile(photoId, 'deleted');
-      await this.photoStorage.writeFile(photoId + '-meta', 'deleted');
+      await blockstack.putFile(photoId, '');
+      await blockstack.putFile(photoId + '-meta', '');
       // TODO: add back when available.
       // await deleteFile(photoId);
       returnState = true;
@@ -352,42 +348,33 @@ export default class PhotosService {
     return true;
   }
 
-  async rotatePhoto(photoId: string): Promise<any> {
-    const metadata = await this.getPhotoMetaData(photoId);
+  async rotatePhoto(photoId: string, callback: any, index = 0): Promise<void> {
+    const data = await this.loadPhoto(photoId);
+    loadImage(
+      data,
+      async processedData => {
+        try {
+          // Save raw data to a file
+          if (processedData.type === 'error') {
+            // TODO: show error message
+          } else if (processedData.tagName === 'CANVAS') {
+            await blockstack.putFile(photoId, processedData.toDataURL());
+            await this.cache.setItem(photoId, processedData.toDataURL());
+          } else {
+            await blockstack.putFile(photoId, processedData.src);
+            await this.cache.setItem(photoId, processedData.src);
+          }
 
-    let currentOrientation = 1;
-
-    if (
-      metadata &&
-      metadata.stats &&
-      metadata.stats.exifdata &&
-      metadata.stats.exifdata.tags.Orientation
-    ) {
-      currentOrientation = metadata.stats.exifdata.tags.Orientation;
-    }
-
-    if (!metadata.stats) {
-      metadata.stats = { exifdata: { tags: {} } };
-    }
-
-    if (!metadata.stats.exifdata) {
-      metadata.stats.exifdata = { tags: {} };
-    }
-
-    if (!metadata.stats.exifdata.tags) {
-      metadata.stats.exifdata.tags = {};
-    }
-
-    if (currentOrientation === 1) {
-      metadata.stats.exifdata.tags.Orientation = 6;
-    } else if (currentOrientation === 6) {
-      metadata.stats.exifdata.tags.Orientation = 3;
-    } else if (currentOrientation === 3) {
-      metadata.stats.exifdata.tags.Orientation = 8;
-    } else {
-      metadata.stats.exifdata.tags.Orientation = 1;
-    }
-
-    return this.setPhotoMetaData(photoId, metadata);
+          if (callback && typeof callback === 'function') {
+            callback(photoId, index + 1, true);
+          }
+        } catch (error) {
+          callback(photoId, index + 1, false);
+        }
+      },
+      {
+        orientation: 6
+      }
+    );
   }
 }
