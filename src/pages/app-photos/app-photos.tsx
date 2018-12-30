@@ -446,7 +446,7 @@ export class AppPhotos {
         </ion-refresher>
         {empty && this.listLoaded ? (
           <ion-card padding text-center>
-            <h2>Welcome to Block Photos.</h2>
+            {!this.album ? <h2>Welcome to Block Photos.</h2> : null}
             <h3>
               Use the upload button (
               <ion-icon size="small" name="ios-cloud-upload" />) to add your

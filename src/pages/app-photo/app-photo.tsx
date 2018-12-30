@@ -188,7 +188,7 @@ export class AppPhoto {
         </ion-toolbar>
       </ion-header>,
 
-      <ion-content text-center class="photo-page">
+      <ion-content fullscreen={true} scroll-y={false} class="photo-page">
         <block-img
           photoId={this.photoId}
           rotate={false}

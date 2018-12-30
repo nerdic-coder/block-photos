@@ -12,6 +12,8 @@ declare var blockstack;
 export class AppAlbums {
   private albumsService: AlbumsService;
   private present: PresentingService;
+  private refresherListener: any;
+  private refresherScroll: any;
 
   @State() albums: any[] = [];
   @State() albumsLoaded: boolean;
@@ -20,6 +22,7 @@ export class AppAlbums {
   constructor() {
     this.albumsService = new AlbumsService();
     this.present = new PresentingService();
+    this.refresherListener = this.refreshList.bind(this);
   }
 
   componentWillLoad() {
@@ -38,7 +41,28 @@ export class AppAlbums {
 
     this.loadAlbums(false);
 
+    this.refresherScroll = document.getElementById('refresher-scroll');
+    if (this.refresherScroll) {
+      this.refresherScroll.addEventListener(
+        'ionRefresh',
+        this.refresherListener
+      );
+    }
+
     AnalyticsService.logEvent('photos-list');
+  }
+
+  async componentDidUnload() {
+    if (this.refresherScroll) {
+      this.refresherScroll.removeEventListener(
+        'ionRefresh',
+        this.refresherListener
+      );
+    }
+  }
+
+  refreshList() {
+    this.loadAlbums(true);
   }
 
   async loadAlbums(sync?: boolean) {
@@ -50,6 +74,7 @@ export class AppAlbums {
 
       await this.present.dismissLoading();
       this.albumsLoaded = true;
+      this.refresherScroll.complete();
 
       this.handleAlbumErrors(albumsResponse);
     } catch (error) {
@@ -219,7 +244,7 @@ export class AppAlbums {
     return [
       <ion-header>
         <ion-toolbar color="primary">
-          <ion-title>Albums</ion-title>
+          <ion-title class="unselectable">Albums</ion-title>
           <ion-buttons slot="end">
             {this.editMode
               ? [
@@ -228,6 +253,9 @@ export class AppAlbums {
                   </ion-button>
                 ]
               : [
+                  <ion-button onClick={() => this.loadAlbums(true)}>
+                    <ion-icon name="refresh" />
+                  </ion-button>,
                   <ion-button onClick={event => this.activateEditor(event)}>
                     <ion-icon name="create" mode="md" />
                   </ion-button>,
@@ -241,12 +269,15 @@ export class AppAlbums {
       </ion-header>,
 
       <ion-content>
+        <ion-refresher slot="fixed" id="refresher-scroll">
+          <ion-refresher-content />
+        </ion-refresher>
         {empty && this.albumsLoaded ? (
           <ion-card padding text-center>
             <h2>Welcome to Block Photos albums section.</h2>
             <h3>
               Use the add button (<ion-icon size="small" name="add-circle" />)
-              to add your first photo.
+              to create your first album.
             </h3>
           </ion-card>
         ) : (
@@ -264,7 +295,7 @@ export class AppAlbums {
                         {col.thumbnailId ? (
                           <block-img photoId={col.thumbnailId} rotate={false} />
                         ) : (
-                          <img
+                          <ion-img
                             draggable={false}
                             src="/assets/placeholder-image.jpg"
                             onDragStart={event => this.preventDrag(event)}
@@ -290,7 +321,7 @@ export class AppAlbums {
                         ) : null}
                       </div>
                       <ion-card-header color="primary">
-                        <ion-card-subtitle>
+                        <ion-card-subtitle class="unselectable">
                           {this.editMode ? (
                             <ion-item color="secondary">
                               <ion-input
