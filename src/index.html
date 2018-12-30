@@ -26,25 +26,21 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/icon/favicon-16x16.png">
   <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
-      img-src 'self' https://* http://localhost:* https://localhost:* https://app.block-photos.com data data: capacitor: blob:;
+      img-src 'self' https://* data data: capacitor: blob:;
       child-src 'self' blockstack:;
       style-src 'self' 'unsafe-inline';
-      script-src 'unsafe-eval' 'unsafe-inline'
+      script-src 'self' 'unsafe-eval' 'unsafe-inline'
         https://storage.googleapis.com
-        http://localhost:*
-        https://localhost:*
-        https://app.block-photos.com
         https://cdn.amplitude.com
         capacitor:
         file:
         data:;
-      worker-src data:;
-      connect-src ws://localhost:*
+      worker-src 'self' data:;
+      connect-src
+        'self'
+        ws://localhost:*
         wss://localhost:*
         wss://app.block-photos.com
-        http://localhost:*
-        https://localhost:*
-        https://app.block-photos.com
         https://gaia.blockstack.org
         https://hub.blockstack.org
         https://core.blockstack.org
