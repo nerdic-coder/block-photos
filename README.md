@@ -4,6 +4,15 @@
   <img src="https://github.com/nerdic-coder/block-photos/blob/master/electron/icons/png/256x256.png?raw=true" width="256" height="256">
 </p>
 
+[![github](https://img.shields.io/github/release/nerdic-coder/block-photos.svg)](https://github.com/nerdic-coder/block-photos/releases/)
+[![github](https://img.shields.io/github/downloads/nerdic-coder/block-photos/total.svg)](https://github.com/nerdic-coder/block-photos/releases/)
+[![github](https://img.shields.io/github/license/nerdic-coder/block-photos.svg)](https://github.com/nerdic-coder/block-photos)
+[![github](https://img.shields.io/github/repo-size/nerdic-coder/block-photos.svg)](https://github.com/nerdic-coder/block-photos)
+[![snyk](https://img.shields.io/snyk/vulnerabilities/github/nerdic-coder/block-photos.svg)](https://github.com/nerdic-coder/block-photos)
+[![CodeFactor](https://www.codefactor.io/repository/github/nerdic-coder/block-photos/badge/master)](https://www.codefactor.io/repository/github/nerdic-coder/block-photos/overview/master)
+[![website-up-down-green-red](https://img.shields.io/website-up-down-green-red/https/app.block-photos.com.svg?label=my-website)](https://app.block-photos.com/)
+[![twitter](https://img.shields.io/twitter/follow/Block_Photos.svg?label=Follow&style=social)](https://twitter.com/Block_Photos)
+
 ## Project links
 
 Visit the website here: [block-photos.com](https://block-photos.com/)
@@ -121,5 +130,3 @@ npm run selenium
 ```bash
 npm run e2e
 ```
-
-[![CodeFactor](https://www.codefactor.io/repository/github/nerdic-coder/block-photos/badge/master)](https://www.codefactor.io/repository/github/nerdic-coder/block-photos/overview/master)
