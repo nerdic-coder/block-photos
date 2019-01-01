@@ -6,7 +6,8 @@ import AnalyticsService from '../../services/analytics-service';
 declare var blockstack;
 
 @Component({
-  tag: 'app-photo'
+  tag: 'app-photo',
+  styleUrl: 'app-photo.css'
 })
 export class AppPhoto {
   private photosService: PhotosService;
@@ -77,20 +78,10 @@ export class AppPhoto {
 
   async rotatePhoto(): Promise<void> {
     await this.present.loading('Rotating photo...');
-    this.photosService.rotatePhoto(
-      this.photoId,
-      this.rotatePhotoCallback.bind(this)
-    );
-  }
-
-  async rotatePhotoCallback(
-    photoId: string,
-    currentIndex: number,
-    result: boolean
-  ): Promise<void> {
+    const result = await this.photosService.rotatePhoto(this.photoId);
     if (!result) {
       await this.present.dismissLoading();
-      const metadata = await this.photosService.getPhotoMetaData(photoId);
+      const metadata = await this.photosService.getPhotoMetaData(this.photoId);
       await this.present.toast(
         'Failed to rotate photo "' + metadata.filename + '".'
       );
@@ -99,7 +90,7 @@ export class AppPhoto {
 
       if (this.updateCallback && typeof this.updateCallback === 'function') {
         // execute the callback, passing parameters as necessary
-        this.updateCallback(photoId, currentIndex);
+        this.updateCallback(this.photoId);
       }
 
       this.present.dismissLoading();
@@ -188,10 +179,10 @@ export class AppPhoto {
         </ion-toolbar>
       </ion-header>,
 
-      <ion-content fullscreen={true} scroll-y={false} class="photo-page">
+      <ion-content fullscreen={true} scroll-y={false} color="dark">
         <block-img
           photoId={this.photoId}
-          rotate={false}
+          rotate={true}
           refresh={this.refresh}
         />
       </ion-content>

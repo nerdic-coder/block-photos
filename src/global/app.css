@@ -78,7 +78,7 @@ body {
   --ion-color-danger-shade: #d33939;
   --ion-color-danger-tint: #f25454;
 
-  --ion-color-dark: #222428;
+  --ion-color-dark: #000;
   --ion-color-dark-rgb: 34, 34, 34;
   --ion-color-dark-contrast: #ffffff;
   --ion-color-dark-contrast-rgb: 255, 255, 255;
@@ -177,21 +177,6 @@ ion-spinner {
   transform: rotate(270deg);
 }
 
-.photo-page {
-  --background: #000000;
-}
-
-.photo-page ion-img,
-.photo-page ion-img img {
-  max-width: 100%;
-  max-height: 100%;
-  width: 100%;
-  height: 100%;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .hidden {
   visibility: hidden;
 }
@@ -250,17 +235,6 @@ ion-content {
   --padding-start: env(safe-area-inset-left);
   --padding-bottom: env(safe-area-inset-bottom);
 }
-
-.ios .photo-page {
-  --offset-bottom: 35px + env(safe-area-inset-bottom) !important;
-}
-/*
-ion-col ion-card img {
-  display: block;
-  width: 50vw;
-  height: 50vh;
-  object-fit: cover;
-} */
 
 ion-card ion-item {
   --min-height: 19px;

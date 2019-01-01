@@ -90,7 +90,7 @@ export class AppPhotos {
       );
     }
 
-    this.refresherScroll = document.getElementById('refresher-scroll');
+    this.refresherScroll = document.getElementById('photos-refresher-scroll');
     if (this.refresherScroll) {
       this.refresherScroll.addEventListener(
         'ionRefresh',
@@ -208,40 +208,21 @@ export class AppPhotos {
   }
 
   async rotatePhotos(): Promise<void> {
-    await this.present.loading('Rotating photos...');
     this.refreshPhotos = {};
-    this.photosService.rotatePhoto(
-      this.checkedItems[0],
-      this.rotatePhotoCallback.bind(this)
-    );
-
-    AnalyticsService.logEvent('photos-list-rotate');
-  }
-
-  async rotatePhotoCallback(
-    photoId: string,
-    currentIndex: number,
-    result: boolean
-  ): Promise<void> {
-    if (!result) {
-      await this.present.dismissLoading();
-      const metadata = await this.photosService.getPhotoMetaData(photoId);
-      await this.present.toast(
-        'Failed to rotate photo "' + metadata.filename + '".'
-      );
-    } else {
-      this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true };
-
-      if (this.checkedItems[currentIndex]) {
-        await this.photosService.rotatePhoto(
-          this.checkedItems[currentIndex],
-          this.rotatePhotoCallback.bind(this),
-          currentIndex
+    for (const photoId of this.checkedItems) {
+      const result = await this.photosService.rotatePhoto(photoId);
+      if (!result) {
+        await this.present.dismissLoading();
+        const metadata = await this.photosService.getPhotoMetaData(photoId);
+        await this.present.toast(
+          'Failed to rotate photo "' + metadata.filename + '".'
         );
       } else {
-        this.present.dismissLoading();
+        this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true };
       }
     }
+
+    AnalyticsService.logEvent('photos-list-rotate');
   }
 
   uploadFilesDoneCallback() {
@@ -441,7 +422,7 @@ export class AppPhotos {
       </ion-header>,
 
       <ion-content id="photos-list">
-        <ion-refresher slot="fixed" id="refresher-scroll">
+        <ion-refresher slot="fixed" id="photos-refresher-scroll">
           <ion-refresher-content />
         </ion-refresher>
         {empty && this.listLoaded ? (

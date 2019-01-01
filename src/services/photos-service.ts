@@ -1,6 +1,5 @@
 import CacheService from './cache-service';
 import uuidv4 from 'uuid/v4';
-import loadImage from 'blueimp-load-image';
 
 import AlbumsService from './albums-service';
 
@@ -330,8 +329,10 @@ export default class PhotosService {
         index++;
       }
       return cachedPhotoMetaData;
-    } else {
+    } else if (cachedPhotoMetaData !== 'deleted') {
       return JSON.parse(cachedPhotoMetaData);
+    } else {
+      return false;
     }
   }
 
@@ -348,33 +349,42 @@ export default class PhotosService {
     return true;
   }
 
-  async rotatePhoto(photoId: string, callback: any, index = 0): Promise<void> {
-    const data = await this.loadPhoto(photoId);
-    loadImage(
-      data,
-      async processedData => {
-        try {
-          // Save raw data to a file
-          if (processedData.type === 'error') {
-            // TODO: show error message
-          } else if (processedData.tagName === 'CANVAS') {
-            await blockstack.putFile(photoId, processedData.toDataURL());
-            await this.cache.setItem(photoId, processedData.toDataURL());
-          } else {
-            await blockstack.putFile(photoId, processedData.src);
-            await this.cache.setItem(photoId, processedData.src);
-          }
+  async rotatePhoto(photoId: string): Promise<boolean> {
+    const metadata = await this.getPhotoMetaData(photoId);
 
-          if (callback && typeof callback === 'function') {
-            callback(photoId, index + 1, true);
-          }
-        } catch (error) {
-          callback(photoId, index + 1, false);
-        }
-      },
-      {
-        orientation: 6
-      }
-    );
+    let currentOrientation = 1;
+
+    if (
+      metadata &&
+      metadata.stats &&
+      metadata.stats.exifdata &&
+      metadata.stats.exifdata.tags.Orientation
+    ) {
+      currentOrientation = metadata.stats.exifdata.tags.Orientation;
+    }
+
+    if (!metadata.stats) {
+      metadata.stats = { exifdata: { tags: {} } };
+    }
+
+    if (!metadata.stats.exifdata) {
+      metadata.stats.exifdata = { tags: {} };
+    }
+
+    if (!metadata.stats.exifdata.tags) {
+      metadata.stats.exifdata.tags = {};
+    }
+
+    if (currentOrientation === 1) {
+      metadata.stats.exifdata.tags.Orientation = 6;
+    } else if (currentOrientation === 6) {
+      metadata.stats.exifdata.tags.Orientation = 3;
+    } else if (currentOrientation === 3) {
+      metadata.stats.exifdata.tags.Orientation = 8;
+    } else {
+      metadata.stats.exifdata.tags.Orientation = 1;
+    }
+
+    return this.setPhotoMetaData(photoId, metadata);
   }
 }

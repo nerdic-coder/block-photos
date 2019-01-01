@@ -102,6 +102,16 @@ export default class UploadService {
           loadImage(
             file,
             async data => {
+              let orientation = 1;
+              if (data && data.exif) {
+                orientation = data.exif.get('Orientation');
+              }
+              file.exifdata = {
+                tags: {
+                  Orientation: orientation,
+                  OriginalOrientation: orientation
+                }
+              };
               const metadata = {
                 filename: file.name,
                 stats: file
@@ -115,7 +125,7 @@ export default class UploadService {
               }
             },
             {
-              orientation: true
+              orientation: false
             }
           );
         } else {
