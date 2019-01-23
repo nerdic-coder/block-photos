@@ -99,33 +99,45 @@ export default class UploadService {
       const file = list[currentIndex].file;
       if (list[currentIndex].kind === 'file') {
         if (file.type.indexOf('image') !== -1) {
-          loadImage(
+          loadImage.parseMetaData(
             file,
-            async data => {
+            data => {
+              const reader = new FileReader();
+
               let orientation = 1;
               if (data && data.exif) {
                 orientation = data.exif.get('Orientation');
               }
-              file.exifdata = {
-                tags: {
-                  Orientation: orientation,
-                  OriginalOrientation: orientation
-                }
-              };
-              const metadata = {
-                filename: file.name,
-                stats: file
-              };
 
-              await this.uploadPhoto(metadata, data.toDataURL());
-              if (list[currentIndex + 1]) {
-                this.processUpload(list, currentIndex + 1);
-              } else {
-                this.uploadFilesDone();
-              }
+              // Closure to capture the file information.
+              reader.onload = ((loadedFile, loadedList, loadedOrientation) => {
+                return async event => {
+                  if (loadedOrientation) {
+                    loadedFile.exifdata = {
+                      tags: {
+                        Orientation: loadedOrientation,
+                        OriginalOrientation: loadedOrientation
+                      }
+                    };
+                  }
+                  const metadata = {
+                    filename: loadedFile.name,
+                    stats: loadedFile
+                  };
+                  await this.uploadPhoto(metadata, event.target.result);
+                  if (loadedList[currentIndex + 1]) {
+                    this.processUpload(loadedList, currentIndex + 1);
+                  } else {
+                    this.uploadFilesDone();
+                  }
+                };
+              })(file, list, orientation);
+              // Read in the image file as a data URL.
+              reader.readAsDataURL(file);
             },
             {
-              orientation: false
+              maxMetaDataSize: 262144,
+              disableImageHead: false
             }
           );
         } else {
