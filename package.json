@@ -135,7 +135,7 @@
     "selenium-standalone": "^6.15.4",
     "tslint": "^5.12.1",
     "tslint-ionic-rules": "0.0.21",
-    "workbox-build": "3.6.3"
+    "workbox-build": "3.4.1"
   },
   "browserslist": [
     ">0.2%",

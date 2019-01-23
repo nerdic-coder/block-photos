@@ -1,0 +1,23 @@
+.spinner-grid,
+.spinner-grid ion-row {
+  height: 100%;
+  max-height: 100%;
+}
+
+ion-col {
+  max-width: 450px;
+}
+
+h1 {
+  color: var(--light, #ffffff);
+}
+
+ion-img {
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sc-ion-card-ios-h {
+  margin: 16px 20px;
+}
