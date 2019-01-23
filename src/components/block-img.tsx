@@ -45,7 +45,8 @@ export class BlockImg {
     const { photoId, rotate } = this;
 
     if (photoId === null) {
-      this.source = '';
+      this.source =
+        'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
       return;
     }
 
@@ -156,6 +157,7 @@ export class BlockImg {
     const { isLoaded, source, rotation } = this;
     return [
       <ion-img
+        no-padding
         draggable={false}
         src={source}
         class={'rotation-' + rotation + ' ' + (isLoaded ? '' : 'hidden')}

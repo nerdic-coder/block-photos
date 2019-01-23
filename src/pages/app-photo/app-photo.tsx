@@ -179,12 +179,18 @@ export class AppPhoto {
         </ion-toolbar>
       </ion-header>,
 
-      <ion-content fullscreen={true} scroll-y={false} color="dark">
-        <block-img
-          photoId={this.photoId}
-          rotate={true}
-          refresh={this.refresh}
-        />
+      <ion-content scroll-y={false} color="dark">
+        <ion-grid no-padding>
+          <ion-row align-items-stretch>
+            <ion-col no-padding>
+              <block-img
+                photoId={this.photoId}
+                rotate={true}
+                refresh={this.refresh}
+              />
+            </ion-col>
+          </ion-row>
+        </ion-grid>
       </ion-content>
     ];
   }

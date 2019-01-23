@@ -93,7 +93,7 @@ export class AppRoot {
   render() {
     return [
       <ion-app>
-        <ion-router useHash={false}>
+        <ion-router useHash={true}>
           <ion-route url="/" component="app-signin" />
           <ion-route url="/settings/" component="app-settings" />
           <ion-route url="/photos/" component="app-photos" />
