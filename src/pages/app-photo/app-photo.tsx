@@ -10,7 +10,6 @@ declare var blockstack;
   styleUrl: 'app-photo.css'
 })
 export class AppPhoto {
-  private photosService: PhotosService;
   private present: PresentingService;
   private modalController: HTMLIonModalControllerElement;
 
@@ -23,7 +22,6 @@ export class AppPhoto {
   @State() refresh: boolean;
 
   constructor() {
-    this.photosService = new PhotosService();
     this.present = new PresentingService();
   }
 
@@ -60,7 +58,7 @@ export class AppPhoto {
 
   async setNextAndPreviousPhoto(photoId: string): Promise<void> {
     if (photoId && photoId !== null) {
-      const nextAndPreviousPhoto = await this.photosService.getNextAndPreviousPhoto(
+      const nextAndPreviousPhoto = await PhotosService.getNextAndPreviousPhoto(
         photoId,
         this.albumId
       );
@@ -78,10 +76,10 @@ export class AppPhoto {
 
   async rotatePhoto(): Promise<void> {
     await this.present.loading('Rotating photo...');
-    const result = await this.photosService.rotatePhoto(this.photoId);
+    const result = await PhotosService.rotatePhoto(this.photoId);
     if (!result) {
       await this.present.dismissLoading();
-      const metadata = await this.photosService.getPhotoMetaData(this.photoId);
+      const metadata = await PhotosService.getPhotoMetaData(this.photoId);
       await this.present.toast(
         'Failed to rotate photo "' + metadata.filename + '".'
       );

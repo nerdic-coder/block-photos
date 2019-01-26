@@ -12,15 +12,11 @@ declare var blockstack;
   styleUrl: 'app-root.css'
 })
 export class AppRoot {
-  private cacheService: CacheService;
   @Prop({ connect: 'ion-toast-controller' })
   toastCtrl: HTMLIonToastControllerElement;
 
   @State() isAuthenticated: boolean;
 
-  constructor() {
-    this.cacheService = new CacheService();
-  }
   /**
    * Handle service worker updates correctly.
    * This code will show a toast letting the
@@ -83,7 +79,7 @@ export class AppRoot {
 
   async handleSignOut() {
     // Clear all the users cache in localStorage
-    this.cacheService.clear();
+    CacheService.clear();
     // End users Blockstack session
     blockstack.signUserOut();
 

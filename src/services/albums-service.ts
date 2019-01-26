@@ -1,39 +1,23 @@
-import CacheService from './cache-service';
 import uuidv4 from 'uuid/v4';
 
-declare var blockstack;
+import StorageService from './storage-service';
 
 export default class AlbumsService {
-  private cache: CacheService;
-
-  constructor() {
-    this.cache = new CacheService();
-  }
-
-  async getAlbums(sync?: boolean): Promise<any> {
+  static async getAlbums(updateCache?: boolean): Promise<any> {
     let cachedAlbums = [];
     const errorsList = [];
     try {
-      const rawCachedAlbums = await this.cache.getItem('albums-list.json');
+      const rawCachedAlbums = await StorageService.getItem(
+        'albums-list.json',
+        updateCache
+      );
       if (rawCachedAlbums) {
         cachedAlbums = JSON.parse(rawCachedAlbums);
-      }
-    } catch (error) {
-      errorsList.push('err_cache');
-    }
-
-    if (sync || !cachedAlbums || cachedAlbums.length === 0) {
-      try {
-        // Get the contents of the file albums-list.json
-        const rawAlbums = await blockstack.getFile('albums-list.json');
-        if (rawAlbums) {
-          const albums = JSON.parse(rawAlbums);
-          cachedAlbums = albums;
-          await this.cache.setItem('albums-list.json', rawAlbums);
-        }
-      } catch (error) {
+      } else {
         errorsList.push('err_list');
       }
+    } catch (error) {
+      errorsList.push('err_list');
     }
 
     return {
@@ -42,8 +26,8 @@ export default class AlbumsService {
     };
   }
 
-  async createAlbum(albumName: string) {
-    const albumsResponse = await this.getAlbums(true);
+  static async createAlbum(albumName: string) {
+    const albumsResponse = await AlbumsService.getAlbums(true);
     let albums = albumsResponse.albums;
     if ((!albums || albums == null) && albumsResponse.errorsList.length === 0) {
       albums = [];
@@ -58,8 +42,7 @@ export default class AlbumsService {
       thumbnailId: null
     };
     try {
-      await blockstack.putFile(albumId, '[]');
-      await this.cache.setItem(albumId, '[]');
+      await StorageService.setItem(albumId, '[]');
 
       albums.unshift(metadata);
     } catch (error) {
@@ -69,17 +52,19 @@ export default class AlbumsService {
       });
     }
 
-    await this.cache.setItem('albums-list.json', JSON.stringify(albums));
-    await blockstack.putFile('albums-list.json', JSON.stringify(albums));
+    await StorageService.setItem('albums-list.json', JSON.stringify(albums));
     return { albums, errorsList };
   }
 
-  async updateAlbumName(albumId: string, albumName: string): Promise<any> {
+  static async updateAlbumName(
+    albumId: string,
+    albumName: string
+  ): Promise<any> {
     // id and metadata is required
     if (!albumId || !albumName) {
       return false;
     }
-    const albumsResponse = await this.getAlbums(true);
+    const albumsResponse = await AlbumsService.getAlbums(true);
     const albums = albumsResponse.albums;
     let albumFound = false;
     let index = 0;
@@ -98,13 +83,12 @@ export default class AlbumsService {
       return false;
     }
 
-    await this.cache.setItem('albums-list.json', JSON.stringify(albums));
-    await blockstack.putFile('albums-list.json', JSON.stringify(albums));
+    await StorageService.setItem('albums-list.json', JSON.stringify(albums));
 
     return albums;
   }
 
-  async updateAlbumThumbnail(
+  static async updateAlbumThumbnail(
     albumId: string,
     thumbnailId: string
   ): Promise<any> {
@@ -112,7 +96,7 @@ export default class AlbumsService {
     if (!albumId || !thumbnailId) {
       return false;
     }
-    const albumsResponse = await this.getAlbums(true);
+    const albumsResponse = await AlbumsService.getAlbums(true);
     const albums = albumsResponse.albums;
     let albumFound = false;
     let index = 0;
@@ -131,17 +115,16 @@ export default class AlbumsService {
       return false;
     }
 
-    await this.cache.setItem('albums-list.json', JSON.stringify(albums));
-    await blockstack.putFile('albums-list.json', JSON.stringify(albums));
+    await StorageService.setItem('albums-list.json', JSON.stringify(albums));
 
     return albums;
   }
 
-  async deleteAlbum(albumId: string): Promise<any> {
+  static async deleteAlbum(albumId: string): Promise<any> {
     let returnState = false;
     try {
       // Put empty file, since deleteFile is yet not supported
-      await blockstack.putFile(albumId, '');
+      await StorageService.setItem(albumId, '');
       // TODO: add back when available.
       // await deleteFile(albumId);
       returnState = true;
@@ -153,15 +136,17 @@ export default class AlbumsService {
       return false;
     }
 
-    const albumResponse = await this.getAlbums(true);
+    const albumResponse = await AlbumsService.getAlbums(true);
     const albums = albumResponse.albums;
 
     let index = 0;
     for (const photo of albums) {
       if (albumId === photo.albumId) {
         albums.splice(index, 1);
-        await this.cache.setItem('albums-list.json', JSON.stringify(albums));
-        await blockstack.putFile('albums-list.json', JSON.stringify(albums));
+        await StorageService.setItem(
+          'albums-list.json',
+          JSON.stringify(albums)
+        );
         return albums;
       }
       index++;
@@ -169,9 +154,9 @@ export default class AlbumsService {
     return false;
   }
 
-  async getAlbumMetaData(albumId: string): Promise<any> {
+  static async getAlbumMetaData(albumId: string): Promise<any> {
     let response = {};
-    const albumsResponse = await this.getAlbums();
+    const albumsResponse = await AlbumsService.getAlbums();
     const albums = albumsResponse.albums;
 
     let index = 0;

@@ -16,10 +16,7 @@ export class BlockImg {
   @State() isLoaded: boolean;
   @State() rotation: number;
 
-  private photosService: PhotosService;
-
   constructor() {
-    this.photosService = new PhotosService();
     this.rotation = 1;
   }
 
@@ -50,9 +47,9 @@ export class BlockImg {
       return;
     }
 
-    const base64 = await this.photosService.loadPhoto(photoId);
+    const base64 = await PhotosService.loadPhoto(photoId);
 
-    const metadata = await this.photosService.getPhotoMetaData(photoId);
+    const metadata = await PhotosService.getPhotoMetaData(photoId);
     let rotation = 1;
     if (
       metadata &&

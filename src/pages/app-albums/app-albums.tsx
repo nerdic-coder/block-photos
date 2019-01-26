@@ -10,7 +10,6 @@ declare var blockstack;
   tag: 'app-albums'
 })
 export class AppAlbums {
-  private albumsService: AlbumsService;
   private present: PresentingService;
   private refresherListener: any;
   private refresherScroll: any;
@@ -20,7 +19,6 @@ export class AppAlbums {
   @State() editMode: boolean;
 
   constructor() {
-    this.albumsService = new AlbumsService();
     this.present = new PresentingService();
     this.refresherListener = this.refreshList.bind(this);
   }
@@ -69,7 +67,7 @@ export class AppAlbums {
       if (loader) {
         await this.present.loading('Loading albums...');
       }
-      const albumsResponse = await this.albumsService.getAlbums(sync);
+      const albumsResponse = await AlbumsService.getAlbums(sync);
       this.albums = albumsResponse.albums;
 
       if (loader) {
@@ -127,7 +125,7 @@ export class AppAlbums {
           cssClass: 'primary',
           handler: async album => {
             try {
-              const albumsResponse = await this.albumsService.createAlbum(
+              const albumsResponse = await AlbumsService.createAlbum(
                 album.albumName
               );
               this.albums = albumsResponse.albums;
@@ -159,7 +157,7 @@ export class AppAlbums {
   async updateAlbumName(event: any, albumId: string, albumName: string) {
     if (albumName !== event.target.value) {
       try {
-        const albumsResponse = await this.albumsService.updateAlbumName(
+        const albumsResponse = await AlbumsService.updateAlbumName(
           albumId,
           event.target.value
         );
@@ -206,7 +204,7 @@ export class AppAlbums {
   async deleteCallback(albumId: string) {
     try {
       this.present.loading('Deleting album...');
-      const albumsResponse = await this.albumsService.deleteAlbum(albumId);
+      const albumsResponse = await AlbumsService.deleteAlbum(albumId);
       await this.present.dismissLoading();
 
       if (albumsResponse) {

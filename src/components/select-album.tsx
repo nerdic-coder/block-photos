@@ -8,8 +8,6 @@ import PhotosService from '../services/photos-service';
   tag: 'select-album'
 })
 export class SelectAlbum {
-  private albumsService: AlbumsService;
-  private photosService: PhotosService;
   private present: PresentingService;
 
   @State() albums: any[] = [];
@@ -18,8 +16,6 @@ export class SelectAlbum {
   @Prop() selectedPhotos: any[] = [];
 
   constructor() {
-    this.albumsService = new AlbumsService();
-    this.photosService = new PhotosService();
     this.present = new PresentingService();
   }
 
@@ -33,7 +29,7 @@ export class SelectAlbum {
 
   async loadAlbums(sync?: boolean) {
     try {
-      const albumsResponse = await this.albumsService.getAlbums(sync);
+      const albumsResponse = await AlbumsService.getAlbums(sync);
       this.albums = albumsResponse.albums;
 
       this.isLoaded = true;
@@ -61,7 +57,7 @@ export class SelectAlbum {
   async addPhotosToAlbum(event: any, album: any) {
     event.preventDefault();
     await this.closePopover();
-    const result: boolean = await this.photosService.addPhotosToAlbum(
+    const result: boolean = await PhotosService.addPhotosToAlbum(
       album.albumId,
       this.selectedPhotos
     );

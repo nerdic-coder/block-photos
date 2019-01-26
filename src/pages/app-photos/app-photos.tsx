@@ -16,8 +16,6 @@ export class AppPhotos {
   private lockTimer;
   private touchduration = 800;
   private activatedByTouch = false;
-  private albumsService: AlbumsService;
-  private photosService: PhotosService;
   private present: PresentingService;
   private uploadService: UploadService;
   private photosRangeListener: any;
@@ -42,8 +40,6 @@ export class AppPhotos {
   @Prop({ mutable: true }) albumId: string;
 
   constructor() {
-    this.albumsService = new AlbumsService();
-    this.photosService = new PhotosService();
     this.present = new PresentingService();
     this.photosRangeListener = this.loadPhotosRange.bind(this);
     this.photosRefresherListener = this.refreshPhotosList.bind(this);
@@ -58,7 +54,7 @@ export class AppPhotos {
 
     if (this.albumId) {
       // Load album list
-      this.album = await this.albumsService.getAlbumMetaData(this.albumId);
+      this.album = await AlbumsService.getAlbumMetaData(this.albumId);
     }
   }
 
@@ -149,7 +145,7 @@ export class AppPhotos {
       }
 
       // Get the contents of the file picture-list.json
-      const photosListResponse = await this.photosService.getPhotosList(
+      const photosListResponse = await PhotosService.getPhotosList(
         sync,
         this.albumId
       );
@@ -210,10 +206,10 @@ export class AppPhotos {
   async rotatePhotos(): Promise<void> {
     this.refreshPhotos = {};
     for (const photoId of this.checkedItems) {
-      const result = await this.photosService.rotatePhoto(photoId);
+      const result = await PhotosService.rotatePhoto(photoId);
       if (!result) {
         await this.present.dismissLoading();
-        const metadata = await this.photosService.getPhotoMetaData(photoId);
+        const metadata = await PhotosService.getPhotoMetaData(photoId);
         await this.present.toast(
           'Failed to rotate photo "' + metadata.filename + '".'
         );

@@ -1,21 +1,15 @@
 import localForage from 'localforage';
 
 export default class CacheService {
-  private storage: any;
-
-  constructor() {
-    this.storage = localForage;
+  static async getItem(itemId: string): Promise<any> {
+    return localForage.getItem(itemId);
   }
 
-  async getItem(itemId: string) {
-    return this.storage.getItem(itemId);
+  static async setItem(itemId: string, itemValue: any): Promise<any> {
+    return localForage.setItem(itemId, itemValue);
   }
 
-  async setItem(itemId: string, itemValue: any) {
-    await this.storage.setItem(itemId, itemValue);
-  }
-
-  clear() {
-    this.storage.clear();
+  static async clear(): Promise<any> {
+    return localForage.clear();
   }
 }

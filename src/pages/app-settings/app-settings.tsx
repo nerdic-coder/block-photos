@@ -9,8 +9,6 @@ export class AppSettings {
   private present: PresentingService;
 
   constructor() {
-    // this.cacheService = new CacheService();
-    // this.photosService = new PhotosService();
     this.present = new PresentingService();
   }
 

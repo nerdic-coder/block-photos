@@ -2,12 +2,7 @@ import PhotosService from './photos-service';
 import isElectron from 'is-electron';
 
 export default class PresentingService {
-  private photosService: PhotosService;
   private loadingElement: HTMLIonLoadingElement;
-
-  constructor() {
-    this.photosService = new PhotosService();
-  }
 
   async loading(message: string, duration?: number): Promise<void> {
     const loadingController = document.querySelector('ion-loading-controller');
@@ -64,7 +59,7 @@ export default class PresentingService {
         icon: 'trash',
         handler: () => {
           this.loading('Deleting photos...');
-          this.photosService.deletePhotos(ids).then(async result => {
+          PhotosService.deletePhotos(ids).then(async result => {
             await this.dismissLoading();
             if (result === true) {
               callback();
@@ -86,9 +81,8 @@ export default class PresentingService {
         icon: 'remove-circle',
         handler: () => {
           this.loading('Removing photos...');
-          this.photosService
-            .removePhotosFromList(ids, albumId)
-            .then(async result => {
+          PhotosService.removePhotosFromList(ids, albumId).then(
+            async result => {
               await this.dismissLoading();
               if (result === true) {
                 callback();
@@ -98,7 +92,8 @@ export default class PresentingService {
                   'The removal of some photos failed. Please try again in a few minutes!'
                 );
               }
-            });
+            }
+          );
         }
       });
     }

@@ -5,7 +5,6 @@ import PresentingService from './presenting-service';
 
 export default class UploadService {
   private root: any;
-  private photosService: PhotosService;
   private present: PresentingService;
   private callback: any;
   private dropEventBinding: any;
@@ -13,7 +12,6 @@ export default class UploadService {
   private albumId: string;
 
   constructor(callback: any, albumId?: string) {
-    this.photosService = new PhotosService();
     this.present = new PresentingService();
     this.callback = callback;
     this.dropEventBinding = this.dropEvent.bind(this);
@@ -184,7 +182,7 @@ export default class UploadService {
 
   async uploadPhoto(metadata: any, data: any): Promise<void> {
     if (metadata && data) {
-      const response = await this.photosService.uploadPhoto(
+      const response = await PhotosService.uploadPhoto(
         metadata,
         data,
         this.albumId
