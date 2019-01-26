@@ -4,15 +4,15 @@
   max-height: 100%;
 }
 
-ion-col {
+.signin ion-col {
   max-width: 450px;
 }
 
-h1 {
+.signin h1 {
   color: var(--light, #ffffff);
 }
 
-ion-img {
+.signin ion-img {
   width: 70%;
   margin-left: auto;
   margin-right: auto;
