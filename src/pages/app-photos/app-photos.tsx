@@ -18,8 +18,6 @@ export class AppPhotos {
   private activatedByTouch = false;
   private present: PresentingService;
   private uploadService: UploadService;
-  private photosRangeListener: any;
-  private photosRefresherListener: any;
   private ionRouteDidChangeListener: any;
   private photosLoaded: number;
   private infiniteScroll: any;
@@ -41,8 +39,6 @@ export class AppPhotos {
 
   constructor() {
     this.present = new PresentingService();
-    this.photosRangeListener = this.loadPhotosRange.bind(this);
-    this.photosRefresherListener = this.refreshPhotosList.bind(this);
     this.ionRouteDidChangeListener = this.ionRouteDidChange.bind(this);
   }
 
@@ -79,21 +75,7 @@ export class AppPhotos {
     this.photosLoaded = 0;
 
     this.infiniteScroll = document.getElementById('infinite-scroll');
-    if (this.infiniteScroll) {
-      this.infiniteScroll.addEventListener(
-        'ionInfinite',
-        this.photosRangeListener
-      );
-    }
-
     this.refresherScroll = document.getElementById('photos-refresher-scroll');
-    if (this.refresherScroll) {
-      this.refresherScroll.addEventListener(
-        'ionRefresh',
-        this.photosRefresherListener
-      );
-    }
-
     this.uploadService.addEventListeners(true);
     this.loadPhotosList(false);
 
@@ -108,18 +90,6 @@ export class AppPhotos {
 
   async componentDidUnload() {
     this.uploadService.removeEventListeners(true);
-    if (this.infiniteScroll) {
-      this.infiniteScroll.removeEventListener(
-        'ionInfinite',
-        this.photosRangeListener
-      );
-    }
-    if (this.refresherScroll) {
-      this.refresherScroll.removeEventListener(
-        'ionRefresh',
-        this.photosRefresherListener
-      );
-    }
     this.router.removeEventListener(
       'ionRouteDidChange',
       this.ionRouteDidChangeListener
@@ -418,7 +388,11 @@ export class AppPhotos {
       </ion-header>,
 
       <ion-content id="photos-list">
-        <ion-refresher slot="fixed" id="photos-refresher-scroll">
+        <ion-refresher
+          slot="fixed"
+          id="photos-refresher-scroll"
+          onIonRefresh={() => this.refreshPhotosList()}
+        >
           <ion-refresher-content />
         </ion-refresher>
         {empty && this.listLoaded ? (
@@ -464,7 +438,11 @@ export class AppPhotos {
             ))}
           </ion-grid>
         )}
-        <ion-infinite-scroll threshold="100px" id="infinite-scroll">
+        <ion-infinite-scroll
+          threshold="100px"
+          id="infinite-scroll"
+          onIonInfinite={event => this.loadPhotosRange(event)}
+        >
           <ion-infinite-scroll-content
             loading-spinner="bubbles"
             loading-text="Loading more photos..."

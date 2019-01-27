@@ -11,7 +11,6 @@ declare var blockstack;
 })
 export class AppAlbums {
   private present: PresentingService;
-  private refresherListener: any;
   private refresherScroll: any;
 
   @State() albums: any[] = [];
@@ -20,7 +19,6 @@ export class AppAlbums {
 
   constructor() {
     this.present = new PresentingService();
-    this.refresherListener = this.refreshList.bind(this);
   }
 
   componentWillLoad() {
@@ -37,25 +35,10 @@ export class AppAlbums {
       return;
     }
     this.refresherScroll = document.getElementById('albums-refresher-scroll');
-    if (this.refresherScroll) {
-      this.refresherScroll.addEventListener(
-        'ionRefresh',
-        this.refresherListener
-      );
-    }
 
     this.loadAlbums(false);
 
     AnalyticsService.logEvent('photos-list');
-  }
-
-  async componentDidUnload() {
-    if (this.refresherScroll) {
-      this.refresherScroll.removeEventListener(
-        'ionRefresh',
-        this.refresherListener
-      );
-    }
   }
 
   refreshList() {
@@ -271,7 +254,11 @@ export class AppAlbums {
       </ion-header>,
 
       <ion-content>
-        <ion-refresher slot="fixed" id="albums-refresher-scroll">
+        <ion-refresher
+          slot="fixed"
+          id="albums-refresher-scroll"
+          onIonRefresh={() => this.refreshList()}
+        >
           <ion-refresher-content />
         </ion-refresher>
         {empty && this.albumsLoaded ? (
@@ -335,7 +322,7 @@ export class AppAlbums {
                               no-margin
                               type="text"
                               value={col.albumName}
-                              onBlur={event =>
+                              onIonBlur={event =>
                                 this.updateAlbumName(
                                   event,
                                   col.albumId,

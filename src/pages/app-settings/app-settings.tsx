@@ -8,36 +8,16 @@ import SettingsService from '../../services/settings-service';
 })
 export class AppSettings {
   private present: PresentingService;
-  private analyticsToggle: HTMLIonToggleElement;
-  private analyticsToggleChangeListener: any;
 
   @State() allowAnalytics: boolean;
 
   constructor() {
     this.present = new PresentingService();
-    this.analyticsToggleChangeListener = this.changeAnalyticsSetting.bind(this);
   }
 
   async componentWillLoad() {
     this.allowAnalytics = await SettingsService.getAnalyticsSetting();
-  }
-
-  async componentDidLoad() {
-    this.analyticsToggle = document.querySelector('ion-toggle');
-    await this.analyticsToggle.componentOnReady();
-    this.analyticsToggle.addEventListener(
-      'ionChange',
-      this.analyticsToggleChangeListener
-    );
-
     AnalyticsService.logEvent('settings-page');
-  }
-
-  async componentDidUnload() {
-    this.analyticsToggle.removeEventListener(
-      'ionChange',
-      this.analyticsToggleChangeListener
-    );
   }
 
   visitBlockstackProfile(event: any): void {
@@ -146,6 +126,7 @@ export class AppSettings {
               slot="end"
               value="analytics"
               checked={this.allowAnalytics}
+              onIonChange={() => this.changeAnalyticsSetting()}
             />
           </ion-item>
           <ion-item>
