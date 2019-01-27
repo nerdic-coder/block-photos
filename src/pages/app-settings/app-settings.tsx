@@ -1,19 +1,45 @@
-import { Component } from '@stencil/core';
+import { Component, State } from '@stencil/core';
 import PresentingService from '../../services/presenting-service';
 import AnalyticsService from '../../services/analytics-service';
+import SettingsService from '../../services/settings-service';
 
 @Component({
   tag: 'app-settings'
 })
 export class AppSettings {
   private present: PresentingService;
+  private analyticsToggle: HTMLIonToggleElement;
+  private analyticsToggleChangeListener: any;
+
+  @State() allowAnalytics: boolean;
 
   constructor() {
     this.present = new PresentingService();
+    this.analyticsToggleChangeListener = this.changeAnalyticsSetting.bind(this);
   }
 
-  componentDidLoad() {
+  async componentWillLoad() {
+    this.allowAnalytics = await SettingsService.getAnalyticsSetting();
+  }
+
+  async componentDidLoad() {
+    this.analyticsToggle = document.querySelector('ion-toggle');
+    await this.analyticsToggle.componentOnReady();
+    this.analyticsToggle.addEventListener(
+      'ionChange',
+      this.analyticsToggleChangeListener
+    );
+
     AnalyticsService.logEvent('settings-page');
+
+    throw new Error('arh');
+  }
+
+  async componentDidUnload() {
+    this.analyticsToggle.removeEventListener(
+      'ionChange',
+      this.analyticsToggleChangeListener
+    );
   }
 
   visitBlockstackProfile(event: any): void {
@@ -99,6 +125,10 @@ export class AppSettings {
     AnalyticsService.logEvent('send-email-link');
   }
 
+  changeAnalyticsSetting() {
+    SettingsService.setAnalyticsSetting(!this.allowAnalytics);
+  }
+
   render() {
     return [
       <ion-header>
@@ -114,7 +144,11 @@ export class AppSettings {
         <ion-card>
           <ion-item>
             <ion-label>Share Analytics Data</ion-label>
-            <ion-toggle slot="end" value="analytics" checked />
+            <ion-toggle
+              slot="end"
+              value="analytics"
+              checked={this.allowAnalytics}
+            />
           </ion-item>
           <ion-item>
             <p>

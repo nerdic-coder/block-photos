@@ -1,7 +1,14 @@
-declare var blockstack;
+import StorageService from './storage-service';
 
 export default class SettingsService {
-  static getSettings() {
-    JSON.parse(blockstack.getFile('settings.json'));
+  static async getAnalyticsSetting(): Promise<boolean> {
+    return (await StorageService.getItem('analytics-settings')) === 'true';
+  }
+
+  static async setAnalyticsSetting(allowAnalytics: boolean): Promise<any> {
+    return StorageService.setItem(
+      'analytics-settings',
+      allowAnalytics.toString()
+    );
   }
 }

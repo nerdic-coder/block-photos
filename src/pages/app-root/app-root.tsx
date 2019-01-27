@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/browser';
 
 import AnalyticsService from '../../services/analytics-service';
 import CacheService from '../../services/cache-service';
+import SettingsService from '../../services/settings-service';
 
 declare var blockstack;
 
@@ -38,11 +39,13 @@ export class AppRoot {
     window.location.reload();
   }
 
-  componentWillLoad() {
-    Sentry.init({
-      dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
-      release: 'block-photos@2.0'
-    });
+  async componentWillLoad() {
+    if (await SettingsService.getAnalyticsSetting()) {
+      Sentry.init({
+        dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
+        release: 'block-photos@2.0'
+      });
+    }
 
     this.isAuthenticated = blockstack.isUserSignedIn();
 
