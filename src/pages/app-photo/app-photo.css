@@ -1,0 +1,17 @@
+app-photo ion-grid,
+app-photo ion-row {
+  height: 100%;
+}
+
+app-photo ion-img {
+  position: absolute;
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  padding: 2px;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
