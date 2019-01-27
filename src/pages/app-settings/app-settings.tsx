@@ -31,8 +31,6 @@ export class AppSettings {
     );
 
     AnalyticsService.logEvent('settings-page');
-
-    throw new Error('arh');
   }
 
   async componentDidUnload() {
