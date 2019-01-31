@@ -400,8 +400,8 @@ export class AppPhotos {
             {!this.album ? <h2>Welcome to Block Photos.</h2> : null}
             <h3>
               Use the upload button (
-              <ion-icon size="small" name="ios-cloud-upload" />) to add your
-              first photo.
+              <ion-icon size="small" name="cloud-upload" />) to add your first
+              photo.
             </h3>
           </ion-card>
         ) : (

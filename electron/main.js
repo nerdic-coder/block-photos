@@ -29,21 +29,20 @@ if (!gotTheLock) {
         mainWindow.restore();
       }
 
-      mainWindow.close();
-
-      mainWindow = new BrowserWindow({
-        width: 500,
-        height: 810,
-        icon: path.join(__dirname, 'icons/png/64x64.png')
-      });
-
       var request = commandLine[1].split(':');
 
       if (request[1] && currentAuthResponse !== request[1]) {
         currentAuthResponse = request[1];
 
-        mainWindow.focus();
-        mainWindow.loadURL(BASE_URL + '?authResponse=' + request[1]);
+        secondWindow = new BrowserWindow({
+          width: 500,
+          height: 810,
+          icon: path.join(__dirname, 'icons/png/64x64.png')
+        });
+
+        secondWindow.focus();
+        secondWindow.loadURL(BASE_URL + '?authResponse=' + request[1]);
+        mainWindow.close();
         return true;
       }
     }
@@ -56,7 +55,6 @@ if (!gotTheLock) {
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
-  // eslint-disable-line global-require
   app.quit();
 }
 
