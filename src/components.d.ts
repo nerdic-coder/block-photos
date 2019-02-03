@@ -17,11 +17,13 @@ export namespace Components {
     'photoId': string;
     'refresh': boolean;
     'rotate': boolean;
+    'zoomable': boolean;
   }
   interface BlockImgAttributes extends StencilHTMLAttributes {
     'photoId'?: string;
     'refresh'?: boolean;
     'rotate'?: boolean;
+    'zoomable'?: boolean;
   }
 
   interface SelectAlbum {

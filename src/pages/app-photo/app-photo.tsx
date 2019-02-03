@@ -46,6 +46,11 @@ export class AppPhoto {
     this.modalController = document.querySelector('ion-modal-controller');
     this.modalController.componentOnReady();
 
+    const slides = document.querySelector('ion-slides');
+    slides.options = {
+      zoom: true
+    };
+
     AnalyticsService.logEvent('photo-page');
   }
 
@@ -177,18 +182,17 @@ export class AppPhoto {
         </ion-toolbar>
       </ion-header>,
 
-      <ion-content scroll-y={false} color="dark">
-        <ion-grid no-padding>
-          <ion-row align-items-stretch>
-            <ion-col no-padding>
-              <block-img
-                photoId={this.photoId}
-                rotate={true}
-                refresh={this.refresh}
-              />
-            </ion-col>
-          </ion-row>
-        </ion-grid>
+      <ion-content scroll-y={false} scroll-x={false} color="dark">
+        <ion-slides pager={false}>
+          <ion-slide>
+            <block-img
+              photoId={this.photoId}
+              rotate={true}
+              refresh={this.refresh}
+              zoomable={true}
+            />
+          </ion-slide>
+        </ion-slides>
       </ion-content>
     ];
   }

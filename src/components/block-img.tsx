@@ -1,5 +1,6 @@
 import { Component, Prop, State, Watch } from '@stencil/core';
 import loadImage from 'blueimp-load-image';
+// import * as d3 from 'd3';
 
 import PhotosService from '../services/photos-service';
 
@@ -9,6 +10,7 @@ import PhotosService from '../services/photos-service';
 export class BlockImg {
   @Prop() photoId: string;
   @Prop() rotate: boolean;
+  @Prop() zoomable: boolean;
   @Prop() refresh: boolean;
 
   @State() base64: string;
@@ -107,6 +109,20 @@ export class BlockImg {
     } else {
       this.rotation = rotation;
       this.source = base64;
+      // if (this.zoomable) {
+      //   d3.select('app-photo').remove();
+      //   const img = d3.select('app-photo')
+      //     .append('svg')
+      //     .attr('width', '100%')
+      //     .attr('height', '100%')
+      //     .call(d3.zoom().on('zoom', () => {
+      //       img.attr('transform', d3.event.transform);
+      //     }));
+      //   img.append('image')
+      //     .attr('xlink:href', this.source)
+      //     .attr('width', '100%')
+      //     .attr('height', '100%');
+      // }
     }
   }
 
@@ -118,6 +134,22 @@ export class BlockImg {
     } else {
       this.source = processedPhoto.src;
     }
+
+    // if (this.zoomable) {
+    //   d3.select('app-photo').remove();
+    //   const img = d3.select('app-photo')
+    //     .selectAll('svg').remove()
+    //     .append('svg')
+    //     .attr('width', '100%')
+    //     .attr('height', '100%')
+    //     .call(d3.zoom().on('zoom', () => {
+    //       img.attr('transform', d3.event.transform);
+    //     }));
+    //   img.append('image')
+    //       .attr('xlink:href', this.source)
+    //       .attr('width', '100%')
+    //       .attr('height', '100%');
+    // }
   }
 
   iOS(): boolean {
@@ -153,14 +185,29 @@ export class BlockImg {
   render() {
     const { isLoaded, source, rotation } = this;
     return [
-      <ion-img
-        no-padding
-        draggable={false}
-        src={source}
-        class={'rotation-' + rotation + ' ' + (isLoaded ? '' : 'hidden')}
-        onDragStart={event => this.preventDrag(event)}
-        onIonImgDidLoad={() => this.photoLoaded()}
-      />,
+      <div>
+        {this.zoomable ? (
+          <div class="swiper-zoom-container">
+            <img
+              src={source}
+              no-padding
+              draggable={false}
+              class={'rotation-' + rotation}
+              onLoad={() => this.photoLoaded()}
+              onDragStart={event => this.preventDrag(event)}
+            />
+          </div>
+        ) : (
+          <ion-img
+            no-padding
+            draggable={false}
+            src={source}
+            class={'rotation-' + rotation + ' ' + (isLoaded ? '' : 'hidden')}
+            onDragStart={event => this.preventDrag(event)}
+            onIonImgDidLoad={() => this.photoLoaded()}
+          />
+        )}
+      </div>,
       <ion-spinner
         name="circles"
         color="tertiary"
