@@ -184,6 +184,30 @@ export class AppPhoto {
 
       <ion-content scroll-y={false} scroll-x={false} color="dark">
         <ion-slides pager={false}>
+          {/* <ion-slide>
+            <block-img
+              photoId={this.photoId}
+              rotate={true}
+              refresh={this.refresh}
+              zoomable={true}
+            />
+          </ion-slide> */}
+          {/* <ion-slide>
+            <div
+              class={'swiper-zoom-container' + (this.isLoaded ? '' : ' hidden')}>
+              <img
+                src={this.source}
+                draggable={false}
+                onLoad={() => this.photoLoaded()}
+                onDragStart={event => this.preventDrag(event)}
+              />
+            </div>
+            <ion-spinner
+              name="circles"
+              color="tertiary"
+              class={this.isLoaded ? 'hidden' : ''}
+            />
+          </ion-slide> */}
           <ion-slide>
             <block-img
               photoId={this.photoId}

@@ -13,7 +13,6 @@ export class BlockImg {
   @Prop() zoomable: boolean;
   @Prop() refresh: boolean;
 
-  @State() base64: string;
   @State() source: string;
   @State() isLoaded: boolean;
   @State() rotation: number;
@@ -184,35 +183,39 @@ export class BlockImg {
 
   render() {
     const { isLoaded, source, rotation } = this;
-    return [
-      <div>
-        {this.zoomable ? (
-          <div class="swiper-zoom-container">
-            <img
-              src={source}
-              no-padding
-              draggable={false}
-              class={'rotation-' + rotation}
-              onLoad={() => this.photoLoaded()}
-              onDragStart={event => this.preventDrag(event)}
-            />
-          </div>
-        ) : (
-          <ion-img
-            no-padding
-            draggable={false}
+    if (this.zoomable) {
+      return [
+        <div class="swiper-zoom-container">
+          <img
             src={source}
-            class={'rotation-' + rotation + ' ' + (isLoaded ? '' : 'hidden')}
+            draggable={false}
+            class={'rotation-' + rotation}
+            onLoad={() => this.photoLoaded()}
             onDragStart={event => this.preventDrag(event)}
-            onIonImgDidLoad={() => this.photoLoaded()}
           />
-        )}
-      </div>,
-      <ion-spinner
-        name="circles"
-        color="tertiary"
-        class={isLoaded ? 'hidden' : ''}
-      />
-    ];
+        </div>,
+        <ion-spinner
+          name="circles"
+          color="tertiary"
+          class={isLoaded ? 'hidden' : ''}
+        />
+      ];
+    } else {
+      return [
+        <ion-img
+          no-padding
+          draggable={false}
+          src={source}
+          class={'rotation-' + rotation + ' ' + (isLoaded ? '' : 'hidden')}
+          onDragStart={event => this.preventDrag(event)}
+          onIonImgDidLoad={() => this.photoLoaded()}
+        />,
+        <ion-spinner
+          name="circles"
+          color="tertiary"
+          class={isLoaded ? 'hidden' : ''}
+        />
+      ];
+    }
   }
 }

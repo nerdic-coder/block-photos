@@ -82,9 +82,6 @@ export class AppPhotos {
     this.modalController = document.querySelector('ion-modal-controller');
     this.modalController.componentOnReady();
 
-    // create component to open
-    this.appPhotoElement = document.createElement('app-photo');
-
     AnalyticsService.logEvent('photos-list');
   }
 
@@ -264,6 +261,12 @@ export class AppPhotos {
   }
 
   async openPhotoModal(photoId: string) {
+    if (this.appPhotoElement) {
+      this.appPhotoElement.remove();
+    }
+    // create component to open
+    this.appPhotoElement = document.createElement('app-photo');
+
     const modal = await this.modalController.create({
       component: this.appPhotoElement,
       componentProps: {
