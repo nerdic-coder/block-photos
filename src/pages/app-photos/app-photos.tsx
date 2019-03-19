@@ -58,7 +58,8 @@ export class AppPhotos {
     this.router = document.querySelector('ion-router');
     await this.router.componentOnReady();
     // Go to signin page if no active session exist
-    if (!blockstack.isUserSignedIn()) {
+    const userSession = new blockstack.UserSession();
+    if (!userSession.isUserSignedIn()) {
       this.router.push('/', 'root');
       return;
     }
@@ -309,7 +310,9 @@ export class AppPhotos {
   }
 
   async presentAlbumSelector(event: any) {
-    const popoverController = document.querySelector('ion-popover-controller');
+    const popoverController: any = document.querySelector(
+      'ion-popover-controller'
+    );
     await popoverController.componentOnReady();
 
     const popover = await popoverController.create({

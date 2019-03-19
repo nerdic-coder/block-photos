@@ -28,8 +28,9 @@ export class AppAlbums {
 
   async componentDidLoad() {
     // Go to signin page if no active session exist
-    if (!blockstack.isUserSignedIn()) {
-      const router = document.querySelector('ion-router');
+    const userSession = new blockstack.UserSession();
+    if (!userSession.isUserSignedIn()) {
+      const router: any = document.querySelector('ion-router');
       await router.componentOnReady();
       router.push('/', 'root');
       return;

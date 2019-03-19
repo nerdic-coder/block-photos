@@ -19,15 +19,16 @@ export class AppSignin {
   @State() loaded: boolean;
 
   async componentDidLoad() {
-    const router = document.querySelector('ion-router');
+    const router: any = document.querySelector('ion-router');
     await router.componentOnReady();
 
-    if (blockstack.isUserSignedIn()) {
+    const userSession = new blockstack.UserSession();
+    if (userSession.isUserSignedIn()) {
       this.hideSplash();
       router.push('/photos', 'root');
       return;
-    } else if (blockstack.isSignInPending() && !blockstack.isUserSignedIn()) {
-      blockstack.handlePendingSignIn().then(() => {
+    } else if (userSession.isSignInPending() && !userSession.isUserSignedIn()) {
+      userSession.handlePendingSignIn().then(() => {
         this.hideSplash();
 
         router.push('/photos', 'root');

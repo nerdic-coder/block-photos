@@ -56,14 +56,16 @@ export class AppRoot {
 
     this.initCapacitor();
 
-    this.isAuthenticated = blockstack.isUserSignedIn();
+    const userSession = new blockstack.UserSession();
+    this.isAuthenticated = userSession.isUserSignedIn();
   }
 
   async componentDidLoad() {
-    const router = document.querySelector('ion-router');
+    const router: any = document.querySelector('ion-router');
     await router.componentOnReady();
     router.addEventListener('ionRouteDidChange', () => {
-      this.isAuthenticated = blockstack.isUserSignedIn();
+      const userSession = new blockstack.UserSession();
+      this.isAuthenticated = userSession.isUserSignedIn();
     });
   }
 
@@ -91,7 +93,8 @@ export class AppRoot {
     // Clear all the users cache in localStorage
     CacheService.clear();
     // End users Blockstack session
-    blockstack.signUserOut();
+    const userSession = new blockstack.UserSession();
+    userSession.signUserOut();
 
     AnalyticsService.logEvent('logged-out');
   }

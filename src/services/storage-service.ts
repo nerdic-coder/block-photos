@@ -7,7 +7,8 @@ export default class StorageService {
     let item = await CacheService.getItem(itemId);
 
     if (!item || updateCache) {
-      item = await blockstack.getFile(itemId);
+      const userSession = new blockstack.UserSession();
+      item = await userSession.getFile(itemId);
       CacheService.setItem(itemId, item);
     }
 
@@ -15,7 +16,8 @@ export default class StorageService {
   }
 
   static async setItem(itemId: string, itemValue: any) {
-    await blockstack.putFile(itemId, itemValue);
+    const userSession = new blockstack.UserSession();
+    await userSession.putFile(itemId, itemValue);
     await CacheService.setItem(itemId, itemValue);
   }
 
