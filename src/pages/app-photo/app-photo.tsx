@@ -226,17 +226,36 @@ export class AppPhoto {
       if (
         ((await this.slides.getActiveIndex()) === this.photos.length - 1 ||
           this.photos.length < 2) &&
-        this.nextPhotoId
+        this.nextPhotoId &&
+        !this.photoExist(this.nextPhotoId)
       ) {
         this.slides.lockSwipes(true);
         await this.getPhoto(this.nextPhotoId, 2);
       }
 
-      if ((await this.slides.getActiveIndex()) === 0 && this.previousPhotoId) {
+      if (
+        (await this.slides.getActiveIndex()) === 0 &&
+        this.previousPhotoId &&
+        !this.photoExist(this.previousPhotoId)
+      ) {
         this.slides.lockSwipes(true);
         await this.getPhoto(this.previousPhotoId, 0);
       }
     }
+  }
+
+  photoExist(photoId: string) {
+    if (!photoId) {
+      return false;
+    }
+    let i: number;
+    for (i = 0; i < this.photos.length; i++) {
+      if (this.photos[i].photoId === photoId) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   async rotatePhoto(): Promise<void> {
