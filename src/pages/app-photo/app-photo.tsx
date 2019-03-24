@@ -185,15 +185,20 @@ export class AppPhoto {
           ...this.photos,
           { photoId, source: await PhotosService.loadPhoto(photoId) }
         ];
+      } else {
+        const image: any = document.getElementById('img-' + photoId);
+        const source = await PhotosService.loadPhoto(photoId);
+        image.src = source;
+        this.photos[await this.slides.getActiveIndex()].source = source;
       }
     }
   }
 
-  handleProcessedPhoto(
+  async handleProcessedPhoto(
     processedPhoto: any,
     index: number,
     photoId: string
-  ): void {
+  ): Promise<void> {
     if (processedPhoto.type === 'error') {
       // TODO: show error message
     } else if (processedPhoto.tagName === 'CANVAS') {
@@ -208,6 +213,12 @@ export class AppPhoto {
           ...this.photos,
           { photoId, source: processedPhoto.toDataURL() }
         ];
+      } else {
+        const image: any = document.getElementById('img-' + photoId);
+        image.src = processedPhoto.toDataURL();
+        this.photos[
+          await this.slides.getActiveIndex()
+        ].source = processedPhoto.toDataURL();
       }
     } else {
       if (index === 0) {
@@ -215,6 +226,11 @@ export class AppPhoto {
         this.slideToOne = true;
       } else if (index === 2) {
         this.photos = [...this.photos, { photoId, source: processedPhoto.src }];
+      } else {
+        const image: any = document.getElementById('img-' + photoId);
+        image.src = processedPhoto.src;
+        this.photos[await this.slides.getActiveIndex()].source =
+          processedPhoto.src;
       }
     }
   }
@@ -295,7 +311,7 @@ export class AppPhoto {
         'Failed to rotate photo "' + metadata.filename + '".'
       );
     } else {
-      // TODO: this.refresh = !this.refresh;
+      this.getPhoto(this.photoId, 1);
 
       if (this.updateCallback && typeof this.updateCallback === 'function') {
         // execute the callback, passing parameters as necessary
@@ -431,6 +447,7 @@ export class AppPhoto {
                 }
               >
                 <img
+                  id={'img-' + photo.photoId}
                   src={photo.source}
                   draggable={false}
                   onDragStart={event => this.preventDrag(event)}
