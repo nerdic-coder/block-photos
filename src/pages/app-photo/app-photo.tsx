@@ -17,6 +17,7 @@ export class AppPhoto {
   private slides: HTMLIonSlidesElement;
   private firstSlide = true;
   private slideToOne = false;
+  private keydownPressedListener: any;
 
   @Prop({ mutable: true }) photoId: string;
   @Prop() albumId: string;
@@ -30,6 +31,7 @@ export class AppPhoto {
   constructor() {
     this.photos = [];
     this.present = new PresentingService();
+    this.keydownPressedListener = this.checkKey.bind(this);
   }
 
   async componentWillLoad() {
@@ -67,6 +69,8 @@ export class AppPhoto {
     this.modalController = document.querySelector('ion-modal-controller');
     this.modalController.componentOnReady();
 
+    document.addEventListener('keydown', this.keydownPressedListener);
+
     AnalyticsService.logEvent('photo-page');
   }
 
@@ -82,6 +86,10 @@ export class AppPhoto {
     }
   }
 
+  async componentDidUnload() {
+    document.removeEventListener('keydown', this.keydownPressedListener);
+  }
+
   async slideCorrection(iteration: number) {
     await this.slides.update();
     await this.slides.slideTo(1, 0);
@@ -95,6 +103,18 @@ export class AppPhoto {
       }, 10);
     } else {
       this.isLoaded = true;
+    }
+  }
+
+  checkKey(event: any): void {
+    event = event || window.event;
+
+    if (event.keyCode === 37) {
+      // left arrow
+      this.slides.slidePrev();
+    } else if (event.keyCode === 39) {
+      // right arrow
+      this.slides.slideNext();
     }
   }
 
