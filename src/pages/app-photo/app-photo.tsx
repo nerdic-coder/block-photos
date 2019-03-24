@@ -76,13 +76,20 @@ export class AppPhoto {
       this.slideToOne = false;
       this.firstSlide = true;
       this.slideCorrection(0);
+    } else {
+      this.firstSlide = false;
+      this.isLoaded = true;
     }
   }
 
   async slideCorrection(iteration: number) {
     await this.slides.update();
     await this.slides.slideTo(1, 0);
-    if ((await this.slides.getActiveIndex()) === 0 && iteration < 100) {
+    if (
+      (await this.slides.getActiveIndex()) === 0 &&
+      iteration < 100 &&
+      this.previousPhotoId
+    ) {
       setTimeout(() => {
         this.slideCorrection(iteration + 1);
       }, 10);
