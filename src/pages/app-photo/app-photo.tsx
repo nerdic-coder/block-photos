@@ -6,6 +6,7 @@ import PresentingService from '../../services/presenting-service';
 import AnalyticsService from '../../services/analytics-service';
 
 declare var blockstack;
+// declare var Caman;
 
 @Component({
   tag: 'app-photo',
@@ -26,7 +27,7 @@ export class AppPhoto {
   @State() previousPhotoId: string;
   @State() nextPhotoId: string;
   @State() photos: any[];
-  @State() isLoaded: boolean;
+  @State() garbage: number;
 
   constructor() {
     this.photos = [];
@@ -35,8 +36,8 @@ export class AppPhoto {
   }
 
   async componentWillLoad() {
-    this.isLoaded = false;
     this.firstSlide = true;
+    this.garbage = 1;
   }
 
   async componentDidLoad() {
@@ -63,8 +64,12 @@ export class AppPhoto {
       loop: false
     };
 
-    await this.getPhoto(this.photoId, 2);
+    this.photos = [
+      ...this.photos,
+      { photoId: this.photoId, isLoaded: false, source: '' }
+    ];
     await this.setNextAndPreviousPhoto(this.photoId);
+    await this.getPhoto(this.photoId, 1);
 
     this.modalController = document.querySelector('ion-modal-controller');
     this.modalController.componentOnReady();
@@ -75,14 +80,15 @@ export class AppPhoto {
   }
 
   async componentDidUpdate() {
-    this.slides.lockSwipes(false);
+    if (this.slides) {
+      this.slides.lockSwipes(false);
+    }
     if (this.slideToOne) {
       this.slideToOne = false;
       this.firstSlide = true;
       this.slideCorrection(0);
     } else {
       this.firstSlide = false;
-      this.isLoaded = true;
     }
   }
 
@@ -101,9 +107,17 @@ export class AppPhoto {
       setTimeout(() => {
         this.slideCorrection(iteration + 1);
       }, 10);
-    } else {
-      this.isLoaded = true;
     }
+    // else {
+    // const photoId = this.photoId;
+    // Caman('#img-' + this.photoId, function() {
+    //   this.greyscale();
+    //   this.render(async () => {
+    //     const result = await PhotosService.updatePhoto(photoId, this.toBase64());
+    //     console.log('Caman result ', result);
+    //   });
+    // });
+    // }
   }
 
   checkKey(event: any): void {
@@ -176,20 +190,29 @@ export class AppPhoto {
     } else {
       if (index === 0) {
         this.photos = [
-          { photoId, source: await PhotosService.loadPhoto(photoId) },
+          {
+            photoId,
+            isLoaded: true,
+            source: await PhotosService.loadPhoto(photoId)
+          },
           ...this.photos
         ];
         this.slideToOne = true;
       } else if (index === 2) {
         this.photos = [
           ...this.photos,
-          { photoId, source: await PhotosService.loadPhoto(photoId) }
+          {
+            photoId,
+            isLoaded: true,
+            source: await PhotosService.loadPhoto(photoId)
+          }
         ];
       } else {
-        const image: any = document.getElementById('img-' + photoId);
-        const source = await PhotosService.loadPhoto(photoId);
-        image.src = source;
-        this.photos[await this.slides.getActiveIndex()].source = source;
+        this.photos[
+          this.getPhotoIndex(photoId)
+        ].source = await PhotosService.loadPhoto(photoId);
+        this.photos[this.getPhotoIndex(photoId)].isLoaded = true;
+        this.garbage += 1;
       }
     }
   }
@@ -204,21 +227,21 @@ export class AppPhoto {
     } else if (processedPhoto.tagName === 'CANVAS') {
       if (index === 0) {
         this.photos = [
-          { photoId, source: processedPhoto.toDataURL() },
+          { photoId, isLoaded: true, source: processedPhoto.toDataURL() },
           ...this.photos
         ];
         this.slideToOne = true;
       } else if (index === 2) {
         this.photos = [
           ...this.photos,
-          { photoId, source: processedPhoto.toDataURL() }
+          { photoId, isLoaded: true, source: processedPhoto.toDataURL() }
         ];
       } else {
-        const image: any = document.getElementById('img-' + photoId);
-        image.src = processedPhoto.toDataURL();
         this.photos[
-          await this.slides.getActiveIndex()
+          this.getPhotoIndex(photoId)
         ].source = processedPhoto.toDataURL();
+        this.photos[this.getPhotoIndex(photoId)].isLoaded = true;
+        this.garbage += 1;
       }
     } else {
       if (index === 0) {
@@ -227,10 +250,9 @@ export class AppPhoto {
       } else if (index === 2) {
         this.photos = [...this.photos, { photoId, source: processedPhoto.src }];
       } else {
-        const image: any = document.getElementById('img-' + photoId);
-        image.src = processedPhoto.src;
-        this.photos[await this.slides.getActiveIndex()].source =
-          processedPhoto.src;
+        this.photos[this.getPhotoIndex(photoId)].source = processedPhoto.src;
+        this.photos[this.getPhotoIndex(photoId)].isLoaded = true;
+        this.garbage += 1;
       }
     }
   }
@@ -266,25 +288,39 @@ export class AppPhoto {
       this.previousPhotoId = nextAndPreviousPhoto.previousId;
       this.nextPhotoId = nextAndPreviousPhoto.nextId;
 
-      if (
-        ((await this.slides.getActiveIndex()) === this.photos.length - 1 ||
-          this.photos.length < 2) &&
-        this.nextPhotoId &&
-        !this.photoExist(this.nextPhotoId)
-      ) {
+      if (this.nextPhotoId && !this.photoExist(this.nextPhotoId)) {
         this.slides.lockSwipes(true);
-        await this.getPhoto(this.nextPhotoId, 2);
+        this.photos = [
+          ...this.photos,
+          { photoId: this.nextPhotoId, isLoaded: false, source: '' }
+        ];
+        this.getPhoto(this.nextPhotoId, 1);
       }
 
-      if (
-        (await this.slides.getActiveIndex()) === 0 &&
-        this.previousPhotoId &&
-        !this.photoExist(this.previousPhotoId)
-      ) {
+      if (this.previousPhotoId && !this.photoExist(this.previousPhotoId)) {
         this.slides.lockSwipes(true);
-        await this.getPhoto(this.previousPhotoId, 0);
+        this.slideToOne = true;
+        this.photos = [
+          { photoId: this.previousPhotoId, isLoaded: false, source: '' },
+          ...this.photos
+        ];
+        this.getPhoto(this.previousPhotoId, 1);
       }
     }
+  }
+
+  getPhotoIndex(photoId: string): number {
+    if (!photoId) {
+      return;
+    }
+    let i: number;
+    for (i = 0; i < this.photos.length; i++) {
+      if (this.photos[i].photoId === photoId) {
+        return i;
+      }
+    }
+
+    return;
   }
 
   photoExist(photoId: string) {
@@ -326,7 +362,6 @@ export class AppPhoto {
   async deletePhotoCallback() {
     if (this.updateCallback && typeof this.updateCallback === 'function') {
       // execute the callback, passing parameters as necessary
-
       this.updateCallback();
     }
 
@@ -362,10 +397,6 @@ export class AppPhoto {
     return popover.present();
   }
 
-  photoLoaded() {
-    this.isLoaded = true;
-  }
-
   preventDrag(event: any): boolean {
     event.preventDefault();
     return false;
@@ -378,16 +409,9 @@ export class AppPhoto {
       return;
     }
 
-    if (
-      (await this.slides.getPreviousIndex()) >
-      (await this.slides.getActiveIndex())
-    ) {
-      // console.log('left swipe');
-      await this.setNextAndPreviousPhoto(this.previousPhotoId);
-    } else {
-      // console.log('right swipe');
-      await this.setNextAndPreviousPhoto(this.nextPhotoId);
-    }
+    await this.setNextAndPreviousPhoto(
+      this.photos[await this.slides.getActiveIndex()].photoId
+    );
   }
 
   render() {
@@ -443,7 +467,7 @@ export class AppPhoto {
             <ion-slide>
               <div
                 class={
-                  'swiper-zoom-container' + (this.isLoaded ? '' : ' hidden')
+                  'swiper-zoom-container' + (photo.isLoaded ? '' : ' hidden')
                 }
               >
                 <img
@@ -456,7 +480,7 @@ export class AppPhoto {
               <ion-spinner
                 name="circles"
                 color="tertiary"
-                class={this.isLoaded ? 'hidden' : ''}
+                class={photo.isLoaded ? 'hidden' : ''}
               />
             </ion-slide>
           ))}
