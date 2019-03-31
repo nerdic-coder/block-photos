@@ -365,10 +365,13 @@ export class AppPhoto {
       this.updateCallback();
     }
 
+    const deletedIndex: number = await this.slides.getActiveIndex();
     if (this.nextPhotoId) {
-      this.slides.slideNext();
+      this.photos.splice(deletedIndex, 1);
+      await this.setNextAndPreviousPhoto(this.nextPhotoId);
     } else if (this.previousPhotoId) {
-      this.slides.slidePrev();
+      this.photos.splice(deletedIndex, 1);
+      await this.setNextAndPreviousPhoto(this.previousPhotoId);
     } else {
       this.modalController.dismiss();
     }
