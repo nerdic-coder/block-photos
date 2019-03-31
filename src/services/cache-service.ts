@@ -9,6 +9,10 @@ export default class CacheService {
     return localForage.setItem(itemId, itemValue);
   }
 
+  static async deleteItem(itemId: string): Promise<any> {
+    return localForage.removeItem(itemId);
+  }
+
   static async clear(): Promise<any> {
     return localForage.clear();
   }
