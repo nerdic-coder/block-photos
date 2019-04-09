@@ -400,6 +400,25 @@ export class AppPhoto {
     return popover.present();
   }
 
+  async presentFilterSelector(event: any) {
+    const popoverController: any = document.querySelector(
+      'ion-popover-controller'
+    );
+    await popoverController.componentOnReady();
+
+    const popover = await popoverController.create({
+      component: 'filter-popover',
+      componentProps: {
+        selectedPhotos: [this.photoId]
+      },
+      event,
+      backdropDismiss: true,
+      showBackdrop: false,
+      translucent: true
+    });
+    return popover.present();
+  }
+
   preventDrag(event: any): boolean {
     event.preventDefault();
     return false;
@@ -433,6 +452,9 @@ export class AppPhoto {
             </ion-button>
             <ion-button onClick={() => this.rotatePhoto()}>
               <ion-icon color="light" name="sync" />
+            </ion-button>
+            <ion-button onClick={() => this.presentFilterSelector(event)}>
+              <ion-icon color="light" name="color-wand" />
             </ion-button>
             <ion-button
               onClick={() =>

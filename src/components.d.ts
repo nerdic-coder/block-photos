@@ -24,6 +24,13 @@ export namespace Components {
     'rotate'?: boolean;
   }
 
+  interface FilterPopover {
+    'selectedPhotos': any[];
+  }
+  interface FilterPopoverAttributes extends StencilHTMLAttributes {
+    'selectedPhotos'?: any[];
+  }
+
   interface SelectAlbum {
     'selectedPhotos': any[];
   }
@@ -67,6 +74,7 @@ export namespace Components {
 declare global {
   interface StencilElementInterfaces {
     'BlockImg': Components.BlockImg;
+    'FilterPopover': Components.FilterPopover;
     'SelectAlbum': Components.SelectAlbum;
     'AppAlbums': Components.AppAlbums;
     'AppPhoto': Components.AppPhoto;
@@ -78,6 +86,7 @@ declare global {
 
   interface StencilIntrinsicElements {
     'block-img': Components.BlockImgAttributes;
+    'filter-popover': Components.FilterPopoverAttributes;
     'select-album': Components.SelectAlbumAttributes;
     'app-albums': Components.AppAlbumsAttributes;
     'app-photo': Components.AppPhotoAttributes;
@@ -92,6 +101,12 @@ declare global {
   var HTMLBlockImgElement: {
     prototype: HTMLBlockImgElement;
     new (): HTMLBlockImgElement;
+  };
+
+  interface HTMLFilterPopoverElement extends Components.FilterPopover, HTMLStencilElement {}
+  var HTMLFilterPopoverElement: {
+    prototype: HTMLFilterPopoverElement;
+    new (): HTMLFilterPopoverElement;
   };
 
   interface HTMLSelectAlbumElement extends Components.SelectAlbum, HTMLStencilElement {}
@@ -138,6 +153,7 @@ declare global {
 
   interface HTMLElementTagNameMap {
     'block-img': HTMLBlockImgElement
+    'filter-popover': HTMLFilterPopoverElement
     'select-album': HTMLSelectAlbumElement
     'app-albums': HTMLAppAlbumsElement
     'app-photo': HTMLAppPhotoElement
@@ -149,6 +165,7 @@ declare global {
 
   interface ElementTagNameMap {
     'block-img': HTMLBlockImgElement;
+    'filter-popover': HTMLFilterPopoverElement;
     'select-album': HTMLSelectAlbumElement;
     'app-albums': HTMLAppAlbumsElement;
     'app-photo': HTMLAppPhotoElement;
