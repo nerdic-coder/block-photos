@@ -28,8 +28,9 @@ export class AppAlbums {
 
   async componentDidLoad() {
     // Go to signin page if no active session exist
-    if (!blockstack.isUserSignedIn()) {
-      const router = document.querySelector('ion-router');
+    const userSession = new blockstack.UserSession();
+    if (!userSession.isUserSignedIn()) {
+      const router: any = document.querySelector('ion-router');
       await router.componentOnReady();
       router.push('/', 'root');
       return;
@@ -228,7 +229,7 @@ export class AppAlbums {
 
     return [
       <ion-header>
-        <ion-toolbar color="primary">
+        <ion-toolbar mode="md" color="primary">
           <ion-title class="unselectable">Albums</ion-title>
           <ion-buttons slot="end">
             {this.editMode
@@ -262,7 +263,7 @@ export class AppAlbums {
           <ion-refresher-content />
         </ion-refresher>
         {empty && this.albumsLoaded ? (
-          <ion-card padding text-center>
+          <ion-card mode="md" padding text-center>
             <h2>Welcome to Block Photos albums section.</h2>
             <h3>
               Use the add button (<ion-icon size="small" name="add-circle" />)
@@ -314,7 +315,11 @@ export class AppAlbums {
                           ) : null}
                         </div>
                       </ion-card-header>
-                      <ion-card-content margin-top class="unselectable">
+                      <ion-card-content
+                        mode="md"
+                        margin-top
+                        class="unselectable"
+                      >
                         {this.editMode ? (
                           <ion-item color="secondary">
                             <ion-input

@@ -110,7 +110,7 @@ export class AppSettings {
   render() {
     return [
       <ion-header>
-        <ion-toolbar color="primary">
+        <ion-toolbar mode="md" color="primary">
           <ion-title>Settings</ion-title>
           <ion-buttons slot="end">
             <ion-menu-button />
@@ -179,7 +179,7 @@ export class AppSettings {
             <ion-label>Read our source code</ion-label>
           </ion-item>
         </ion-card>
-        <p text-center="true">Block Photos - Version 2.0</p>
+        <p text-center="true">Block Photos - Version 3.0</p>
       </ion-content>
     ];
   }

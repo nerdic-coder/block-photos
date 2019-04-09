@@ -160,11 +160,9 @@ export default class PhotosService {
     let returnState = false;
     const metadata = await PhotosService.getPhotoMetaData(photoId);
     try {
-      // Put empty file, since deleteFile is yet not supported
-      await StorageService.setItem(photoId, '');
-      await StorageService.setItem(photoId + '-meta', '');
-      // TODO: add back when available.
-      // await deleteFile(photoId);
+      // Delete photo and the photo metadata
+      await StorageService.deleteItem(photoId);
+      await StorageService.deleteItem(photoId + '-meta');
       returnState = true;
     } catch (error) {
       returnState = false;
@@ -186,6 +184,19 @@ export default class PhotosService {
         }
       }
     }
+    return returnState;
+  }
+
+  static async updatePhoto(photoId: string, source: string): Promise<boolean> {
+    let returnState = false;
+    try {
+      await StorageService.setItem(photoId, source);
+      returnState = true;
+    } catch (error) {
+      console.log(error, source);
+      returnState = false;
+    }
+
     return returnState;
   }
 

@@ -11,7 +11,6 @@ export class BlockImg {
   @Prop() rotate: boolean;
   @Prop() refresh: boolean;
 
-  @State() base64: string;
   @State() source: string;
   @State() isLoaded: boolean;
   @State() rotation: number;
@@ -152,6 +151,7 @@ export class BlockImg {
 
   render() {
     const { isLoaded, source, rotation } = this;
+
     return [
       <ion-img
         no-padding

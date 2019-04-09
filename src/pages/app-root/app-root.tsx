@@ -40,23 +40,32 @@ export class AppRoot {
   }
 
   async componentWillLoad() {
-    if (await SettingsService.getAnalyticsSetting(true)) {
+    try {
+      if (await SettingsService.getAnalyticsSetting(true)) {
+        Sentry.init({
+          dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
+          release: 'block-photos@3.0'
+        });
+      }
+    } catch (error) {
       Sentry.init({
         dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
-        release: 'block-photos@2.0'
+        release: 'block-photos@3.0'
       });
     }
 
-    this.isAuthenticated = blockstack.isUserSignedIn();
-
     this.initCapacitor();
+
+    const userSession = new blockstack.UserSession();
+    this.isAuthenticated = userSession.isUserSignedIn();
   }
 
   async componentDidLoad() {
-    const router = document.querySelector('ion-router');
+    const router: any = document.querySelector('ion-router');
     await router.componentOnReady();
     router.addEventListener('ionRouteDidChange', () => {
-      this.isAuthenticated = blockstack.isUserSignedIn();
+      const userSession = new blockstack.UserSession();
+      this.isAuthenticated = userSession.isUserSignedIn();
     });
   }
 
@@ -84,7 +93,8 @@ export class AppRoot {
     // Clear all the users cache in localStorage
     CacheService.clear();
     // End users Blockstack session
-    blockstack.signUserOut();
+    const userSession = new blockstack.UserSession();
+    userSession.signUserOut();
 
     AnalyticsService.logEvent('logged-out');
   }

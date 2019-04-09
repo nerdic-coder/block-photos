@@ -58,7 +58,12 @@ export default class PresentingService {
         role: 'destructive',
         icon: 'trash',
         handler: () => {
-          this.loading('Deleting photos...');
+          if (ids.length === 1) {
+            this.loading('Deleting photo...');
+          } else {
+            this.loading('Deleting photos...');
+          }
+
           PhotosService.deletePhotos(ids).then(async result => {
             await this.dismissLoading();
             if (result === true) {

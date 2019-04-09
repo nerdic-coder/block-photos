@@ -23,7 +23,6 @@ Follow Block Photos on Twitter: [@Block_Photos](https://twitter.com/Block_Photos
 
 Read my introduction article about this project: [Building a decentralized Photos app on Blockstack with React](https://nerdic-coder.com/2018/06/22/building-a-decentralized-photos-app-on-blockstack-with-react/)
 
-
 ## Donations
 
 If you like this project please donate to preferred cryptocurrency below:
@@ -35,20 +34,23 @@ If you like this project please donate to preferred cryptocurrency below:
 ### Bitcoin
 
 3JkxUQ763fbf1cYVAitqpWUMeY4QLaBU8M
+
 <p>
   <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/btc-qrcode.png?raw=true">
 </p>
 
-### Etherium 
+### Etherium
 
 0x6e54183E7b22dA87fb48e0d79ADaDa4f665A4D5a
+
 <p>
   <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/etherium-qrcode.png?raw=true">
 </p>
 
-### XRP 
+### XRP
 
 rGaGGSbeF8HmmrLnTg8gaT92Wa77qg3Y8k
+
 <p>
   <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/xrp-qrcode.png?raw=true">
 </p>
@@ -56,6 +58,7 @@ rGaGGSbeF8HmmrLnTg8gaT92Wa77qg3Y8k
 ### IOTA
 
 HTPB9JVTMCDHEDMCIPOJELELVLNWLGMHVGZJUCKOYNBZGN9EVCDKFEIUJKINPCBWZI9BKAVIHRVRNWPFC9CQXJYQSZ
+
 <p>
   <img src="https://github.com/nerdic-coder/block-photos/blob/master/resources/iota-qrcode.png?raw=true">
 </p>
@@ -69,6 +72,7 @@ ALNbr6NSuEkWE7ASNB9iB5VcpZmhz1FaAg
 To test this project do the following...
 
 Installation:
+
 ```bash
 git clone https://github.com/nerdic-coder/block-photos.git block-photos
 cd block-photos
@@ -76,57 +80,73 @@ npm install
 ```
 
 Starting Test server:
+
 ```bash
 npm run serve
 ```
 
 Starting Electron app:
+
 ```bash
 npm start
 ```
 
 Build and package Electron app:
+
 ```bash
 npm run package
 ```
 
 Build and package for web app distribution:
+
 ```bash
 npm run build:web
 ```
 
 Build for Android app distribution:
+
 ```bash
 npm run build:android
 ```
 
 Build for iOS app distribution:
+
 ```bash
 npm run build:ios
 ```
 
 Test ESLint:
+
 ```bash
 npm run lint
 ```
 
 Run unit tests:
+
 ```bash
 npm test
 ```
 
 Run e2e tests:
+
 1. Start the apps dev server:
+
 ```bash
 npm run serve
 ```
 
 2. Start selenium
+
 ```bash
 npm run selenium
 ```
 
 3. Run the tests
+
 ```bash
 npm run e2e
 ```
+
+## Uglify
+
+Uglify javascript files with: https://www.npmjs.com/package/uglify-es

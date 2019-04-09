@@ -145,10 +145,11 @@ ion-spinner {
   left: 4px;
 }
 
-.square ion-spinner {
+.square ion-spinner,
+ion-slide ion-spinner {
   position: absolute;
-  left: 40%;
-  top: 40%;
+  left: 45%;
+  top: 45%;
   object-fit: cover;
   margin: auto;
   padding: 2px;
@@ -170,7 +171,8 @@ ion-spinner {
   visibility: hidden;
 }
 
-#file-upload {
+#file-upload,
+.display-none {
   display: none;
 }
 

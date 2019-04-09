@@ -58,7 +58,8 @@ export class AppPhotos {
     this.router = document.querySelector('ion-router');
     await this.router.componentOnReady();
     // Go to signin page if no active session exist
-    if (!blockstack.isUserSignedIn()) {
+    const userSession = new blockstack.UserSession();
+    if (!userSession.isUserSignedIn()) {
       this.router.push('/', 'root');
       return;
     }
@@ -81,9 +82,6 @@ export class AppPhotos {
 
     this.modalController = document.querySelector('ion-modal-controller');
     this.modalController.componentOnReady();
-
-    // create component to open
-    this.appPhotoElement = document.createElement('app-photo');
 
     AnalyticsService.logEvent('photos-list');
   }
@@ -264,6 +262,12 @@ export class AppPhotos {
   }
 
   async openPhotoModal(photoId: string) {
+    if (this.appPhotoElement) {
+      this.appPhotoElement.remove();
+    }
+    // create component to open
+    this.appPhotoElement = document.createElement('app-photo');
+
     const modal = await this.modalController.create({
       component: this.appPhotoElement,
       componentProps: {
@@ -306,7 +310,9 @@ export class AppPhotos {
   }
 
   async presentAlbumSelector(event: any) {
-    const popoverController = document.querySelector('ion-popover-controller');
+    const popoverController: any = document.querySelector(
+      'ion-popover-controller'
+    );
     await popoverController.componentOnReady();
 
     const popover = await popoverController.create({
@@ -400,8 +406,8 @@ export class AppPhotos {
             {!this.album ? <h2>Welcome to Block Photos.</h2> : null}
             <h3>
               Use the upload button (
-              <ion-icon size="small" name="ios-cloud-upload" />) to add your
-              first photo.
+              <ion-icon size="small" name="cloud-upload" />) to add your first
+              photo.
             </h3>
           </ion-card>
         ) : (
