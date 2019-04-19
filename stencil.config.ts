@@ -15,6 +15,7 @@ export const config: Config = {
     { src: '_headers' },
     { src: '_redirects' },
     { src: 'browserconfig.xml' },
+    { src: 'auth.html' },
     { src: 'redirect.html' },
     { src: 'site.webmanifest' }
   ],
