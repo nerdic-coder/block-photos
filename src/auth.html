@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Block Photos</title>
+
+    <base href="./" />
+
+    <meta
+      name="viewport"
+      content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta
+      name="description"
+      content="Encrypted photo album on the blockchain!"
+    />
+    <meta name="theme-color" content="#16161d" />
+
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <meta name="apple-mobile-web-app-capable" content="no" />
+    <meta name="apple-mobile-web-app-title" content="Block Photos" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/assets/icon/apple-touch-icon.png"
+    />
+    <link rel="icon" type="image/x-icon" href="/assets/icon/favicon.ico" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/assets/icon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="194x194"
+      href="/assets/icon/favicon-194x194.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/assets/icon/android-chrome-192x192.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/assets/icon/favicon-16x16.png"
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+      default-src 'self';
+      img-src 'self' https://* data data: capacitor: blob:;
+      child-src 'self' blockstack:;
+      style-src 'self' 'unsafe-inline';
+      script-src 'self' 'unsafe-eval' 'unsafe-inline'
+        https://cdn.amplitude.com
+        capacitor:
+        file:
+        data:;
+      worker-src 'self' data:;
+      connect-src
+        'self'
+        ws://localhost:*
+        wss://localhost:*
+        wss://app.block-photos.com
+        https:
+        capacitor:
+        file:;"
+    />
+    <!--
+      manifest.json provides metadata used when your web app is added to the
+      homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
+    -->
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+    <meta name="msapplication-TileColor" content="#603cba" />
+    <meta
+      name="msapplication-TileImage"
+      content="/assets/icon/mstile-144x144.png"
+    />
+    <meta name="theme-color" content="#cacaca" />
+
+    <link rel="shortcut icon" href="/assets/icon/favicon.ico" />
+
+    <meta http-equiv="x-ua-compatible" content="IE=Edge" />
+
+    <link href="build/app.css" rel="stylesheet" />
+
+    <!-- <script src="assets/load-image.all.min.js"></script> -->
+    <script src="assets/blockstack-19.1.0.min.js"></script>
+    <!-- <script src="assets/caman.full.min.js"></script> -->
+    <script src="build/app.js"></script>
+    <script type="text/javascript">
+      function getParameterByName(name) {
+        var match = RegExp('[?&]' + name + '=([^&]*)').exec(
+          window.location.search
+        );
+        return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+      }
+      function auth() {
+        // var userSession = new blockstack.UserSession();
+        var appDomain = 'http://localhost:3333';
+        var transitPrivateKey = getParameterByName('key');
+        var redirectURI = appDomain + '/redirect.html';
+        var manifestURI = appDomain + '/manifest.json';
+        // blockstack.redirectToSignIn(redirectURI, manifestURI);
+        // blockstack.redirectToSignIn(redirectURI, manifestURI);
+        var authRequest = blockstack.makeAuthRequest(
+          transitPrivateKey,
+          redirectURI,
+          manifestURI,
+          ['DEFAULT_SCOPE'],
+          appDomain
+        );
+        blockstack.redirectToSignInWithAuthRequest(authRequest);
+      }
+    </script>
+
+    <link rel="manifest" href="/manifest.json" />
+  </head>
+
+  <body>
+    <button onclick="auth();">Button</button>
+  </body>
+</html>
