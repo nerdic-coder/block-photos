@@ -99,6 +99,9 @@
     <!-- <script src="assets/caman.full.min.js"></script> -->
     <script src="build/app.js"></script>
     <script type="text/javascript">
+      navigator.__defineGetter__('userAgent', function() {
+        return 'Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.75 Mobile Safari/537.36'; // customized user agent
+      });
       function getParameterByName(name) {
         var match = RegExp('[?&]' + name + '=([^&]*)').exec(
           window.location.search
