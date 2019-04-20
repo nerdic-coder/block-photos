@@ -24,6 +24,7 @@
 
       if (
         typeof blockstack !== 'undefined' &&
+        typeof blockstack.protocolEchoReplyDetection !== 'undefined' &&
         blockstack.protocolEchoReplyDetection()
       ) {
         // do nothing, page will be redirected
