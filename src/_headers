@@ -14,7 +14,3 @@
   # Headers for that path:
   Access-Control-Allow-Origin: *
   Content-Type: application/javascript; charset=UTF-8
-
-/auth.html
-  # Headers for that path:
-  Access-Control-Allow-Origin: *

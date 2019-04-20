@@ -14,7 +14,6 @@
     /> -->
     <script src="assets/blockstack-19.1.0.min.js"></script>
     <script>
-      console.log('starr');
       function getParameterByName(name) {
         var match = RegExp('[?&]' + name + '=([^&]*)').exec(
           window.location.search
@@ -28,12 +27,10 @@
         blockstack.protocolEchoReplyDetection()
       ) {
         // do nothing, page will be redirected
-        console.log('detect');
       } else {
         var authResponse = getParameterByName('authResponse');
 
         if (authResponse) {
-          console.log('do it!');
           window.location = 'blockphotosapp:' + authResponse;
 
           setTimeout(function() {

@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.0.0 (09/04/2019)
+
+- [**enhancement**] #26 Photo viewer Slide between pictures with multi-touch
+- [**enhancement**] #25 Slide between photos in the Photo viewer with the keyboard arrow keys
+- [**enhancement**] #38 Zoom in on photos in the photo viewer
+- [**enhancement**] Updating blockstack.js library to version 19.1.0
+
 ## v2.0.0 (10/01/2019)
 
 - [**enhancement**] Possibility to create photo albums [#41](https://github.com/nerdic-coder/block-photos/issues/41)

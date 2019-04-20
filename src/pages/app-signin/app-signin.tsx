@@ -1,13 +1,13 @@
 import { Component, Prop, State } from '@stencil/core';
-// import * as blockstack from 'blockstack';
-
-declare var blockstack;
-
-import isElectron from 'is-electron';
+// import { blockstack } from 'blockstack';
 
 import { Plugins } from '@capacitor/core';
 
 import AnalyticsService from '../../services/analytics-service';
+import PresentingService from '../../services/presenting-service';
+import isElectron from 'is-electron';
+
+declare var blockstack;
 
 @Component({
   tag: 'app-signin',
@@ -17,6 +17,12 @@ export class AppSignin {
   @Prop({ connect: 'ion-router' }) nav;
 
   @State() loaded: boolean;
+
+  private present: PresentingService;
+
+  constructor() {
+    this.present = new PresentingService();
+  }
 
   async componentDidLoad() {
     const router: any = document.querySelector('ion-router');
@@ -28,13 +34,20 @@ export class AppSignin {
       router.push('/photos', 'root');
       return;
     } else if (userSession.isSignInPending() && !userSession.isUserSignedIn()) {
-      userSession.handlePendingSignIn().then(() => {
+      try {
+        await userSession.handlePendingSignIn();
         this.hideSplash();
 
         router.push('/photos', 'root');
         AnalyticsService.logEvent('login');
-      });
-      return;
+        return;
+      } catch (error) {
+        console.error('handlePendingSignIn failed', error);
+        this.hideSplash();
+        this.present.toast(
+          'Failed to login with Blockstack. Please try again!'
+        );
+      }
     }
 
     this.loaded = true;
@@ -68,8 +81,9 @@ export class AppSignin {
       info.platform === 'ios' ||
       isElectron()
     ) {
+      const userSession = new blockstack.UserSession();
       const appDomain = 'https://app.block-photos.com';
-      const transitPrivateKey = blockstack.generateAndStoreTransitKey();
+      const transitPrivateKey = userSession.generateAndStoreTransitKey();
       const redirectURI = appDomain + '/redirect.html';
       const manifestURI = appDomain + '/manifest.json';
       const scopes = blockstack.DEFAULT_SCOPE;
