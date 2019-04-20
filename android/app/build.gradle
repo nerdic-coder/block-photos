@@ -6,8 +6,8 @@ android {
         applicationId "com.nerdiccoder.blockphotos"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 5
-        versionName "2.0"
+        versionCode 6
+        versionName "3.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -16,6 +16,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+      abortOnError false
+    }
 }
 
 repositories {
@@ -23,22 +26,20 @@ repositories {
         url  "https://dl.bintray.com/ionic-team/capacitor"
     }
     flatDir{
-        dirs '../../node_modules/@capacitor/cli/assets/capacitor-android-plugins/src/main/libs', 'libs'
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation project(':capacitor-android')
     testImplementation 'junit:junit:4.12'
-    implementation project(':capacitor-cordova-android-plugins')
-    implementation 'com.google.firebase:firebase-messaging:17.1.0'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    implementation 'com.google.firebase:firebase-messaging:17.4.0'
     implementation 'com.android.support:support-v4:27.1.1'
-
-    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
 
 apply from: 'capacitor.build.gradle'
