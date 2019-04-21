@@ -1,6 +1,25 @@
 # Changelog
 
+## v3.0.0 (09/04/2019)
+
+- [**enhancement**] #26 Photo viewer Slide between pictures with multi-touch
+- [**enhancement**] #25 Slide between photos in the Photo viewer with the keyboard arrow keys
+- [**enhancement**] #38 Zoom in on photos in the photo viewer
+- [**enhancement**] Updating blockstack.js library to version 19.1.0
+
+## v2.0.0 (10/01/2019)
+
+- [**enhancement**] Possibility to create photo albums [#41](https://github.com/nerdic-coder/block-photos/issues/41)
+- [**enhancement**] Add upload photos progress bar [#44](https://github.com/nerdic-coder/block-photos/issues/44)
+- [**enhancement**] Settings page to turn on/off anonymous tracking data
+- [**enhancement**] New side-menu layout
+
+## v1.3.0 (10/01/2019)
+
+- [**bug**] Fix security issue with blockstack by updating blockstack.js library to version 18.2.1.
+
 ## v1.2.0 (04/12/2018)
+
 - [**enhancement**] Default text when pictures list is empty [#45](https://github.com/nerdic-coder/block-photos/issues/45)
 - [**bug**] Improve the Android PWA icons [#37](https://github.com/nerdic-coder/block-photos/issues/37)
 - [**bug**] CSS transform: rotate not rendering correctly on iOS [#34](https://github.com/nerdic-coder/block-photos/issues/34)

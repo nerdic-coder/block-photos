@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, protocol, dialog } = require('electron');
+const { app, BrowserWindow, protocol, dialog, shell } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
 
@@ -31,7 +31,11 @@ if (!gotTheLock) {
 
       var request = commandLine[1].split(':');
 
-      if (request[1] && currentAuthResponse !== request[1]) {
+      if (
+        request[1] &&
+        currentAuthResponse !== request[1] &&
+        request[1].includes('localhost') === false
+      ) {
         currentAuthResponse = request[1];
 
         secondWindow = new BrowserWindow({
@@ -43,13 +47,20 @@ if (!gotTheLock) {
         secondWindow.focus();
         secondWindow.loadURL(BASE_URL + '?authResponse=' + request[1]);
         mainWindow.close();
+
+        mainWindow = secondWindow;
+
+        return true;
+      } else {
+        shell.openExternal(commandLine[1]);
         return true;
       }
     }
-    dialog.showMessageBox({
-      message: 'Authentication failed, please try again!',
-      buttons: ['OK']
-    });
+    shell.openExternal(commandLine[1]);
+    // dialog.showMessageBox({
+    //   message: 'Authentication failed, please try again!' + commandLine[1],
+    //   buttons: ['OK']
+    // });
   });
 }
 

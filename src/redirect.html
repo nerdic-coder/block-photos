@@ -2,16 +2,17 @@
 <html>
   <head>
     <title>Block Photos</title>
-    <meta
+    <!-- <meta
       http-equiv="Content-Security-Policy"
       content="
-    default-src 'self'; 
-    img-src 'none'; 
-    child-src 'none';
-    script-src 'unsafe-inline';
-    style-src 'none';
-    connect-src https://block-photos.com/ blockphotosapp:;"
-    />
+    default-src 'self';
+    img-src 'none';
+    child-src 'self';
+    script-src 'self' 'unsafe-inline';
+    style-src 'unsafe-inline';
+    connect-src https://block-photos.com/ blockphotosapp:; ws://*"
+    /> -->
+    <script src="assets/blockstack-19.1.0.min.js"></script>
     <script>
       function getParameterByName(name) {
         var match = RegExp('[?&]' + name + '=([^&]*)').exec(
@@ -20,12 +21,23 @@
         return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
       }
 
-      var authResponse = getParameterByName('authResponse');
-      window.location = 'blockphotosapp:' + authResponse;
+      if (
+        typeof blockstack !== 'undefined' &&
+        typeof blockstack.protocolEchoReplyDetection !== 'undefined' &&
+        blockstack.protocolEchoReplyDetection()
+      ) {
+        // do nothing, page will be redirected
+      } else {
+        var authResponse = getParameterByName('authResponse');
 
-      setTimeout(function() {
-        window.location = 'https://block-photos.com/';
-      }, 3000);
+        if (authResponse) {
+          window.location = 'blockphotosapp:' + authResponse;
+
+          setTimeout(function() {
+            window.location = 'https://block-photos.com/';
+          }, 3000);
+        }
+      }
     </script>
   </head>
   <body></body>
