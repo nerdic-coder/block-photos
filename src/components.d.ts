@@ -9,17 +9,22 @@ import '@stencil/core';
 
 import '@ionic/core';
 import 'ionicons';
+import {
+  PhotoType,
+} from './models/photo-type';
 
 
 export namespace Components {
 
   interface BlockImg {
     'photoId': string;
+    'phototType': PhotoType;
     'refresh': boolean;
     'rotate': boolean;
   }
   interface BlockImgAttributes extends StencilHTMLAttributes {
     'photoId'?: string;
+    'phototType'?: PhotoType;
     'refresh'?: boolean;
     'rotate'?: boolean;
   }

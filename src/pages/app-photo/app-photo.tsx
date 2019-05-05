@@ -4,6 +4,7 @@ import loadImage from 'blueimp-load-image';
 import PhotosService from '../../services/photos-service';
 import PresentingService from '../../services/presenting-service';
 import AnalyticsService from '../../services/analytics-service';
+import { PhotoType } from '../../models/photo-type';
 
 declare var blockstack;
 // declare var Caman;
@@ -19,6 +20,7 @@ export class AppPhoto {
   private firstSlide = true;
   private slideToOne = false;
   private keydownPressedListener: any;
+  private photoType: PhotoType = PhotoType.Viewer;
 
   @Prop({ mutable: true }) photoId: string;
   @Prop() albumId: string;
@@ -134,7 +136,9 @@ export class AppPhoto {
 
   async getPhoto(photoId: string, index: number): Promise<void> {
     let rotation = 1;
-    const metadata = await PhotosService.getPhotoMetaData(photoId);
+    const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      photoId
+    );
 
     if (
       metadata &&
@@ -181,7 +185,7 @@ export class AppPhoto {
         orientation: metadata.stats.exifdata.tags.Orientation
       };
       loadImage(
-        await PhotosService.loadPhoto(photoId),
+        await PhotosService.loadPhoto(metadata, this.photoType),
         processedPhoto => {
           this.handleProcessedPhoto(processedPhoto, index, photoId);
         },
@@ -193,7 +197,7 @@ export class AppPhoto {
           {
             photoId,
             isLoaded: true,
-            source: await PhotosService.loadPhoto(photoId)
+            source: await PhotosService.loadPhoto(metadata, this.photoType)
           },
           ...this.photos
         ];
@@ -204,13 +208,13 @@ export class AppPhoto {
           {
             photoId,
             isLoaded: true,
-            source: await PhotosService.loadPhoto(photoId)
+            source: await PhotosService.loadPhoto(metadata, this.photoType)
           }
         ];
       } else {
         this.photos[
           this.getPhotoIndex(photoId)
-        ].source = await PhotosService.loadPhoto(photoId);
+        ].source = await PhotosService.loadPhoto(metadata, this.photoType);
         this.photos[this.getPhotoIndex(photoId)].isLoaded = true;
         this.garbage += 1;
       }

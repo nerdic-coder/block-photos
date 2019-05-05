@@ -2,6 +2,7 @@ import { Component, Prop, State, Watch } from '@stencil/core';
 import loadImage from 'blueimp-load-image';
 
 import PhotosService from '../services/photos-service';
+import { PhotoType } from '../models/photo-type';
 
 @Component({
   tag: 'block-img'
@@ -10,6 +11,7 @@ export class BlockImg {
   @Prop() photoId: string;
   @Prop() rotate: boolean;
   @Prop() refresh: boolean;
+  @Prop() phototType: PhotoType = PhotoType.Download;
 
   @State() source: string;
   @State() isLoaded: boolean;
@@ -46,9 +48,11 @@ export class BlockImg {
       return;
     }
 
-    const base64 = await PhotosService.loadPhoto(photoId);
+    const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      photoId
+    );
+    const base64 = await PhotosService.loadPhoto(metadata, this.phototType);
 
-    const metadata = await PhotosService.getPhotoMetaData(photoId);
     let rotation = 1;
     if (
       metadata &&
