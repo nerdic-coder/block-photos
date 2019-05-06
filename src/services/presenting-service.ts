@@ -73,6 +73,7 @@ export default class PresentingService {
                 'Removal failed',
                 'The removal of some photos failed. Please try again in a few minutes!'
               );
+              callback();
             }
           });
         }

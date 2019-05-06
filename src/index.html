@@ -34,8 +34,9 @@
         https://cdn.amplitude.com
         capacitor:
         file:
-        data:;
-      worker-src 'self' data:;
+        data:
+        blob:;
+      worker-src 'self' data: blob:;
       connect-src
         'self'
         ws://localhost:*

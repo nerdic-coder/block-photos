@@ -5,11 +5,13 @@ import PhotosService from '../../services/photos-service';
 import PresentingService from '../../services/presenting-service';
 import UploadService from '../../services/upload-service';
 import AnalyticsService from '../../services/analytics-service';
+import { PhotoType } from '../../models/photo-type';
 
 declare var blockstack;
 
 @Component({
-  tag: 'app-photos'
+  tag: 'app-photos',
+  styleUrl: 'app-photos.css'
 })
 export class AppPhotos {
   private timer;
@@ -402,18 +404,30 @@ export class AppPhotos {
           <ion-refresher-content />
         </ion-refresher>
         {empty && this.listLoaded ? (
-          <ion-card padding text-center>
-            {!this.album ? <h2>Welcome to Block Photos.</h2> : null}
-            <h3>
-              Use the upload button (
-              <ion-icon size="small" name="cloud-upload" />) to add your first
-              photo.
-            </h3>
+          <ion-card
+            padding
+            text-center
+            class="pointer ion-align-items-center"
+            onClick={event => this.openFileDialog(event)}
+          >
+            <ion-grid class="upload-grid">
+              <ion-row>
+                <ion-col align-self-center>
+                  {!this.album ? <h2>Welcome to Block Photos.</h2> : null}
+                  <h3>Click here to upload your first photo.</h3>
+                  <ion-icon
+                    class="cloud-icon"
+                    size="large"
+                    name="cloud-upload"
+                  />
+                </ion-col>
+              </ion-row>
+            </ion-grid>
           </ion-card>
         ) : (
           <ion-grid no-padding>
             {rows.map(row => (
-              <ion-row align-items-center key={row[0].id}>
+              <ion-row align-items-stretch key={row[0].id}>
                 {row.map(col => (
                   <ion-col no-padding align-self-center key={col.id}>
                     <div
@@ -435,11 +449,63 @@ export class AppPhotos {
                       ) : null}
                       <block-img
                         photoId={col.id}
+                        phototType={PhotoType.Thumbnail}
                         refresh={this.refreshPhotos[col.id]}
                       />
                     </div>
                   </ion-col>
                 ))}
+                {row.length === 1
+                  ? [
+                      <ion-col no-padding align-self-stretch>
+                        <ion-card
+                          no-margin
+                          text-center
+                          class="pointer full"
+                          onClick={event => this.openFileDialog(event)}
+                        >
+                          <ion-grid class="upload-grid">
+                            <ion-row>
+                              <ion-col align-self-center>
+                                <h3>Click here to upload more photos.</h3>
+                                <ion-icon
+                                  class="cloud-icon"
+                                  size="large"
+                                  name="cloud-upload"
+                                />
+                              </ion-col>
+                            </ion-row>
+                          </ion-grid>
+                        </ion-card>
+                      </ion-col>,
+                      <ion-col />
+                    ]
+                  : null}
+                {row.length === 2
+                  ? [
+                      <ion-col no-padding align-self-stretch>
+                        <ion-card
+                          no-margin
+                          text-center
+                          class="pointer full"
+                          onClick={event => this.openFileDialog(event)}
+                        >
+                          <ion-grid class="upload-grid">
+                            <ion-row>
+                              <ion-col align-self-center>
+                                <h3>Click here to upload more photos.</h3>
+                                <ion-icon
+                                  class="cloud-icon"
+                                  size="large"
+                                  name="cloud-upload"
+                                />
+                              </ion-col>
+                            </ion-row>
+                          </ion-grid>
+                        </ion-card>
+                      </ion-col>
+                    ]
+                  : null}
               </ion-row>
             ))}
           </ion-grid>

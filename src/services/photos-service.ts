@@ -309,7 +309,9 @@ export default class PhotosService {
         photosList.splice(index, 1);
         await StorageService.setItem(listName, JSON.stringify(photosList));
 
-        await AlbumsService.updateAlbumThumbnail(albumId, photosList[0].id);
+        if (photosList.length > 0) {
+          await AlbumsService.updateAlbumThumbnail(albumId, photosList[0].id);
+        }
         break;
       }
       index++;
@@ -339,6 +341,7 @@ export default class PhotosService {
       }
       returnState = true;
     } catch (error) {
+      console.error(error);
       returnState = false;
     }
 
