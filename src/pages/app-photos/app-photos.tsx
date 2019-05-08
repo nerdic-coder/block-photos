@@ -156,16 +156,15 @@ export class AppPhotos {
       }
       this.refresherScroll.complete();
       const photosToLoad = this.photosLoaded + 18;
-      if (photosToLoad > this.photosListCached.length) {
-        this.editMode = false;
+      if (photosToLoad >= this.photosListCached.length) {
+        // this.refresherScroll.disabled = false;
+        // this.editMode = false;
         this.photosList = this.photosListCached;
         this.listLoaded = true;
-        if (event) {
-          this.infiniteScroll.disabled = true;
-        }
+        this.infiniteScroll.disabled = true;
       } else {
         const photosList = this.photosListCached.slice(0, photosToLoad);
-        this.editMode = false;
+        // this.editMode = false;
         this.photosList = photosList;
         this.listLoaded = true;
         this.photosLoaded = photosToLoad;
@@ -218,11 +217,13 @@ export class AppPhotos {
       event.preventDefault();
     }
 
+    this.refresherScroll.disabled = true;
     this.editMode = true;
     this.checkedItems = id ? [id] : [];
   }
 
   deactivateEditor(): void {
+    this.refresherScroll.disabled = false;
     this.editMode = false;
     this.checkedItems = [];
   }
@@ -238,10 +239,6 @@ export class AppPhotos {
       this.checkedItems = this.checkedItems.includes(photoId)
         ? this.checkedItems.filter(item => item !== photoId)
         : (this.checkedItems = [...this.checkedItems, photoId]);
-
-      if (this.checkedItems.length < 1) {
-        this.editMode = false;
-      }
     } else {
       this.openPhotoModal(photoId);
     }
@@ -343,26 +340,43 @@ export class AppPhotos {
     return [
       <ion-header>
         <ion-toolbar mode="md" color="primary">
-          {this.album ? (
+          {this.album && !this.editMode ? (
             <ion-buttons slot="start">
               <ion-back-button defaultHref="/albums" />
             </ion-buttons>
           ) : null}
-          <ion-title class="unselectable">
-            {this.album ? this.album.albumName : 'Block Photos'}
-          </ion-title>
+          {this.editMode ? (
+            ''
+          ) : (
+            <ion-title class="unselectable">
+              {this.album ? this.album.albumName : 'Photos'}
+            </ion-title>
+          )}
           <ion-buttons slot="end">
             {this.editMode
               ? [
                   <ion-button
+                    fill="outline"
+                    color="secondary"
+                    disabled={this.checkedItems.length === 0}
                     onClick={event => this.presentAlbumSelector(event)}
                   >
-                    <ion-icon color="light" name="add-circle" />
-                  </ion-button>,
-                  <ion-button onClick={() => this.rotatePhotos()}>
-                    <ion-icon color="light" name="sync" />
+                    <ion-label color="light">Albums</ion-label>
+                    <ion-icon slot="end" color="light" name="add-circle" />
                   </ion-button>,
                   <ion-button
+                    fill="outline"
+                    color="secondary"
+                    onClick={() => this.rotatePhotos()}
+                    disabled={this.checkedItems.length === 0}
+                  >
+                    <ion-label color="light">Rotate</ion-label>
+                    <ion-icon slot="end" color="light" name="sync" />
+                  </ion-button>,
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    disabled={this.checkedItems.length === 0}
                     onClick={() =>
                       this.present.deletePhotos(
                         this.checkedItems,
@@ -371,23 +385,46 @@ export class AppPhotos {
                       )
                     }
                   >
-                    <ion-icon color="light" name="trash" />
+                    <ion-label color="light">Delete</ion-label>
+                    <ion-icon slot="end" color="light" name="trash" />
                   </ion-button>,
-                  <ion-button onClick={() => this.deactivateEditor()}>
-                    <ion-icon color="light" name="close" />
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    onClick={() => this.deactivateEditor()}
+                  >
+                    <ion-label color="light">Done</ion-label>
                   </ion-button>
                 ]
               : [
-                  <ion-button onClick={() => this.loadPhotosList(true)}>
-                    <ion-icon name="refresh" />
+                  <ion-button
+                    class="ion-hide-sm-down"
+                    fill="outline"
+                    color="secondary"
+                    onClick={() => this.loadPhotosList(true)}
+                  >
+                    <ion-label color="light">Refresh</ion-label>
+                    <ion-icon slot="end" color="light" name="refresh" />
                   </ion-button>,
                   <ion-button
+                    fill="outline"
+                    color="secondary"
                     onClick={event => this.activateEditor(event, null)}
                   >
-                    <ion-icon name="checkmark-circle" />
+                    <ion-label color="light">Edit</ion-label>
+                    <ion-icon
+                      slot="end"
+                      color="light"
+                      name="checkmark-circle"
+                    />
                   </ion-button>,
-                  <ion-button onClick={event => this.openFileDialog(event)}>
-                    <ion-icon name="cloud-upload" />
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    onClick={event => this.openFileDialog(event)}
+                  >
+                    <ion-label color="light">Upload</ion-label>
+                    <ion-icon slot="end" color="light" name="cloud-upload" />
                   </ion-button>
                 ]}
             {!this.editMode && !this.album ? <ion-menu-button /> : null}
@@ -429,7 +466,18 @@ export class AppPhotos {
             {rows.map(row => (
               <ion-row align-items-stretch key={row[0].id}>
                 {row.map(col => (
-                  <ion-col no-padding align-self-center key={col.id}>
+                  <ion-col
+                    no-padding
+                    align-self-center
+                    key={col.id}
+                    class={this.isChecked(col.id) ? 'selected' : ''}
+                  >
+                    {/* <ion-checkbox
+                      class="floatInput"
+                      checked={this.isChecked(col.id)}
+                      disabled={!this.editMode}
+                      mode="ios"
+                    /> */}
                     <div
                       class="square pointer"
                       draggable={false}
@@ -440,13 +488,6 @@ export class AppPhotos {
                       }
                       onDragStart={event => this.preventDrag(event)}
                     >
-                      {this.editMode ? (
-                        <ion-checkbox
-                          class="floatInput"
-                          checked={this.isChecked(col.id)}
-                          mode="ios"
-                        />
-                      ) : null}
                       <block-img
                         photoId={col.id}
                         phototType={PhotoType.Thumbnail}
@@ -458,25 +499,29 @@ export class AppPhotos {
                 {row.length === 1
                   ? [
                       <ion-col no-padding align-self-stretch>
-                        <ion-card
-                          no-margin
-                          text-center
-                          class="pointer full"
-                          onClick={event => this.openFileDialog(event)}
-                        >
-                          <ion-grid class="upload-grid">
-                            <ion-row>
-                              <ion-col align-self-center>
-                                <h3>Click here to upload more photos.</h3>
-                                <ion-icon
-                                  class="cloud-icon"
-                                  size="large"
-                                  name="cloud-upload"
-                                />
-                              </ion-col>
-                            </ion-row>
-                          </ion-grid>
-                        </ion-card>
+                        {this.editMode ? (
+                          ''
+                        ) : (
+                          <ion-card
+                            no-margin
+                            text-center
+                            class="pointer full"
+                            onClick={event => this.openFileDialog(event)}
+                          >
+                            <ion-grid class="upload-grid">
+                              <ion-row>
+                                <ion-col align-self-center>
+                                  <h3>Click here to upload more photos.</h3>
+                                  <ion-icon
+                                    class="cloud-icon"
+                                    size="large"
+                                    name="cloud-upload"
+                                  />
+                                </ion-col>
+                              </ion-row>
+                            </ion-grid>
+                          </ion-card>
+                        )}
                       </ion-col>,
                       <ion-col />
                     ]
@@ -484,25 +529,29 @@ export class AppPhotos {
                 {row.length === 2
                   ? [
                       <ion-col no-padding align-self-stretch>
-                        <ion-card
-                          no-margin
-                          text-center
-                          class="pointer full"
-                          onClick={event => this.openFileDialog(event)}
-                        >
-                          <ion-grid class="upload-grid">
-                            <ion-row>
-                              <ion-col align-self-center>
-                                <h3>Click here to upload more photos.</h3>
-                                <ion-icon
-                                  class="cloud-icon"
-                                  size="large"
-                                  name="cloud-upload"
-                                />
-                              </ion-col>
-                            </ion-row>
-                          </ion-grid>
-                        </ion-card>
+                        {this.editMode ? (
+                          ''
+                        ) : (
+                          <ion-card
+                            no-margin
+                            text-center
+                            class="pointer full"
+                            onClick={event => this.openFileDialog(event)}
+                          >
+                            <ion-grid class="upload-grid">
+                              <ion-row>
+                                <ion-col align-self-center>
+                                  <h3>Click here to upload more photos.</h3>
+                                  <ion-icon
+                                    class="cloud-icon"
+                                    size="large"
+                                    name="cloud-upload"
+                                  />
+                                </ion-col>
+                              </ion-row>
+                            </ion-grid>
+                          </ion-card>
+                        )}
                       </ion-col>
                     ]
                   : null}
@@ -521,7 +570,16 @@ export class AppPhotos {
           />
         </ion-infinite-scroll>
         <input id="file-upload" type="file" multiple />
-      </ion-content>
+      </ion-content>,
+      <div>
+        {this.editMode ? (
+          <ion-footer>
+            <ion-toolbar>
+              <ion-title>{this.checkedItems.length} Photos Selected</ion-title>
+            </ion-toolbar>
+          </ion-footer>
+        ) : null}
+      </div>
     ];
   }
 

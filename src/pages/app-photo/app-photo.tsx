@@ -444,23 +444,32 @@ export class AppPhoto {
     return [
       <ion-header>
         <ion-toolbar mode="md" color="primary">
-          <ion-buttons slot="start">
-            <ion-button onClick={() => this.closeModal()}>
-              <ion-icon color="light" name="close" size="large" />
-            </ion-button>
-          </ion-buttons>
-          <ion-title>Photo</ion-title>
+          {/* <ion-buttons slot="start">
+          </ion-buttons> */}
+          {/* <ion-title>Photo</ion-title> */}
           <ion-buttons slot="end">
-            <ion-button onClick={event => this.presentAlbumSelector(event)}>
-              <ion-icon color="light" name="add-circle" />
-            </ion-button>
-            <ion-button onClick={() => this.rotatePhoto()}>
-              <ion-icon color="light" name="sync" />
-            </ion-button>
-            <ion-button onClick={() => this.presentFilterSelector(event)}>
-              <ion-icon color="light" name="color-wand" />
+            <ion-button
+              fill="outline"
+              color="secondary"
+              onClick={event => this.presentAlbumSelector(event)}
+            >
+              <ion-label color="light">Albums</ion-label>
+              <ion-icon slot="end" color="light" name="add-circle" />
             </ion-button>
             <ion-button
+              fill="outline"
+              color="secondary"
+              onClick={() => this.rotatePhoto()}
+            >
+              <ion-label color="light">Rotate</ion-label>
+              <ion-icon slot="end" color="light" name="sync" />
+            </ion-button>
+            {/* <ion-button onClick={() => this.presentFilterSelector(event)}>
+              <ion-icon color="light" name="color-wand" />
+            </ion-button> */}
+            <ion-button
+              fill="outline"
+              color="secondary"
               onClick={() =>
                 this.present.deletePhotos(
                   [this.photoId],
@@ -469,9 +478,17 @@ export class AppPhoto {
                 )
               }
             >
+              <ion-label color="light">Delete</ion-label>
               <ion-icon color="light" name="trash" />
             </ion-button>
             <ion-button
+              fill="outline"
+              color="secondary"
+              onClick={() => this.closeModal()}
+            >
+              <ion-label color="light">Done</ion-label>
+            </ion-button>
+            {/* <ion-button
               disabled={!this.previousPhotoId}
               onClick={() => this.slides.slidePrev()}
             >
@@ -482,7 +499,7 @@ export class AppPhoto {
               onClick={() => this.slides.slideNext()}
             >
               <ion-icon color="light" name="arrow-forward" />
-            </ion-button>
+            </ion-button> */}
           </ion-buttons>
         </ion-toolbar>
       </ion-header>,
