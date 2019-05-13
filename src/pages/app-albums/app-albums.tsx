@@ -3,6 +3,7 @@ import { Component, State } from '@stencil/core';
 import AlbumsService from '../../services/albums-service';
 import AnalyticsService from '../../services/analytics-service';
 import PresentingService from '../../services/presenting-service';
+import { PhotoType } from '../../models/photo-type';
 
 declare var blockstack;
 
@@ -316,6 +317,7 @@ export class AppAlbums {
                             <block-img
                               photoId={col.thumbnailId}
                               rotate={false}
+                              phototType={PhotoType.Thumbnail}
                             />
                           ) : (
                             <ion-img
