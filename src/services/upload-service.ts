@@ -8,13 +8,15 @@ export default class UploadService {
   private root: any;
   private present: PresentingService;
   private callback: any;
+  private startedCallback: any;
   private dropEventBinding: any;
   private handleFileSelectEventBinding: any;
   private albumId: string;
 
-  constructor(callback: any, albumId?: string) {
+  constructor(callback: any, albumId?: string, startedCallback?: any) {
     this.present = new PresentingService();
     this.callback = callback;
+    this.startedCallback = startedCallback;
     this.dropEventBinding = this.dropEvent.bind(this);
     this.handleFileSelectEventBinding = this.handleFileSelectEvent.bind(this);
     this.root = document.getElementById('photos-list');
@@ -87,10 +89,13 @@ export default class UploadService {
   }
 
   async processUpload(list: any, currentIndex: number): Promise<void> {
-    if (currentIndex !== 0) {
-      await this.present.dismissLoading();
+    if (currentIndex === 0) {
+      if (this.startedCallback && typeof this.startedCallback === 'function') {
+        // execute the callback, passing parameters as necessary
+        this.startedCallback();
+      }
     }
-    await this.present.loading(
+    this.present.presentToolbarLoader(
       'Uploading photo ' + (currentIndex + 1) + '/' + list.length + '.'
     );
     // If dropped items aren't files, reject them
@@ -238,7 +243,7 @@ export default class UploadService {
   }
 
   uploadFilesDone(): void {
-    this.present.dismissLoading();
+    this.present.dismissToolbarLoader();
     if (this.callback && typeof this.callback === 'function') {
       // execute the callback, passing parameters as necessary
       this.callback();

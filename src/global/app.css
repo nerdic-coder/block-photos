@@ -220,3 +220,11 @@ ion-content {
 ion-card ion-item {
   --min-height: 19px;
 }
+
+.loadingToolbar {
+  display: none;
+}
+
+.loadingToolbar.show {
+  display: block;
+}

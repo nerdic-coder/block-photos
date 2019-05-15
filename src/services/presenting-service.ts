@@ -22,6 +22,38 @@ export default class PresentingService {
     }
   }
 
+  async presentToolbarLoader(message: string): Promise<void> {
+    const loadingToolbar = document.querySelector('.loadingToolbar');
+
+    if (loadingToolbar) {
+      const loadingTitle = loadingToolbar.querySelector('ion-title');
+      await loadingTitle.componentOnReady();
+      loadingTitle.innerText = message;
+      loadingToolbar.classList.add('show');
+    }
+  }
+
+  toolbarLoaderIsPresent(): boolean {
+    const loadingToolbar = document.querySelector('.loadingToolbar');
+
+    if (loadingToolbar) {
+      return loadingToolbar.classList.contains('show');
+    } else {
+      return false;
+    }
+  }
+
+  async dismissToolbarLoader(): Promise<void> {
+    const loadingToolbar = document.querySelector('.loadingToolbar');
+
+    if (loadingToolbar) {
+      const loadingTitle = loadingToolbar.querySelector('ion-title');
+      await loadingTitle.componentOnReady();
+      loadingTitle.innerText = '';
+      loadingToolbar.classList.remove('show');
+    }
+  }
+
   async toast(message: string): Promise<void> {
     const toastController = document.querySelector('ion-toast-controller');
     await toastController.componentOnReady();
@@ -97,6 +129,7 @@ export default class PresentingService {
                   'Removal failed',
                   'The removal of some photos failed. Please try again in a few minutes!'
                 );
+                callback();
               }
             }
           );

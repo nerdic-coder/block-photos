@@ -35,6 +35,7 @@ export class AppPhotos {
   @State() listLoaded: boolean;
   @State() editMode: boolean;
   @State() checkedItems: any[] = [];
+  @State() uploadInProgress: boolean;
 
   @Prop({ mutable: true }) photoId: string;
   @Prop({ mutable: true }) albumId: string;
@@ -47,7 +48,8 @@ export class AppPhotos {
   async componentWillLoad() {
     this.uploadService = new UploadService(
       this.uploadFilesDoneCallback.bind(this),
-      this.albumId
+      this.albumId,
+      this.uploadFilesStartedCallback.bind(this)
     );
 
     if (this.albumId) {
@@ -111,7 +113,7 @@ export class AppPhotos {
   async loadPhotosList(sync?: boolean, skipLoading?: boolean) {
     try {
       if (!skipLoading) {
-        await this.present.loading('Loading photos...');
+        await this.present.presentToolbarLoader('Loading photos...');
       }
 
       // Get the contents of the file picture-list.json
@@ -121,7 +123,7 @@ export class AppPhotos {
       );
       this.photosListCached = photosListResponse.photosList;
       if (!skipLoading) {
-        await this.present.dismissLoading();
+        this.present.dismissToolbarLoader();
       }
 
       this.loadPhotosRange();
@@ -141,8 +143,9 @@ export class AppPhotos {
         }
       }
     } catch (error) {
+      console.error('loadPhotosList error', error);
       if (!skipLoading) {
-        await this.present.dismissLoading();
+        this.present.dismissToolbarLoader();
       }
       this.present.toast('Could not load photos. Please try again!');
       this.refresherScroll.complete();
@@ -177,7 +180,6 @@ export class AppPhotos {
     for (const photoId of this.checkedItems) {
       const result = await PhotosService.rotatePhoto(photoId);
       if (!result) {
-        await this.present.dismissLoading();
         const metadata = await PhotosService.getPhotoMetaData(photoId);
         await this.present.toast(
           'Failed to rotate photo "' + metadata.filename + '".'
@@ -191,12 +193,18 @@ export class AppPhotos {
   }
 
   uploadFilesDoneCallback() {
+    this.uploadInProgress = false;
     this.loadPhotosList();
 
     AnalyticsService.logEvent('photos-list-uploaded');
   }
 
+  uploadFilesStartedCallback() {
+    this.uploadInProgress = true;
+  }
+
   deletePhotoCallback(): void {
+    this.checkedItems = [];
     this.loadPhotosList();
 
     AnalyticsService.logEvent('photos-list-deleted');
@@ -409,6 +417,7 @@ export class AppPhotos {
                   <ion-button
                     fill="outline"
                     color="secondary"
+                    disabled={this.uploadInProgress === true}
                     onClick={event => this.activateEditor(event, null)}
                   >
                     <ion-label color="light">Edit</ion-label>
@@ -421,6 +430,7 @@ export class AppPhotos {
                   <ion-button
                     fill="outline"
                     color="secondary"
+                    disabled={this.uploadInProgress === true}
                     onClick={event => this.openFileDialog(event)}
                   >
                     <ion-label color="light">Upload</ion-label>
@@ -429,6 +439,10 @@ export class AppPhotos {
                 ]}
             {!this.editMode && !this.album ? <ion-menu-button /> : null}
           </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar class="loadingToolbar">
+          <ion-progress-bar type="indeterminate" />
+          <ion-title />
         </ion-toolbar>
       </ion-header>,
 
