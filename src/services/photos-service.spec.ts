@@ -1,4 +1,4 @@
-import * as blockstack from 'blockstack';
+import blockstack from 'blockstack';
 import PhotosService from './photos-service';
 import CacheService from './cache-service';
 import UploadService from './UploadService';

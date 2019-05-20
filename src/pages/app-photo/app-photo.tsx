@@ -30,6 +30,7 @@ export class AppPhoto {
   @State() nextPhotoId: string;
   @State() photos: any[];
   @State() garbage: number;
+  @State() firstTimeLoaded: boolean;
 
   constructor() {
     this.photos = [];
@@ -59,6 +60,7 @@ export class AppPhoto {
       return;
     }
 
+    this.firstTimeLoaded = false;
     this.slides = document.querySelector('ion-slides');
     await this.slides.componentOnReady();
     this.slides.options = {
@@ -109,6 +111,8 @@ export class AppPhoto {
       setTimeout(() => {
         this.slideCorrection(iteration + 1);
       }, 10);
+    } else {
+      this.firstTimeLoaded = true;
     }
     // else {
     // const photoId = this.photoId;
@@ -291,11 +295,12 @@ export class AppPhoto {
       this.photoId = photoId;
       this.previousPhotoId = nextAndPreviousPhoto.previousId;
       this.nextPhotoId = nextAndPreviousPhoto.nextId;
+      let tempPhotos = this.photos;
 
       if (this.nextPhotoId && !this.photoExist(this.nextPhotoId)) {
         this.slides.lockSwipes(true);
-        this.photos = [
-          ...this.photos,
+        tempPhotos = [
+          ...tempPhotos,
           { photoId: this.nextPhotoId, isLoaded: false, source: '' }
         ];
         this.getPhoto(this.nextPhotoId, 1);
@@ -304,12 +309,13 @@ export class AppPhoto {
       if (this.previousPhotoId && !this.photoExist(this.previousPhotoId)) {
         this.slides.lockSwipes(true);
         this.slideToOne = true;
-        this.photos = [
+        tempPhotos = [
           { photoId: this.previousPhotoId, isLoaded: false, source: '' },
-          ...this.photos
+          ...tempPhotos
         ];
         this.getPhoto(this.previousPhotoId, 1);
       }
+      this.photos = tempPhotos;
     }
   }
 
@@ -513,7 +519,10 @@ export class AppPhoto {
             <ion-slide>
               <div
                 class={
-                  'swiper-zoom-container' + (photo.isLoaded ? '' : ' hidden')
+                  'swiper-zoom-container' +
+                  ((photo.isLoaded && this.firstTimeLoaded) || photo.first
+                    ? ''
+                    : ' hidden')
                 }
               >
                 <img
@@ -526,7 +535,11 @@ export class AppPhoto {
               <ion-spinner
                 name="circles"
                 color="tertiary"
-                class={photo.isLoaded ? 'hidden' : ''}
+                class={
+                  (photo.isLoaded && this.firstTimeLoaded) || photo.first
+                    ? 'hidden'
+                    : ''
+                }
               />
             </ion-slide>
           ))}

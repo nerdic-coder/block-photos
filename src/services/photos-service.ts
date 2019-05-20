@@ -376,7 +376,10 @@ export default class PhotosService {
     albumId?: string
   ): Promise<any> {
     const response = { previousId: null, nextId: null };
-    const photosListResponse = await PhotosService.getPhotosList(true, albumId);
+    const photosListResponse = await PhotosService.getPhotosList(
+      false,
+      albumId
+    );
     const photosList = photosListResponse.photosList;
 
     let index = 0;

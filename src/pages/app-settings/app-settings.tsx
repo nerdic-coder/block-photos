@@ -179,7 +179,7 @@ export class AppSettings {
             <ion-label>Read our source code</ion-label>
           </ion-item>
         </ion-card>
-        <p text-center="true">Block Photos - Version 3.0</p>
+        <p text-center="true">Block Photos - Version 4.0</p>
       </ion-content>
     ];
   }
