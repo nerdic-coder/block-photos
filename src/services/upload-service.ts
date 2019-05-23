@@ -25,8 +25,10 @@ export default class UploadService {
 
   addEventListeners(fileDialog: boolean): void {
     this.root = document.getElementById('photos-list');
-    this.root.addEventListener('dragover', this.dragoverEvent);
-    this.root.addEventListener('drop', this.dropEventBinding);
+    if (this.root) {
+      this.root.addEventListener('dragover', this.dragoverEvent);
+      this.root.addEventListener('drop', this.dropEventBinding);
+    }
     if (fileDialog && document.getElementById('file-upload')) {
       document
         .getElementById('file-upload')
@@ -35,8 +37,10 @@ export default class UploadService {
   }
 
   removeEventListeners(fileDialog: boolean): void {
-    this.root.removeEventListener('dragover', this.dragoverEvent);
-    this.root.removeEventListener('drop', this.dropEventBinding);
+    if (this.root) {
+      this.root.removeEventListener('dragover', this.dragoverEvent);
+      this.root.removeEventListener('drop', this.dropEventBinding);
+    }
     if (fileDialog && document.getElementById('file-upload')) {
       document
         .getElementById('file-upload')
