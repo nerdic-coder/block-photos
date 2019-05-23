@@ -21,13 +21,14 @@ export class AppPhoto {
   private slideToOne = false;
   private keydownPressedListener: any;
   private photoType: PhotoType = PhotoType.Viewer;
+  private updateFromSlide: boolean;
+  private previousPhotoId: string;
+  private nextPhotoId: string;
 
   @Prop({ mutable: true }) photoId: string;
   @Prop() albumId: string;
   @Prop() updateCallback: any;
 
-  @State() previousPhotoId: string;
-  @State() nextPhotoId: string;
   @State() photos: any[];
   @State() garbage: number;
   @State() firstTimeLoaded: boolean;
@@ -60,7 +61,6 @@ export class AppPhoto {
       return;
     }
 
-    this.firstTimeLoaded = false;
     this.slides = document.querySelector('ion-slides');
     await this.slides.componentOnReady();
     this.slides.options = {
@@ -68,22 +68,31 @@ export class AppPhoto {
       loop: false
     };
 
+    this.updateFromSlide = false;
     this.photos = [
       ...this.photos,
       { photoId: this.photoId, isLoaded: false, source: '' }
     ];
-    await this.setNextAndPreviousPhoto(this.photoId);
-    await this.getPhoto(this.photoId, 1);
+    setTimeout(async () => {
+      await this.setNextAndPreviousPhoto(this.photoId);
+      this.updateFromSlide = true;
+      await this.getPhoto(this.photoId, 1);
 
-    this.modalController = document.querySelector('ion-modal-controller');
-    this.modalController.componentOnReady();
+      this.modalController = document.querySelector('ion-modal-controller');
+      this.modalController.componentOnReady();
 
-    document.addEventListener('keydown', this.keydownPressedListener);
+      document.addEventListener('keydown', this.keydownPressedListener);
 
-    AnalyticsService.logEvent('photo-page');
+      AnalyticsService.logEvent('photo-page');
+    }, 500);
   }
 
   async componentDidUpdate() {
+    if (!this.updateFromSlide) {
+      return;
+    }
+    this.updateFromSlide = false;
+
     if (this.slides) {
       this.slides.lockSwipes(false);
     }
@@ -292,6 +301,7 @@ export class AppPhoto {
   }
 
   async setNextAndPreviousPhoto(photoId: string): Promise<void> {
+    this.updateFromSlide = true;
     if (photoId && photoId !== null) {
       const nextAndPreviousPhoto = await PhotosService.getNextAndPreviousPhoto(
         photoId,
