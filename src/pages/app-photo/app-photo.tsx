@@ -92,6 +92,9 @@ export class AppPhoto {
       this.firstSlide = true;
       this.slideCorrection(0);
     } else {
+      setTimeout(() => {
+        this.firstTimeLoaded = true;
+      }, 2000);
       this.firstSlide = false;
     }
   }
@@ -112,7 +115,9 @@ export class AppPhoto {
         this.slideCorrection(iteration + 1);
       }, 10);
     } else {
-      this.firstTimeLoaded = true;
+      setTimeout(() => {
+        this.firstTimeLoaded = true;
+      }, 2000);
     }
     // else {
     // const photoId = this.photoId;
