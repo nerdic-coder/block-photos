@@ -437,7 +437,13 @@ export class AppPhotos {
                     <ion-icon slot="end" color="light" name="cloud-upload" />
                   </ion-button>
                 ]}
-            {!this.editMode && !this.album ? <ion-menu-button /> : null}
+            {!this.editMode && !this.album ? (
+              <ion-menu-toggle>
+                <ion-button fill="outline" color="secondary">
+                  <ion-label color="light">Menu</ion-label>
+                </ion-button>
+              </ion-menu-toggle>
+            ) : null}
           </ion-buttons>
         </ion-toolbar>
         <ion-toolbar class="loadingToolbar">

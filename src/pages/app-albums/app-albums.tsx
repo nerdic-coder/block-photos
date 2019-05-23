@@ -275,7 +275,13 @@ export class AppAlbums {
                     <ion-icon slot="end" color="light" name="add-circle" />
                   </ion-button>
                 ]}
-            {!this.editMode ? <ion-menu-button /> : null}
+            {!this.editMode ? (
+              <ion-menu-toggle>
+                <ion-button fill="outline" color="secondary">
+                  <ion-label color="light">Menu</ion-label>
+                </ion-button>
+              </ion-menu-toggle>
+            ) : null}
           </ion-buttons>
         </ion-toolbar>
       </ion-header>,

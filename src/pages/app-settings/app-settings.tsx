@@ -113,7 +113,11 @@ export class AppSettings {
         <ion-toolbar mode="md" color="primary">
           <ion-title>Settings</ion-title>
           <ion-buttons slot="end">
-            <ion-menu-button />
+            <ion-menu-toggle>
+              <ion-button fill="outline" color="secondary">
+                <ion-label color="light">Menu</ion-label>
+              </ion-button>
+            </ion-menu-toggle>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>,
