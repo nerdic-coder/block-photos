@@ -93,9 +93,9 @@ export class AppPhoto {
     }
     this.updateFromSlide = false;
 
-    if (this.slides) {
-      this.slides.lockSwipes(false);
-    }
+    // if (this.slides) {
+    //   this.slides.lockSwipes(false);
+    // }
     if (this.slideToOne) {
       this.slideToOne = false;
       this.firstSlide = true;
@@ -313,7 +313,7 @@ export class AppPhoto {
       let tempPhotos = this.photos;
 
       if (this.nextPhotoId && !this.photoExist(this.nextPhotoId)) {
-        this.slides.lockSwipes(true);
+        // this.slides.lockSwipes(true);
         tempPhotos = [
           ...tempPhotos,
           { photoId: this.nextPhotoId, isLoaded: false, source: '' }
@@ -322,7 +322,7 @@ export class AppPhoto {
       }
 
       if (this.previousPhotoId && !this.photoExist(this.previousPhotoId)) {
-        this.slides.lockSwipes(true);
+        // this.slides.lockSwipes(true);
         this.slideToOne = true;
         tempPhotos = [
           { photoId: this.previousPhotoId, isLoaded: false, source: '' },
