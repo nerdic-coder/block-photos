@@ -9,16 +9,24 @@ export default class StorageService {
     if (!item || updateCache) {
       const userSession = new blockstack.UserSession();
       item = await userSession.getFile(itemId);
-      CacheService.setItem(itemId, item);
+      if (updateCache) {
+        CacheService.setItem(itemId, item);
+      }
     }
 
     return item;
   }
 
-  static async setItem(itemId: string, itemValue: any) {
+  static async setItem(
+    itemId: string,
+    itemValue: any,
+    cacheItem = true
+  ): Promise<void> {
     const userSession = new blockstack.UserSession();
     await userSession.putFile(itemId, itemValue);
-    await CacheService.setItem(itemId, itemValue);
+    if (cacheItem) {
+      await CacheService.setItem(itemId, itemValue);
+    }
   }
 
   static async deleteItem(itemId: string) {

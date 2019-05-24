@@ -100,7 +100,7 @@ export default class UploadService {
       }
     }
     this.present.presentToolbarLoader(
-      'Uploading photo ' + (currentIndex + 1) + '/' + list.length + '.'
+      'Uploading photo ' + (currentIndex + 1) + ' of ' + list.length + '.'
     );
     // If dropped items aren't files, reject them
     if (list[currentIndex]) {
