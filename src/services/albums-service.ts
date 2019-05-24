@@ -9,6 +9,7 @@ export default class AlbumsService {
     try {
       const rawCachedAlbums = await StorageService.getItem(
         'albums-list.json',
+        updateCache,
         updateCache
       );
       if (rawCachedAlbums) {

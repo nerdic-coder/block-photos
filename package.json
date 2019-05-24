@@ -100,11 +100,12 @@
     "@sentry/browser": "5.3.0",
     "blueimp-load-image": "2.21.0",
     "browser-image-compression": "1.0.2",
-    "cors": "2.8.5",
     "compressorjs": "1.0.5",
+    "cors": "2.8.5",
     "electron-is-dev": "1.1.0",
     "electron-squirrel-startup": "^1.0.0",
     "is-electron": "^2.2.0",
+    "js-file-downloader": "^1.1.0",
     "localforage": "1.7.3",
     "uuid": "3.3.2"
   },

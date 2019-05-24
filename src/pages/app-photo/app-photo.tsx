@@ -1,5 +1,6 @@
 import { Component, Prop, State } from '@stencil/core';
 import loadImage from 'blueimp-load-image';
+import Downloader from 'js-file-downloader';
 
 import PhotosService from '../../services/photos-service';
 import PresentingService from '../../services/presenting-service';
@@ -32,6 +33,7 @@ export class AppPhoto {
   @State() photos: any[];
   @State() garbage: number;
   @State() firstTimeLoaded: boolean;
+  @State() downloadInProgress: boolean;
 
   constructor() {
     this.photos = [];
@@ -461,6 +463,29 @@ export class AppPhoto {
     );
   }
 
+  async downloadOriginal(event: MouseEvent): Promise<void> {
+    event.preventDefault();
+    this.downloadInProgress = true;
+    const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      this.photoId
+    );
+    const data = await PhotosService.loadPhoto(metadata, PhotoType.Download);
+    new Downloader({
+      url: data,
+      filename: metadata.filename
+    })
+      .then(() => {
+        // Called when download ended
+        this.downloadInProgress = false;
+      })
+      .catch(error => {
+        // Called when an error occurred
+        console.error(error);
+        this.downloadInProgress = false;
+        this.present.toast('Downloading of the photo failed!');
+      });
+  }
+
   render() {
     return [
       <ion-header>
@@ -502,6 +527,21 @@ export class AppPhoto {
               <ion-label color="light">Delete</ion-label>
               <ion-icon color="light" name="trash" />
             </ion-button>
+            {this.downloadInProgress ? (
+              <ion-button fill="outline" color="secondary" disabled={true}>
+                <ion-label color="light">Download</ion-label>
+                <ion-spinner name="circles" slot="end" color="light" />
+              </ion-button>
+            ) : (
+              <ion-button
+                fill="outline"
+                color="secondary"
+                onClick={event => this.downloadOriginal(event)}
+              >
+                <ion-label color="light">Download</ion-label>
+                <ion-icon slot="end" color="light" name="download" />
+              </ion-button>
+            )}
             <ion-button
               fill="outline"
               color="secondary"

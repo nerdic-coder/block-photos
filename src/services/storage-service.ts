@@ -3,13 +3,16 @@ import CacheService from './cache-service';
 declare var blockstack;
 
 export default class StorageService {
-  static async getItem(itemId: string, updateCache?: boolean) {
+  static async getItem(
+    itemId: string,
+    updateCache?: boolean,
+    forceUpdateCache?: boolean
+  ) {
     let item = await CacheService.getItem(itemId);
-
-    if (!item || updateCache) {
+    if (!item || forceUpdateCache) {
       const userSession = new blockstack.UserSession();
       item = await userSession.getFile(itemId);
-      if (updateCache) {
+      if (updateCache || forceUpdateCache) {
         CacheService.setItem(itemId, item);
       }
     }

@@ -14,8 +14,12 @@ export default class PhotosService {
     const errorsList = [];
     try {
       const rawCachedPhotosList = albumId
-        ? await StorageService.getItem(albumId, updateCache)
-        : await StorageService.getItem('picture-list.json', updateCache);
+        ? await StorageService.getItem(albumId, updateCache, updateCache)
+        : await StorageService.getItem(
+            'picture-list.json',
+            updateCache,
+            updateCache
+          );
 
       if (rawCachedPhotosList) {
         cachedPhotosList = JSON.parse(rawCachedPhotosList);
@@ -74,6 +78,7 @@ export default class PhotosService {
         ? (rawPhoto = 'data:' + metadata.type + ';base64,' + rawPhoto)
         : (rawPhoto = 'data:image/jpeg;base64,' + rawPhoto);
     }
+
     return rawPhoto;
   }
 
@@ -408,7 +413,8 @@ export default class PhotosService {
 
   static async getPhotoMetaData(photoId: string): Promise<PhotoMetadata> {
     const cachedPhotoMetaData: string = await StorageService.getItem(
-      photoId + '-meta'
+      photoId + '-meta',
+      true
     );
 
     if (!cachedPhotoMetaData) {
