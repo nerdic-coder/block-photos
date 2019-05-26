@@ -1,5 +1,8 @@
 import { Component, Prop, State } from '@stencil/core';
 
+import JSZip from 'jszip';
+import Downloader from 'js-file-downloader';
+
 import AlbumsService from '../../services/albums-service';
 import PhotosService from '../../services/photos-service';
 import PresentingService from '../../services/presenting-service';
@@ -36,6 +39,8 @@ export class AppPhotos {
   @State() editMode: boolean;
   @State() checkedItems: any[] = [];
   @State() uploadInProgress: boolean;
+  @State() downloadInProgress: boolean;
+  @State() deleteInProgress: boolean;
 
   @Prop({ mutable: true }) photoId: string;
   @Prop({ mutable: true }) albumId: string;
@@ -204,10 +209,15 @@ export class AppPhotos {
   }
 
   deletePhotoCallback(): void {
+    this.deleteInProgress = false;
     this.checkedItems = [];
     this.loadPhotosList();
 
     AnalyticsService.logEvent('photos-list-deleted');
+  }
+
+  deletePhotoStartCallback(): void {
+    this.deleteInProgress = true;
   }
 
   openFileDialog(event: any): void {
@@ -236,10 +246,55 @@ export class AppPhotos {
     this.checkedItems = [];
   }
 
+  async downloadZip(event: MouseEvent) {
+    event.preventDefault();
+    this.downloadInProgress = true;
+    if (this.checkedItems.length > 0) {
+      const zip = new JSZip();
+      for (const key in this.checkedItems) {
+        if (this.checkedItems.hasOwnProperty(key)) {
+          const photoId = this.checkedItems[key];
+          const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+            photoId
+          );
+          const data: string = await PhotosService.loadPhoto(
+            metadata,
+            PhotoType.Download
+          );
+          const fetchedData = await fetch(data);
+          const arrayBuffer = await fetchedData.arrayBuffer();
+
+          zip.file(metadata.filename, arrayBuffer);
+        }
+      }
+      zip.generateAsync({ type: 'base64' }).then((base64: string) => {
+        new Downloader({
+          url: 'data:application/zip;base64,' + base64,
+          filename: 'block-photos.zip'
+        })
+          .then(() => {
+            // Called when download ended
+            this.downloadInProgress = false;
+          })
+          .catch(error => {
+            // Called when an error occurred
+            console.error(error);
+            this.downloadInProgress = false;
+            this.present.toast('Downloading of the photo failed!');
+          });
+      });
+    }
+  }
+
   async handlePhotoClick(event: any, photoId: string): Promise<void> {
     if (this.editMode) {
       event.preventDefault();
-      if (this.lockTimer || this.activatedByTouch) {
+      if (
+        this.lockTimer ||
+        this.activatedByTouch ||
+        this.downloadInProgress ||
+        this.deleteInProgress
+      ) {
         this.activatedByTouch = false;
         return;
       }
@@ -366,7 +421,9 @@ export class AppPhotos {
                   <ion-button
                     fill="outline"
                     color="secondary"
-                    disabled={this.checkedItems.length === 0}
+                    disabled={
+                      this.checkedItems.length === 0 || this.deleteInProgress
+                    }
                     onClick={event => this.presentAlbumSelector(event)}
                   >
                     <ion-label color="light">Albums</ion-label>
@@ -376,26 +433,72 @@ export class AppPhotos {
                     fill="outline"
                     color="secondary"
                     onClick={() => this.rotatePhotos()}
-                    disabled={this.checkedItems.length === 0}
+                    disabled={
+                      this.checkedItems.length === 0 ||
+                      this.downloadInProgress ||
+                      this.deleteInProgress
+                    }
                   >
                     <ion-label color="light">Rotate</ion-label>
                     <ion-icon slot="end" color="light" name="sync" />
                   </ion-button>,
-                  <ion-button
-                    fill="outline"
-                    color="secondary"
-                    disabled={this.checkedItems.length === 0}
-                    onClick={() =>
-                      this.present.deletePhotos(
-                        this.checkedItems,
-                        this.deletePhotoCallback.bind(this),
-                        this.albumId
-                      )
-                    }
-                  >
-                    <ion-label color="light">Delete</ion-label>
-                    <ion-icon slot="end" color="light" name="trash" />
-                  </ion-button>,
+                  <div>
+                    {this.deleteInProgress ? (
+                      <ion-button
+                        fill="outline"
+                        color="secondary"
+                        disabled={true}
+                      >
+                        <ion-label color="light">Delete</ion-label>
+                        <ion-spinner name="circles" slot="end" color="light" />
+                      </ion-button>
+                    ) : (
+                      <ion-button
+                        fill="outline"
+                        color="secondary"
+                        disabled={
+                          this.checkedItems.length === 0 ||
+                          this.downloadInProgress
+                        }
+                        onClick={() =>
+                          this.present.deletePhotos(
+                            this.checkedItems,
+                            this.deletePhotoCallback.bind(this),
+                            this.albumId,
+                            this.deletePhotoStartCallback.bind(this)
+                          )
+                        }
+                      >
+                        <ion-label color="light">Delete</ion-label>
+                        <ion-icon slot="end" color="light" name="trash" />
+                      </ion-button>
+                    )}
+                  </div>,
+                  <div>
+                    {this.downloadInProgress ? (
+                      <ion-button
+                        fill="outline"
+                        color="secondary"
+                        disabled={true}
+                      >
+                        <ion-label color="light">Download</ion-label>
+                        <ion-spinner name="circles" slot="end" color="light" />
+                      </ion-button>
+                    ) : (
+                      <ion-button
+                        fill="outline"
+                        color="secondary"
+                        disabled={
+                          this.checkedItems.length === 0 ||
+                          this.deleteInProgress
+                        }
+                        onClick={event => this.downloadZip(event)}
+                      >
+                        <ion-label color="light">Download</ion-label>
+                        <ion-icon slot="end" color="light" name="download" />
+                      </ion-button>
+                    )}
+                  </div>,
                   <ion-button
                     fill="outline"
                     color="secondary"

@@ -106,6 +106,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "is-electron": "^2.2.0",
     "js-file-downloader": "^1.1.0",
+    "jszip": "3.2.1",
     "localforage": "1.7.3",
     "uuid": "3.3.2"
   },
@@ -134,6 +135,8 @@
     "prettier": "1.17.1",
     "pretty-quick": "1.10.0",
     "puppeteer": "1.12.2",
+    "rollup-plugin-node-builtins": "2.1.2",
+    "rollup-plugin-node-globals": "1.4.0",
     "selenium-standalone": "^6.15.6",
     "tslint": "5.16.0",
     "tslint-ionic-rules": "0.0.21",

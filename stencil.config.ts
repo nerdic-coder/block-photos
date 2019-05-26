@@ -1,4 +1,6 @@
 import { Config } from '@stencil/core';
+import builtins from 'rollup-plugin-node-builtins';
+import globals from 'rollup-plugin-node-globals';
 // https://stenciljs.com/docs/config
 
 export const config: Config = {
@@ -20,6 +22,8 @@ export const config: Config = {
   globalScript: 'src/global/app.ts',
   globalStyle: 'src/global/app.css',
   nodeResolve: {
-    browser: true
-  }
+    browser: true,
+    preferBuiltins: false
+  },
+  plugins: [builtins(), globals()]
 };

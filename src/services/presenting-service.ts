@@ -68,8 +68,9 @@ export default class PresentingService {
 
   async deletePhotos(
     ids: string[],
-    callback: any,
-    albumId?: string
+    endCallback: any,
+    albumId?: string,
+    startCallback?: any
   ): Promise<void> {
     if (!ids || ids.length < 1) {
       return;
@@ -90,22 +91,19 @@ export default class PresentingService {
         role: 'destructive',
         icon: 'trash',
         handler: () => {
-          if (ids.length === 1) {
-            this.loading('Deleting photo...');
-          } else {
-            this.loading('Deleting photos...');
+          if (startCallback) {
+            startCallback();
           }
 
           PhotosService.deletePhotos(ids).then(async result => {
-            await this.dismissLoading();
             if (result === true) {
-              callback();
+              endCallback();
             } else {
               this.errorAlert(
                 'Removal failed',
                 'The removal of some photos failed. Please try again in a few minutes!'
               );
-              callback();
+              endCallback();
             }
           });
         }
@@ -118,18 +116,19 @@ export default class PresentingService {
         role: 'destructive',
         icon: 'remove-circle',
         handler: () => {
-          this.loading('Removing photos...');
+          if (startCallback) {
+            startCallback();
+          }
           PhotosService.removePhotosFromList(ids, albumId).then(
             async result => {
-              await this.dismissLoading();
               if (result === true) {
-                callback();
+                endCallback();
               } else {
                 this.errorAlert(
                   'Removal failed',
                   'The removal of some photos failed. Please try again in a few minutes!'
                 );
-                callback();
+                endCallback();
               }
             }
           );
