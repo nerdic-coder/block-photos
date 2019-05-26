@@ -168,30 +168,30 @@ export class AppPhoto {
     ) {
       rotation = metadata.stats.exifdata.tags.Orientation;
       // Handle correct orientation for iOS
-      if (this.iOS() && metadata.stats.exifdata.tags.OriginalOrientation) {
-        const originalOrientation =
-          metadata.stats.exifdata.tags.OriginalOrientation;
-        // If the orientation is unchanged don't rotate at all with CSS, iOS handles it automatic
-        if (rotation === originalOrientation) {
-          rotation = 1;
-        } else if (rotation === 1 && originalOrientation === 6) {
-          rotation = 8;
-        } else if (rotation === 1) {
-          rotation = originalOrientation;
-        } else if (rotation === 3 && originalOrientation === 6) {
-          rotation = 6;
-        } else if (rotation === 8 && originalOrientation === 6) {
-          rotation = 3;
-        } else if (rotation === 3 && originalOrientation === 8) {
-          rotation = 6;
-        } else if (rotation === 6 && originalOrientation === 8) {
-          rotation = 3;
-        } else if (rotation === 8 && originalOrientation === 3) {
-          rotation = 6;
-        } else if (rotation === 6 && originalOrientation === 3) {
-          rotation = 8;
-        }
-      }
+      // if (this.iOS() && metadata.stats.exifdata.tags.OriginalOrientation) {
+      //   const originalOrientation =
+      //     metadata.stats.exifdata.tags.OriginalOrientation;
+      //   // If the orientation is unchanged don't rotate at all with CSS, iOS handles it automatic
+      //   if (rotation === originalOrientation) {
+      //     rotation = 1;
+      //   } else if (rotation === 1 && originalOrientation === 6) {
+      //     rotation = 8;
+      //   } else if (rotation === 1) {
+      //     rotation = originalOrientation;
+      //   } else if (rotation === 3 && originalOrientation === 6) {
+      //     rotation = 6;
+      //   } else if (rotation === 8 && originalOrientation === 6) {
+      //     rotation = 3;
+      //   } else if (rotation === 3 && originalOrientation === 8) {
+      //     rotation = 6;
+      //   } else if (rotation === 6 && originalOrientation === 8) {
+      //     rotation = 3;
+      //   } else if (rotation === 8 && originalOrientation === 3) {
+      //     rotation = 6;
+      //   } else if (rotation === 6 && originalOrientation === 3) {
+      //     rotation = 8;
+      //   }
+      // }
     }
 
     if (
@@ -281,26 +281,26 @@ export class AppPhoto {
     }
   }
 
-  iOS(): boolean {
-    const iDevices = [
-      'iPad Simulator',
-      'iPhone Simulator',
-      'iPod Simulator',
-      'iPad',
-      'iPhone',
-      'iPod'
-    ];
+  // iOS(): boolean {
+  //   const iDevices = [
+  //     'iPad Simulator',
+  //     'iPhone Simulator',
+  //     'iPod Simulator',
+  //     'iPad',
+  //     'iPhone',
+  //     'iPod'
+  //   ];
 
-    if (navigator.platform) {
-      while (iDevices.length) {
-        if (navigator.platform === iDevices.pop()) {
-          return true;
-        }
-      }
-    }
+  //   if (navigator.platform) {
+  //     while (iDevices.length) {
+  //       if (navigator.platform === iDevices.pop()) {
+  //         return true;
+  //       }
+  //     }
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 
   async setNextAndPreviousPhoto(photoId: string): Promise<void> {
     this.updateFromSlide = true;
