@@ -414,6 +414,7 @@ export default class PhotosService {
   static async getPhotoMetaData(photoId: string): Promise<PhotoMetadata> {
     const cachedPhotoMetaData: string = await StorageService.getItem(
       photoId + '-meta',
+      true,
       true
     );
 
