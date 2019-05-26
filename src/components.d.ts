@@ -37,10 +37,14 @@ export namespace Components {
   }
 
   interface SelectAlbum {
+    'endCallback': any;
     'selectedPhotos': any[];
+    'startCallback': any;
   }
   interface SelectAlbumAttributes extends StencilHTMLAttributes {
+    'endCallback'?: any;
     'selectedPhotos'?: any[];
+    'startCallback'?: any;
   }
 
   interface AppAlbums {}

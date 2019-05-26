@@ -41,6 +41,8 @@ export class AppPhotos {
   @State() uploadInProgress: boolean;
   @State() downloadInProgress: boolean;
   @State() deleteInProgress: boolean;
+  @State() rotationInProgress: boolean;
+  @State() addToAlbumInProgress: boolean;
 
   @Prop({ mutable: true }) photoId: string;
   @Prop({ mutable: true }) albumId: string;
@@ -180,21 +182,25 @@ export class AppPhotos {
     }, 500);
   }
 
-  async rotatePhotos(): Promise<void> {
+  rotatePhotos(): void {
     this.refreshPhotos = {};
-    for (const photoId of this.checkedItems) {
-      const result = await PhotosService.rotatePhoto(photoId);
-      if (!result) {
-        const metadata = await PhotosService.getPhotoMetaData(photoId);
-        await this.present.toast(
-          'Failed to rotate photo "' + metadata.filename + '".'
-        );
-      } else {
-        this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true };
+    this.rotationInProgress = true;
+    setTimeout(async () => {
+      for (const photoId of this.checkedItems) {
+        const result = await PhotosService.rotatePhoto(photoId);
+        if (!result) {
+          const metadata = await PhotosService.getPhotoMetaData(photoId);
+          await this.present.toast(
+            'Failed to rotate photo "' + metadata.filename + '".'
+          );
+        } else {
+          this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true };
+        }
       }
-    }
+      this.rotationInProgress = false;
 
-    AnalyticsService.logEvent('photos-list-rotate');
+      AnalyticsService.logEvent('photos-list-rotate');
+    }, 500);
   }
 
   uploadFilesDoneCallback() {
@@ -293,7 +299,9 @@ export class AppPhotos {
         this.lockTimer ||
         this.activatedByTouch ||
         this.downloadInProgress ||
-        this.deleteInProgress
+        this.deleteInProgress ||
+        this.rotationInProgress ||
+        this.addToAlbumInProgress
       ) {
         this.activatedByTouch = false;
         return;
@@ -380,11 +388,21 @@ export class AppPhotos {
     const popover = await popoverController.create({
       component: 'select-album',
       componentProps: {
-        selectedPhotos: this.checkedItems
+        selectedPhotos: this.checkedItems,
+        startCallback: this.albumSelectorStartCallback.bind(this),
+        endCallback: this.albumSelectorEndCallback.bind(this)
       },
       event
     });
     return popover.present();
+  }
+
+  albumSelectorStartCallback() {
+    this.addToAlbumInProgress = true;
+  }
+
+  albumSelectorEndCallback() {
+    this.addToAlbumInProgress = false;
   }
 
   preventDrag(event: any): boolean {
@@ -422,12 +440,20 @@ export class AppPhotos {
                     fill="outline"
                     color="secondary"
                     disabled={
-                      this.checkedItems.length === 0 || this.deleteInProgress
+                      this.checkedItems.length === 0 ||
+                      this.downloadInProgress ||
+                      this.deleteInProgress ||
+                      this.rotationInProgress ||
+                      this.addToAlbumInProgress
                     }
                     onClick={event => this.presentAlbumSelector(event)}
                   >
                     <ion-label color="light">Albums</ion-label>
-                    <ion-icon slot="end" color="light" name="add-circle" />
+                    {this.addToAlbumInProgress ? (
+                      <ion-spinner name="circles" slot="end" color="light" />
+                    ) : (
+                      <ion-icon slot="end" color="light" name="add-circle" />
+                    )}
                   </ion-button>,
                   <ion-button
                     fill="outline"
@@ -436,72 +462,73 @@ export class AppPhotos {
                     disabled={
                       this.checkedItems.length === 0 ||
                       this.downloadInProgress ||
-                      this.deleteInProgress
+                      this.deleteInProgress ||
+                      this.rotationInProgress ||
+                      this.addToAlbumInProgress
                     }
                   >
                     <ion-label color="light">Rotate</ion-label>
-                    <ion-icon slot="end" color="light" name="sync" />
+                    {this.rotationInProgress ? (
+                      <ion-spinner name="circles" slot="end" color="light" />
+                    ) : (
+                      <ion-icon slot="end" color="light" name="sync" />
+                    )}
                   </ion-button>,
-                  <div>
-                    {this.deleteInProgress ? (
-                      <ion-button
-                        fill="outline"
-                        color="secondary"
-                        disabled={true}
-                      >
-                        <ion-label color="light">Delete</ion-label>
-                        <ion-spinner name="circles" slot="end" color="light" />
-                      </ion-button>
-                    ) : (
-                      <ion-button
-                        fill="outline"
-                        color="secondary"
-                        disabled={
-                          this.checkedItems.length === 0 ||
-                          this.downloadInProgress
-                        }
-                        onClick={() =>
-                          this.present.deletePhotos(
-                            this.checkedItems,
-                            this.deletePhotoCallback.bind(this),
-                            this.albumId,
-                            this.deletePhotoStartCallback.bind(this)
-                          )
-                        }
-                      >
-                        <ion-label color="light">Delete</ion-label>
-                        <ion-icon slot="end" color="light" name="trash" />
-                      </ion-button>
-                    )}
-                  </div>,
-                  <div>
-                    {this.downloadInProgress ? (
-                      <ion-button
-                        fill="outline"
-                        color="secondary"
-                        disabled={true}
-                      >
-                        <ion-label color="light">Download</ion-label>
-                        <ion-spinner name="circles" slot="end" color="light" />
-                      </ion-button>
-                    ) : (
-                      <ion-button
-                        fill="outline"
-                        color="secondary"
-                        disabled={
-                          this.checkedItems.length === 0 ||
-                          this.deleteInProgress
-                        }
-                        onClick={event => this.downloadZip(event)}
-                      >
-                        <ion-label color="light">Download</ion-label>
-                        <ion-icon slot="end" color="light" name="download" />
-                      </ion-button>
-                    )}
-                  </div>,
                   <ion-button
                     fill="outline"
                     color="secondary"
+                    disabled={
+                      this.checkedItems.length === 0 ||
+                      this.downloadInProgress ||
+                      this.deleteInProgress ||
+                      this.rotationInProgress ||
+                      this.addToAlbumInProgress
+                    }
+                    onClick={() =>
+                      this.present.deletePhotos(
+                        this.checkedItems,
+                        this.deletePhotoCallback.bind(this),
+                        this.albumId,
+                        this.deletePhotoStartCallback.bind(this)
+                      )
+                    }
+                  >
+                    <ion-label color="light">Delete</ion-label>
+                    {this.deleteInProgress ? (
+                      <ion-spinner name="circles" slot="end" color="light" />
+                    ) : (
+                      <ion-icon slot="end" color="light" name="trash" />
+                    )}
+                  </ion-button>,
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    class="ion-hide-sm-down"
+                    disabled={
+                      this.checkedItems.length === 0 ||
+                      this.downloadInProgress ||
+                      this.deleteInProgress ||
+                      this.rotationInProgress ||
+                      this.addToAlbumInProgress
+                    }
+                    onClick={event => this.downloadZip(event)}
+                  >
+                    <ion-label color="light">Download</ion-label>
+                    {this.downloadInProgress ? (
+                      <ion-spinner name="circles" slot="end" color="light" />
+                    ) : (
+                      <ion-icon slot="end" color="light" name="download" />
+                    )}
+                  </ion-button>,
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    disabled={
+                      this.downloadInProgress ||
+                      this.deleteInProgress ||
+                      this.rotationInProgress ||
+                      this.addToAlbumInProgress
+                    }
                     onClick={() => this.deactivateEditor()}
                   >
                     <ion-label color="light">Done</ion-label>

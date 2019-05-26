@@ -34,6 +34,9 @@ export class AppPhoto {
   @State() garbage: number;
   @State() firstTimeLoaded: boolean;
   @State() downloadInProgress: boolean;
+  @State() deleteInProgress: boolean;
+  @State() rotationInProgress: boolean;
+  @State() addToAlbumInProgress: boolean;
 
   constructor() {
     this.photos = [];
@@ -365,28 +368,28 @@ export class AppPhoto {
   }
 
   async rotatePhoto(): Promise<void> {
-    await this.present.loading('Rotating photo...');
+    this.rotationInProgress = true;
     const result = await PhotosService.rotatePhoto(this.photoId);
     if (!result) {
-      await this.present.dismissLoading();
+      this.rotationInProgress = false;
       const metadata = await PhotosService.getPhotoMetaData(this.photoId);
       await this.present.toast(
         'Failed to rotate photo "' + metadata.filename + '".'
       );
     } else {
       this.getPhoto(this.photoId, 1);
+      this.rotationInProgress = false;
 
       if (this.updateCallback && typeof this.updateCallback === 'function') {
         // execute the callback, passing parameters as necessary
         this.updateCallback(this.photoId);
       }
-
-      this.present.dismissLoading();
     }
     AnalyticsService.logEvent('photo-page-rotate');
   }
 
   async deletePhotoCallback() {
+    this.deleteInProgress = false;
     if (this.updateCallback && typeof this.updateCallback === 'function') {
       // execute the callback, passing parameters as necessary
       this.updateCallback();
@@ -406,6 +409,10 @@ export class AppPhoto {
     AnalyticsService.logEvent('photo-page-delete');
   }
 
+  deletePhotoStartCallback(): void {
+    this.deleteInProgress = true;
+  }
+
   async closeModal() {
     await this.modalController.dismiss();
     this.photoId = null;
@@ -420,11 +427,21 @@ export class AppPhoto {
     const popover = await popoverController.create({
       component: 'select-album',
       componentProps: {
-        selectedPhotos: [this.photoId]
+        selectedPhotos: [this.photoId],
+        startCallback: this.albumSelectorStartCallback.bind(this),
+        endCallback: this.albumSelectorEndCallback.bind(this)
       },
       event
     });
     return popover.present();
+  }
+
+  albumSelectorStartCallback() {
+    this.addToAlbumInProgress = true;
+  }
+
+  albumSelectorEndCallback() {
+    this.addToAlbumInProgress = false;
   }
 
   async presentFilterSelector(event: any) {
@@ -497,18 +514,38 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress
+              }
               onClick={event => this.presentAlbumSelector(event)}
             >
               <ion-label color="light">Albums</ion-label>
-              <ion-icon slot="end" color="light" name="add-circle" />
+              {this.addToAlbumInProgress ? (
+                <ion-spinner name="circles" slot="end" color="light" />
+              ) : (
+                <ion-icon slot="end" color="light" name="add-circle" />
+              )}
             </ion-button>
             <ion-button
               fill="outline"
               color="secondary"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress
+              }
               onClick={() => this.rotatePhoto()}
             >
               <ion-label color="light">Rotate</ion-label>
-              <ion-icon slot="end" color="light" name="sync" />
+              {this.rotationInProgress ? (
+                <ion-spinner name="circles" slot="end" color="light" />
+              ) : (
+                <ion-icon slot="end" color="light" name="sync" />
+              )}
             </ion-button>
             {/* <ion-button onClick={() => this.presentFilterSelector(event)}>
               <ion-icon color="light" name="color-wand" />
@@ -516,35 +553,56 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress
+              }
               onClick={() =>
                 this.present.deletePhotos(
                   [this.photoId],
                   this.deletePhotoCallback.bind(this),
-                  this.albumId
+                  this.albumId,
+                  this.deletePhotoStartCallback.bind(this)
                 )
               }
             >
               <ion-label color="light">Delete</ion-label>
-              <ion-icon color="light" name="trash" />
-            </ion-button>
-            {this.downloadInProgress ? (
-              <ion-button fill="outline" color="secondary" disabled={true}>
-                <ion-label color="light">Download</ion-label>
+              {this.deleteInProgress ? (
                 <ion-spinner name="circles" slot="end" color="light" />
-              </ion-button>
-            ) : (
-              <ion-button
-                fill="outline"
-                color="secondary"
-                onClick={event => this.downloadOriginal(event)}
-              >
-                <ion-label color="light">Download</ion-label>
-                <ion-icon slot="end" color="light" name="download" />
-              </ion-button>
-            )}
+              ) : (
+                <ion-icon slot="end" color="light" name="trash" />
+              )}
+            </ion-button>
             <ion-button
               fill="outline"
               color="secondary"
+              class="ion-hide-sm-down"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress
+              }
+              onClick={event => this.downloadOriginal(event)}
+            >
+              <ion-label color="light">Download</ion-label>
+              {this.downloadInProgress ? (
+                <ion-spinner name="circles" slot="end" color="light" />
+              ) : (
+                <ion-icon slot="end" color="light" name="download" />
+              )}
+            </ion-button>
+            <ion-button
+              fill="outline"
+              color="secondary"
+              disabled={
+                this.downloadInProgress ||
+                this.deleteInProgress ||
+                this.rotationInProgress ||
+                this.addToAlbumInProgress
+              }
               onClick={() => this.closeModal()}
             >
               <ion-label color="light">Done</ion-label>
