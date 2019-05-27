@@ -19,13 +19,13 @@ export namespace Components {
   interface BlockImg {
     'photoId': string;
     'phototType': PhotoType;
-    'refresh': boolean;
+    'refresh': number;
     'rotate': boolean;
   }
   interface BlockImgAttributes extends StencilHTMLAttributes {
     'photoId'?: string;
     'phototType'?: PhotoType;
-    'refresh'?: boolean;
+    'refresh'?: number;
     'rotate'?: boolean;
   }
 

@@ -10,7 +10,7 @@ import { PhotoType } from '../models/photo-type';
 export class BlockImg {
   @Prop() photoId: string;
   @Prop() rotate: boolean;
-  @Prop() refresh: boolean;
+  @Prop() refresh: number;
   @Prop() phototType: PhotoType = PhotoType.Download;
 
   @State() source: string;
@@ -33,14 +33,15 @@ export class BlockImg {
   }
 
   @Watch('refresh')
-  refreshDidUpdate(newValue: string, oldValue: string): void {
+  refreshDidUpdate(newValue: number, oldValue: number): void {
     if (newValue !== oldValue) {
-      this.getPhoto();
+      this.getPhoto(newValue);
     }
   }
 
-  async getPhoto(): Promise<void> {
+  async getPhoto(newRotation?: number): Promise<void> {
     const { photoId, rotate } = this;
+    let rotation = 1;
 
     if (photoId === null) {
       this.source =
@@ -53,8 +54,9 @@ export class BlockImg {
     );
     const base64 = await PhotosService.loadPhoto(metadata, this.phototType);
 
-    let rotation = 1;
-    if (
+    if (newRotation) {
+      rotation = newRotation;
+    } else if (
       metadata &&
       metadata.stats &&
       metadata.stats.exifdata &&
@@ -88,17 +90,10 @@ export class BlockImg {
       // }
     }
 
-    // Set photo orientation from exif if it exist
-    if (
-      rotate &&
-      metadata &&
-      metadata.stats &&
-      metadata.stats.exifdata &&
-      metadata.stats.exifdata.tags.Orientation &&
-      rotation !== 1
-    ) {
+    // Set photo orientation from exif
+    if (rotate) {
       const imageOptions = {
-        orientation: metadata.stats.exifdata.tags.Orientation
+        orientation: rotation
       };
       loadImage(
         base64,

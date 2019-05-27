@@ -157,13 +157,19 @@ export class AppPhoto {
     }
   }
 
-  async getPhoto(photoId: string, index: number): Promise<void> {
+  async getPhoto(
+    photoId: string,
+    index: number,
+    newRotation?: number
+  ): Promise<void> {
     let rotation = 1;
     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
       photoId
     );
 
-    if (
+    if (newRotation) {
+      rotation = newRotation;
+    } else if (
       metadata &&
       metadata.stats &&
       metadata.stats.exifdata &&
@@ -197,15 +203,9 @@ export class AppPhoto {
       // }
     }
 
-    if (
-      rotation !== 1 &&
-      metadata &&
-      metadata.stats &&
-      metadata.stats.exifdata &&
-      metadata.stats.exifdata.tags.Orientation
-    ) {
+    if (rotation !== 1) {
       const imageOptions = {
-        orientation: metadata.stats.exifdata.tags.Orientation
+        orientation: rotation
       };
       loadImage(
         await PhotosService.loadPhoto(metadata, this.photoType),
@@ -369,20 +369,20 @@ export class AppPhoto {
 
   async rotatePhoto(): Promise<void> {
     this.rotationInProgress = true;
-    const result = await PhotosService.rotatePhoto(this.photoId);
-    if (!result) {
+    const newRotation: number = await PhotosService.rotatePhoto(this.photoId);
+    if (!newRotation) {
       this.rotationInProgress = false;
       const metadata = await PhotosService.getPhotoMetaData(this.photoId);
       await this.present.toast(
         'Failed to rotate photo "' + metadata.filename + '".'
       );
     } else {
-      this.getPhoto(this.photoId, 1);
+      this.getPhoto(this.photoId, 1, newRotation);
       this.rotationInProgress = false;
 
       if (this.updateCallback && typeof this.updateCallback === 'function') {
         // execute the callback, passing parameters as necessary
-        this.updateCallback(this.photoId);
+        this.updateCallback(this.photoId, newRotation);
       }
     }
     AnalyticsService.logEvent('photo-page-rotate');

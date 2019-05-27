@@ -455,7 +455,7 @@ export default class PhotosService {
     return true;
   }
 
-  static async rotatePhoto(photoId: string): Promise<boolean> {
+  static async rotatePhoto(photoId: string): Promise<number> {
     const metadata = await PhotosService.getPhotoMetaData(photoId);
 
     let currentOrientation = 1;
@@ -491,6 +491,12 @@ export default class PhotosService {
       metadata.stats.exifdata.tags.Orientation = 1;
     }
 
-    return PhotosService.setPhotoMetaData(photoId, metadata);
+    const setResult = await PhotosService.setPhotoMetaData(photoId, metadata);
+
+    if (setResult) {
+      return metadata.stats.exifdata.tags.Orientation;
+    } else {
+      return null;
+    }
   }
 }

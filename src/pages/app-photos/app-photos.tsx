@@ -182,25 +182,26 @@ export class AppPhotos {
     }, 500);
   }
 
-  rotatePhotos(): void {
-    this.refreshPhotos = {};
+  async rotatePhotos(): Promise<void> {
+    // this.refreshPhotos = {};
     this.rotationInProgress = true;
-    setTimeout(async () => {
-      for (const photoId of this.checkedItems) {
-        const result = await PhotosService.rotatePhoto(photoId);
-        if (!result) {
-          const metadata = await PhotosService.getPhotoMetaData(photoId);
-          await this.present.toast(
-            'Failed to rotate photo "' + metadata.filename + '".'
-          );
-        } else {
-          this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true };
-        }
+    let tempRefreshPhotos = this.refreshPhotos;
+    for (const photoId of this.checkedItems) {
+      const newRotation: number = await PhotosService.rotatePhoto(photoId);
+      if (!newRotation) {
+        const metadata = await PhotosService.getPhotoMetaData(photoId);
+        await this.present.toast(
+          'Failed to rotate photo "' + metadata.filename + '".'
+        );
+      } else {
+        tempRefreshPhotos = { ...tempRefreshPhotos, [photoId]: newRotation };
       }
-      this.rotationInProgress = false;
+    }
 
-      AnalyticsService.logEvent('photos-list-rotate');
-    }, 500);
+    this.refreshPhotos = tempRefreshPhotos;
+    this.rotationInProgress = false;
+
+    AnalyticsService.logEvent('photos-list-rotate');
   }
 
   uploadFilesDoneCallback() {
@@ -315,15 +316,19 @@ export class AppPhotos {
     }
   }
 
-  refreshPhoto(photoId: string): void {
-    this.refreshPhotos = this.refreshPhotos[photoId]
-      ? (this.refreshPhotos = { ...this.refreshPhotos, [photoId]: false })
-      : (this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true });
+  refreshPhoto(photoId: string, newRotation?: number): void {
+    if (newRotation) {
+      this.refreshPhotos = { ...this.refreshPhotos, [photoId]: newRotation };
+    } else {
+      this.refreshPhotos = this.refreshPhotos[photoId]
+        ? (this.refreshPhotos = { ...this.refreshPhotos, [photoId]: false })
+        : (this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true });
+    }
   }
 
-  updateCallback(photoId: string): void {
+  updateCallback(photoId: string, newRotation?: number): void {
     if (photoId) {
-      this.refreshPhoto(photoId);
+      this.refreshPhoto(photoId, newRotation);
     } else {
       setTimeout(() => {
         this.loadPhotosList(true, true);
