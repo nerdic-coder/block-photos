@@ -30,6 +30,10 @@ export default class StorageService {
     if (cacheItem) {
       await CacheService.setItem(itemId, itemValue);
     }
+
+    const timeStamp = Math.floor(Date.now() / 1000);
+    userSession.putFile('block-photos-last-updated', timeStamp.toString());
+    CacheService.setItem('block-photos-last-checked', timeStamp.toString());
   }
 
   static async deleteItem(itemId: string) {
@@ -42,5 +46,33 @@ export default class StorageService {
 
   static clear() {
     CacheService.clear();
+  }
+
+  static async checkUpdatedTimestamp(): Promise<boolean> {
+    const checkedTimestamp = await CacheService.getItem(
+      'block-photos-last-checked'
+    );
+    const timeStamp = Math.floor(Date.now() / 1000);
+    if (!checkedTimestamp) {
+      await CacheService.setItem(
+        'block-photos-last-checked',
+        timeStamp.toString()
+      );
+      return false;
+    } else {
+      const userSession = new blockstack.UserSession();
+      const updatedTimeStamp = await userSession.getFile(
+        'block-photos-last-updated'
+      );
+      if (updatedTimeStamp > checkedTimestamp) {
+        await CacheService.setItem(
+          'block-photos-last-checked',
+          timeStamp.toString()
+        );
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 }

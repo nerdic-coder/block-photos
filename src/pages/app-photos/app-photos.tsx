@@ -4,6 +4,7 @@ import JSZip from 'jszip';
 import Downloader from 'js-file-downloader';
 
 import AlbumsService from '../../services/albums-service';
+import StorageService from '../../services/storage-service';
 import PhotosService from '../../services/photos-service';
 import PresentingService from '../../services/presenting-service';
 import UploadService from '../../services/upload-service';
@@ -32,6 +33,7 @@ export class AppPhotos {
   private appPhotoElement: HTMLAppPhotoElement;
   private album: any;
   private router: HTMLIonRouterElement;
+  private timestampChecker: any;
 
   @State() photosList: any[] = [];
   @State() refreshPhotos: any = {};
@@ -89,15 +91,21 @@ export class AppPhotos {
     this.infiniteScroll = document.getElementById('infinite-scroll');
     this.refresherScroll = document.getElementById('photos-refresher-scroll');
     this.uploadService.addEventListeners(true);
-    this.loadPhotosList(false);
+    this.loadPhotosList(true);
 
     this.modalController = document.querySelector('ion-modal-controller');
     this.modalController.componentOnReady();
+
+    this.timestampChecker = setInterval(
+      this.checkTimestampUpdate.bind(this),
+      10000
+    );
 
     AnalyticsService.logEvent('photos-list');
   }
 
   async componentDidUnload() {
+    clearInterval(this.timestampChecker);
     this.uploadService.removeEventListeners(true);
     this.router.removeEventListener(
       'ionRouteDidChange',
@@ -110,6 +118,14 @@ export class AppPhotos {
       this.albumId = null;
       this.album = null;
       this.refreshPhotosList();
+    }
+  }
+
+  async checkTimestampUpdate() {
+    if (!this.editMode) {
+      if (await StorageService.checkUpdatedTimestamp()) {
+        this.loadPhotosList(true);
+      }
     }
   }
 

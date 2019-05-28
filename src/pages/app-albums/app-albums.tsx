@@ -2,6 +2,7 @@ import { Component, State } from '@stencil/core';
 
 import AlbumsService from '../../services/albums-service';
 import AnalyticsService from '../../services/analytics-service';
+import StorageService from '../../services/storage-service';
 import PresentingService from '../../services/presenting-service';
 import { PhotoType } from '../../models/photo-type';
 
@@ -13,6 +14,7 @@ declare var blockstack;
 export class AppAlbums {
   private present: PresentingService;
   private refresherScroll: any;
+  private timestampChecker: any;
 
   @State() albums: any[] = [];
   @State() albumsLoaded: boolean;
@@ -40,7 +42,24 @@ export class AppAlbums {
 
     this.loadAlbums(false);
 
+    this.timestampChecker = setInterval(
+      this.checkTimestampUpdate.bind(this),
+      10000
+    );
+
     AnalyticsService.logEvent('photos-list');
+  }
+
+  async componentDidUnload() {
+    clearInterval(this.timestampChecker);
+  }
+
+  async checkTimestampUpdate() {
+    if (!this.editMode) {
+      if (await StorageService.checkUpdatedTimestamp()) {
+        this.loadAlbums(true, false);
+      }
+    }
   }
 
   refreshList() {
