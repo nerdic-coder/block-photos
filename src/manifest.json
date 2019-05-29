@@ -5,7 +5,7 @@
   "display": "standalone",
   "icons": [
     {
-      "src": "assets/icon/icon.png",
+      "src": "https://app.block-photos.com/assets/icon/icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
