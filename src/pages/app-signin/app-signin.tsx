@@ -3,7 +3,6 @@ import { Component, Prop, State } from '@stencil/core';
 
 import { Plugins } from '@capacitor/core';
 
-import AnalyticsService from '../../services/analytics-service';
 import PresentingService from '../../services/presenting-service';
 import isElectron from 'is-electron';
 
@@ -39,7 +38,6 @@ export class AppSignin {
         this.hideSplash();
 
         router.push('/photos', 'root');
-        AnalyticsService.logEvent('login');
         return;
       } catch (error) {
         console.error('handlePendingSignIn failed', error);
@@ -71,8 +69,6 @@ export class AppSignin {
   async handleSignIn(e) {
     e.preventDefault();
 
-    AnalyticsService.logEvent('login-started');
-
     const { Device } = Plugins;
     const info = await Device.getInfo();
 
@@ -96,7 +92,8 @@ export class AppSignin {
       );
       blockstack.redirectToSignInWithAuthRequest(authRequest);
     } else {
-      blockstack.redirectToSignIn();
+      const userSession = new blockstack.UserSession();
+      userSession.redirectToSignIn();
     }
   }
 
