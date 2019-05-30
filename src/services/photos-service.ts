@@ -188,7 +188,7 @@ export default class PhotosService {
               reader.readAsDataURL(result);
             },
             error(err) {
-              console.log(err.message);
+              console.error(err.message);
             }
           });
           console.debug(compressor);
@@ -209,7 +209,7 @@ export default class PhotosService {
               reader.readAsDataURL(result);
             },
             error(err) {
-              console.log(err.message);
+              console.error(err.message);
             }
           });
           console.debug(compressor);
@@ -299,7 +299,7 @@ export default class PhotosService {
       // TODO: Update compressed
       returnState = true;
     } catch (error) {
-      console.log(error, source);
+      console.error(error, source);
       returnState = false;
     }
 

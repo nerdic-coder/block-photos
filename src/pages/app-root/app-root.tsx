@@ -40,17 +40,14 @@ export class AppRoot {
   // }
 
   async componentWillLoad() {
-    console.log('AppRoot componentWillLoad 1');
     try {
       if (await SettingsService.getAnalyticsSetting(true)) {
-        console.log('AppRoot componentWillLoad 2');
         Sentry.init({
           dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
           release: 'block-photos@4.0'
         });
       }
     } catch (error) {
-      console.log('AppRoot componentWillLoad 3');
       Sentry.init({
         dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
         release: 'block-photos@4.0'
@@ -59,18 +56,13 @@ export class AppRoot {
 
     this.initCapacitor();
 
-    console.log('AppRoot componentWillLoad 4');
     const userSession = new blockstack.UserSession();
-    console.log('AppRoot componentWillLoad 5');
     this.isAuthenticated = userSession.isUserSignedIn();
-    console.log('AppRoot componentWillLoad 6');
   }
 
   async componentDidLoad() {
-    console.log('AppRoot componentDidLoad 1');
     const router: any = document.querySelector('ion-router');
     await router.componentOnReady();
-    console.log('AppRoot componentDidLoad 2');
     router.addEventListener('ionRouteDidChange', () => {
       const userSession = new blockstack.UserSession();
       this.isAuthenticated = userSession.isUserSignedIn();

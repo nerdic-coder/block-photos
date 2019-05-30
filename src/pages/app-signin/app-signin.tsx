@@ -24,23 +24,17 @@ export class AppSignin {
   }
 
   async componentDidLoad() {
-    console.log('componentDidLoad 1');
     const router: any = document.querySelector('ion-router');
     await router.componentOnReady();
 
-    console.log('componentDidLoad 2');
     const userSession = new blockstack.UserSession();
-    console.log('componentDidLoad 3');
     if (userSession.isUserSignedIn()) {
-      console.log('componentDidLoad 4');
       this.hideSplash();
       router.push('/photos', 'root');
       return;
     } else if (userSession.isSignInPending() && !userSession.isUserSignedIn()) {
-      console.log('componentDidLoad 5');
       try {
         await userSession.handlePendingSignIn();
-        console.log('componentDidLoad 6');
         this.hideSplash();
 
         router.push('/photos', 'root');
