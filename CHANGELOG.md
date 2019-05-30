@@ -1,5 +1,12 @@
 # Changelog
 
+## v4.0.0 (31/05/2019)
+
+- [**enhancement**] #48 Automatically sync photos between devices
+- [**enhancement**] #35 Photos can now be downloaded from Block Photos
+- [**enhancement**] #50 Compressed versions of photos for faster loading times
+- [**enhancement**] Redesign of menu buttons and loaders
+
 ## v3.0.0 (09/04/2019)
 
 - [**enhancement**] #26 Photo viewer Slide between pictures with multi-touch
