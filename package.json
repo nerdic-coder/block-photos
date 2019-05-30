@@ -139,8 +139,7 @@
     "rollup-plugin-node-globals": "1.4.0",
     "selenium-standalone": "^6.15.6",
     "tslint": "5.16.0",
-    "tslint-ionic-rules": "0.0.21",
-    "workbox-build": "3.4.1"
+    "tslint-ionic-rules": "0.0.21"
   },
   "browserslist": [
     ">0.2%",

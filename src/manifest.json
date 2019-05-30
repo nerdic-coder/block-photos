@@ -1,7 +1,7 @@
 {
   "name": "block-photos",
   "short_name": "block-photos",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "icons": [
     {
