@@ -1,15 +1,21 @@
 import { Component, Prop, State } from '@stencil/core';
 
+import JSZip from 'jszip';
+import Downloader from 'js-file-downloader';
+
 import AlbumsService from '../../services/albums-service';
+import StorageService from '../../services/storage-service';
 import PhotosService from '../../services/photos-service';
 import PresentingService from '../../services/presenting-service';
 import UploadService from '../../services/upload-service';
 import AnalyticsService from '../../services/analytics-service';
+import { PhotoType } from '../../models/photo-type';
 
 declare var blockstack;
 
 @Component({
-  tag: 'app-photos'
+  tag: 'app-photos',
+  styleUrl: 'app-photos.css'
 })
 export class AppPhotos {
   private timer;
@@ -27,12 +33,18 @@ export class AppPhotos {
   private appPhotoElement: HTMLAppPhotoElement;
   private album: any;
   private router: HTMLIonRouterElement;
+  private timestampChecker: any;
 
   @State() photosList: any[] = [];
   @State() refreshPhotos: any = {};
   @State() listLoaded: boolean;
   @State() editMode: boolean;
   @State() checkedItems: any[] = [];
+  @State() uploadInProgress: boolean;
+  @State() downloadInProgress: boolean;
+  @State() deleteInProgress: boolean;
+  @State() rotationInProgress: boolean;
+  @State() addToAlbumInProgress: boolean;
 
   @Prop({ mutable: true }) photoId: string;
   @Prop({ mutable: true }) albumId: string;
@@ -45,7 +57,8 @@ export class AppPhotos {
   async componentWillLoad() {
     this.uploadService = new UploadService(
       this.uploadFilesDoneCallback.bind(this),
-      this.albumId
+      this.albumId,
+      this.uploadFilesStartedCallback.bind(this)
     );
 
     if (this.albumId) {
@@ -78,15 +91,21 @@ export class AppPhotos {
     this.infiniteScroll = document.getElementById('infinite-scroll');
     this.refresherScroll = document.getElementById('photos-refresher-scroll');
     this.uploadService.addEventListeners(true);
-    this.loadPhotosList(false);
+    this.loadPhotosList(true);
 
     this.modalController = document.querySelector('ion-modal-controller');
     this.modalController.componentOnReady();
+
+    this.timestampChecker = setInterval(
+      this.checkTimestampUpdate.bind(this),
+      10000
+    );
 
     AnalyticsService.logEvent('photos-list');
   }
 
   async componentDidUnload() {
+    clearInterval(this.timestampChecker);
     this.uploadService.removeEventListeners(true);
     this.router.removeEventListener(
       'ionRouteDidChange',
@@ -102,6 +121,14 @@ export class AppPhotos {
     }
   }
 
+  async checkTimestampUpdate() {
+    if (!this.editMode) {
+      if (await StorageService.checkUpdatedTimestamp()) {
+        this.loadPhotosList(true);
+      }
+    }
+  }
+
   refreshPhotosList() {
     this.loadPhotosList(true, true);
   }
@@ -109,7 +136,7 @@ export class AppPhotos {
   async loadPhotosList(sync?: boolean, skipLoading?: boolean) {
     try {
       if (!skipLoading) {
-        await this.present.loading('Loading photos...');
+        await this.present.presentToolbarLoader('Loading photos...');
       }
 
       // Get the contents of the file picture-list.json
@@ -119,7 +146,7 @@ export class AppPhotos {
       );
       this.photosListCached = photosListResponse.photosList;
       if (!skipLoading) {
-        await this.present.dismissLoading();
+        this.present.dismissToolbarLoader();
       }
 
       this.loadPhotosRange();
@@ -139,8 +166,9 @@ export class AppPhotos {
         }
       }
     } catch (error) {
+      console.error('loadPhotosList error', error);
       if (!skipLoading) {
-        await this.present.dismissLoading();
+        this.present.dismissToolbarLoader();
       }
       this.present.toast('Could not load photos. Please try again!');
       this.refresherScroll.complete();
@@ -154,16 +182,15 @@ export class AppPhotos {
       }
       this.refresherScroll.complete();
       const photosToLoad = this.photosLoaded + 18;
-      if (photosToLoad > this.photosListCached.length) {
-        this.editMode = false;
+      if (photosToLoad >= this.photosListCached.length) {
+        // this.refresherScroll.disabled = false;
+        // this.editMode = false;
         this.photosList = this.photosListCached;
         this.listLoaded = true;
-        if (event) {
-          this.infiniteScroll.disabled = true;
-        }
+        this.infiniteScroll.disabled = true;
       } else {
         const photosList = this.photosListCached.slice(0, photosToLoad);
-        this.editMode = false;
+        // this.editMode = false;
         this.photosList = photosList;
         this.listLoaded = true;
         this.photosLoaded = photosToLoad;
@@ -172,33 +199,48 @@ export class AppPhotos {
   }
 
   async rotatePhotos(): Promise<void> {
-    this.refreshPhotos = {};
+    // this.refreshPhotos = {};
+    this.rotationInProgress = true;
+    let tempRefreshPhotos = this.refreshPhotos;
     for (const photoId of this.checkedItems) {
-      const result = await PhotosService.rotatePhoto(photoId);
-      if (!result) {
-        await this.present.dismissLoading();
+      const newRotation: number = await PhotosService.rotatePhoto(photoId);
+      if (!newRotation) {
         const metadata = await PhotosService.getPhotoMetaData(photoId);
         await this.present.toast(
           'Failed to rotate photo "' + metadata.filename + '".'
         );
       } else {
-        this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true };
+        tempRefreshPhotos = { ...tempRefreshPhotos, [photoId]: newRotation };
       }
     }
+
+    this.refreshPhotos = tempRefreshPhotos;
+    this.rotationInProgress = false;
 
     AnalyticsService.logEvent('photos-list-rotate');
   }
 
   uploadFilesDoneCallback() {
+    this.uploadInProgress = false;
     this.loadPhotosList();
 
     AnalyticsService.logEvent('photos-list-uploaded');
   }
 
+  uploadFilesStartedCallback() {
+    this.uploadInProgress = true;
+  }
+
   deletePhotoCallback(): void {
+    this.deleteInProgress = false;
+    this.checkedItems = [];
     this.loadPhotosList();
 
     AnalyticsService.logEvent('photos-list-deleted');
+  }
+
+  deletePhotoStartCallback(): void {
+    this.deleteInProgress = true;
   }
 
   openFileDialog(event: any): void {
@@ -216,19 +258,68 @@ export class AppPhotos {
       event.preventDefault();
     }
 
+    this.refresherScroll.disabled = true;
     this.editMode = true;
     this.checkedItems = id ? [id] : [];
   }
 
   deactivateEditor(): void {
+    this.refresherScroll.disabled = false;
     this.editMode = false;
     this.checkedItems = [];
+  }
+
+  async downloadZip(event: MouseEvent) {
+    event.preventDefault();
+    this.downloadInProgress = true;
+    if (this.checkedItems.length > 0) {
+      const zip = new JSZip();
+      for (const key in this.checkedItems) {
+        if (this.checkedItems.hasOwnProperty(key)) {
+          const photoId = this.checkedItems[key];
+          const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+            photoId
+          );
+          const data: string = await PhotosService.loadPhoto(
+            metadata,
+            PhotoType.Download
+          );
+          const fetchedData = await fetch(data);
+          const arrayBuffer = await fetchedData.arrayBuffer();
+
+          zip.file(metadata.filename, arrayBuffer);
+        }
+      }
+      zip.generateAsync({ type: 'base64' }).then((base64: string) => {
+        new Downloader({
+          url: 'data:application/zip;base64,' + base64,
+          filename: 'block-photos.zip'
+        })
+          .then(() => {
+            // Called when download ended
+            this.downloadInProgress = false;
+          })
+          .catch(error => {
+            // Called when an error occurred
+            console.error(error);
+            this.downloadInProgress = false;
+            this.present.toast('Downloading of the photo failed!');
+          });
+      });
+    }
   }
 
   async handlePhotoClick(event: any, photoId: string): Promise<void> {
     if (this.editMode) {
       event.preventDefault();
-      if (this.lockTimer || this.activatedByTouch) {
+      if (
+        this.lockTimer ||
+        this.activatedByTouch ||
+        this.downloadInProgress ||
+        this.deleteInProgress ||
+        this.rotationInProgress ||
+        this.addToAlbumInProgress
+      ) {
         this.activatedByTouch = false;
         return;
       }
@@ -236,24 +327,24 @@ export class AppPhotos {
       this.checkedItems = this.checkedItems.includes(photoId)
         ? this.checkedItems.filter(item => item !== photoId)
         : (this.checkedItems = [...this.checkedItems, photoId]);
-
-      if (this.checkedItems.length < 1) {
-        this.editMode = false;
-      }
     } else {
       this.openPhotoModal(photoId);
     }
   }
 
-  refreshPhoto(photoId: string): void {
-    this.refreshPhotos = this.refreshPhotos[photoId]
-      ? (this.refreshPhotos = { ...this.refreshPhotos, [photoId]: false })
-      : (this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true });
+  refreshPhoto(photoId: string, newRotation?: number): void {
+    if (newRotation) {
+      this.refreshPhotos = { ...this.refreshPhotos, [photoId]: newRotation };
+    } else {
+      this.refreshPhotos = this.refreshPhotos[photoId]
+        ? (this.refreshPhotos = { ...this.refreshPhotos, [photoId]: false })
+        : (this.refreshPhotos = { ...this.refreshPhotos, [photoId]: true });
+    }
   }
 
-  updateCallback(photoId: string): void {
+  updateCallback(photoId: string, newRotation?: number): void {
     if (photoId) {
-      this.refreshPhoto(photoId);
+      this.refreshPhoto(photoId, newRotation);
     } else {
       setTimeout(() => {
         this.loadPhotosList(true, true);
@@ -318,11 +409,21 @@ export class AppPhotos {
     const popover = await popoverController.create({
       component: 'select-album',
       componentProps: {
-        selectedPhotos: this.checkedItems
+        selectedPhotos: this.checkedItems,
+        startCallback: this.albumSelectorStartCallback.bind(this),
+        endCallback: this.albumSelectorEndCallback.bind(this)
       },
       event
     });
     return popover.present();
+  }
+
+  albumSelectorStartCallback() {
+    this.addToAlbumInProgress = true;
+  }
+
+  albumSelectorEndCallback() {
+    this.addToAlbumInProgress = false;
   }
 
   preventDrag(event: any): boolean {
@@ -341,55 +442,164 @@ export class AppPhotos {
     return [
       <ion-header>
         <ion-toolbar mode="md" color="primary">
-          {this.album ? (
+          {this.album && !this.editMode ? (
             <ion-buttons slot="start">
               <ion-back-button defaultHref="/albums" />
             </ion-buttons>
           ) : null}
-          <ion-title class="unselectable">
-            {this.album ? this.album.albumName : 'Block Photos'}
-          </ion-title>
+          {this.editMode ? (
+            ''
+          ) : (
+            <ion-title class="unselectable">
+              {this.album ? this.album.albumName : 'Photos'}
+            </ion-title>
+          )}
           <ion-buttons slot="end">
             {this.editMode
               ? [
                   <ion-button
+                    fill="outline"
+                    color="secondary"
+                    disabled={
+                      this.checkedItems.length === 0 ||
+                      this.downloadInProgress ||
+                      this.deleteInProgress ||
+                      this.rotationInProgress ||
+                      this.addToAlbumInProgress
+                    }
                     onClick={event => this.presentAlbumSelector(event)}
                   >
-                    <ion-icon color="light" name="add-circle" />
-                  </ion-button>,
-                  <ion-button onClick={() => this.rotatePhotos()}>
-                    <ion-icon color="light" name="sync" />
+                    <ion-label color="light">Albums</ion-label>
+                    {this.addToAlbumInProgress ? (
+                      <ion-spinner name="circles" slot="end" color="light" />
+                    ) : (
+                      <ion-icon slot="end" color="light" name="add-circle" />
+                    )}
                   </ion-button>,
                   <ion-button
+                    fill="outline"
+                    color="secondary"
+                    onClick={() => this.rotatePhotos()}
+                    disabled={
+                      this.checkedItems.length === 0 ||
+                      this.downloadInProgress ||
+                      this.deleteInProgress ||
+                      this.rotationInProgress ||
+                      this.addToAlbumInProgress
+                    }
+                  >
+                    <ion-label color="light">Rotate</ion-label>
+                    {this.rotationInProgress ? (
+                      <ion-spinner name="circles" slot="end" color="light" />
+                    ) : (
+                      <ion-icon slot="end" color="light" name="sync" />
+                    )}
+                  </ion-button>,
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    disabled={
+                      this.checkedItems.length === 0 ||
+                      this.downloadInProgress ||
+                      this.deleteInProgress ||
+                      this.rotationInProgress ||
+                      this.addToAlbumInProgress
+                    }
                     onClick={() =>
                       this.present.deletePhotos(
                         this.checkedItems,
                         this.deletePhotoCallback.bind(this),
-                        this.albumId
+                        this.albumId,
+                        this.deletePhotoStartCallback.bind(this)
                       )
                     }
                   >
-                    <ion-icon color="light" name="trash" />
+                    <ion-label color="light">Delete</ion-label>
+                    {this.deleteInProgress ? (
+                      <ion-spinner name="circles" slot="end" color="light" />
+                    ) : (
+                      <ion-icon slot="end" color="light" name="trash" />
+                    )}
                   </ion-button>,
-                  <ion-button onClick={() => this.deactivateEditor()}>
-                    <ion-icon color="light" name="close" />
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    class="ion-hide-sm-down"
+                    disabled={
+                      this.checkedItems.length === 0 ||
+                      this.downloadInProgress ||
+                      this.deleteInProgress ||
+                      this.rotationInProgress ||
+                      this.addToAlbumInProgress
+                    }
+                    onClick={event => this.downloadZip(event)}
+                  >
+                    <ion-label color="light">Download</ion-label>
+                    {this.downloadInProgress ? (
+                      <ion-spinner name="circles" slot="end" color="light" />
+                    ) : (
+                      <ion-icon slot="end" color="light" name="download" />
+                    )}
+                  </ion-button>,
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    disabled={
+                      this.downloadInProgress ||
+                      this.deleteInProgress ||
+                      this.rotationInProgress ||
+                      this.addToAlbumInProgress
+                    }
+                    onClick={() => this.deactivateEditor()}
+                  >
+                    <ion-label color="light">Done</ion-label>
                   </ion-button>
                 ]
               : [
-                  <ion-button onClick={() => this.loadPhotosList(true)}>
-                    <ion-icon name="refresh" />
+                  <ion-button
+                    class="ion-hide-sm-down"
+                    fill="outline"
+                    color="secondary"
+                    onClick={() => this.loadPhotosList(true)}
+                  >
+                    <ion-label color="light">Refresh</ion-label>
+                    <ion-icon slot="end" color="light" name="refresh" />
                   </ion-button>,
                   <ion-button
+                    fill="outline"
+                    color="secondary"
+                    disabled={this.uploadInProgress === true}
                     onClick={event => this.activateEditor(event, null)}
                   >
-                    <ion-icon name="checkmark-circle" />
+                    <ion-label color="light">Edit</ion-label>
+                    <ion-icon
+                      slot="end"
+                      color="light"
+                      name="checkmark-circle"
+                    />
                   </ion-button>,
-                  <ion-button onClick={event => this.openFileDialog(event)}>
-                    <ion-icon name="cloud-upload" />
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    disabled={this.uploadInProgress === true}
+                    onClick={event => this.openFileDialog(event)}
+                  >
+                    <ion-label color="light">Upload</ion-label>
+                    <ion-icon slot="end" color="light" name="cloud-upload" />
                   </ion-button>
                 ]}
-            {!this.editMode && !this.album ? <ion-menu-button /> : null}
+            {!this.editMode && !this.album ? (
+              <ion-menu-toggle>
+                <ion-button fill="outline" color="secondary">
+                  <ion-label color="light">Menu</ion-label>
+                </ion-button>
+              </ion-menu-toggle>
+            ) : null}
           </ion-buttons>
+        </ion-toolbar>
+        <ion-toolbar class="loadingToolbar">
+          <ion-progress-bar type="indeterminate" />
+          <ion-title />
         </ion-toolbar>
       </ion-header>,
 
@@ -402,20 +612,43 @@ export class AppPhotos {
           <ion-refresher-content />
         </ion-refresher>
         {empty && this.listLoaded ? (
-          <ion-card padding text-center>
-            {!this.album ? <h2>Welcome to Block Photos.</h2> : null}
-            <h3>
-              Use the upload button (
-              <ion-icon size="small" name="cloud-upload" />) to add your first
-              photo.
-            </h3>
+          <ion-card
+            padding
+            text-center
+            class="pointer ion-align-items-center"
+            onClick={event => this.openFileDialog(event)}
+          >
+            <ion-grid class="upload-grid">
+              <ion-row>
+                <ion-col align-self-center>
+                  {!this.album ? <h2>Welcome to Block Photos.</h2> : null}
+                  <h3>Click here to upload your first photo.</h3>
+                  <ion-icon
+                    class="cloud-icon"
+                    size="large"
+                    name="cloud-upload"
+                  />
+                </ion-col>
+              </ion-row>
+            </ion-grid>
           </ion-card>
         ) : (
           <ion-grid no-padding>
             {rows.map(row => (
-              <ion-row align-items-center key={row[0].id}>
+              <ion-row align-items-stretch key={row[0].id}>
                 {row.map(col => (
-                  <ion-col no-padding align-self-center key={col.id}>
+                  <ion-col
+                    no-padding
+                    align-self-center
+                    key={col.id}
+                    class={this.isChecked(col.id) ? 'selected' : ''}
+                  >
+                    {/* <ion-checkbox
+                      class="floatInput"
+                      checked={this.isChecked(col.id)}
+                      disabled={!this.editMode}
+                      mode="ios"
+                    /> */}
                     <div
                       class="square pointer"
                       draggable={false}
@@ -426,20 +659,73 @@ export class AppPhotos {
                       }
                       onDragStart={event => this.preventDrag(event)}
                     >
-                      {this.editMode ? (
-                        <ion-checkbox
-                          class="floatInput"
-                          checked={this.isChecked(col.id)}
-                          mode="ios"
-                        />
-                      ) : null}
                       <block-img
                         photoId={col.id}
+                        phototType={PhotoType.Thumbnail}
                         refresh={this.refreshPhotos[col.id]}
                       />
                     </div>
                   </ion-col>
                 ))}
+                {row.length === 1
+                  ? [
+                      <ion-col no-padding align-self-stretch>
+                        {this.editMode ? (
+                          ''
+                        ) : (
+                          <ion-card
+                            no-margin
+                            text-center
+                            class="pointer full"
+                            onClick={event => this.openFileDialog(event)}
+                          >
+                            <ion-grid class="upload-grid">
+                              <ion-row>
+                                <ion-col align-self-center>
+                                  <h3>Click here to upload more photos.</h3>
+                                  <ion-icon
+                                    class="cloud-icon"
+                                    size="large"
+                                    name="cloud-upload"
+                                  />
+                                </ion-col>
+                              </ion-row>
+                            </ion-grid>
+                          </ion-card>
+                        )}
+                      </ion-col>,
+                      <ion-col />
+                    ]
+                  : null}
+                {row.length === 2
+                  ? [
+                      <ion-col no-padding align-self-stretch>
+                        {this.editMode ? (
+                          ''
+                        ) : (
+                          <ion-card
+                            no-margin
+                            text-center
+                            class="pointer full"
+                            onClick={event => this.openFileDialog(event)}
+                          >
+                            <ion-grid class="upload-grid">
+                              <ion-row>
+                                <ion-col align-self-center>
+                                  <h3>Click here to upload more photos.</h3>
+                                  <ion-icon
+                                    class="cloud-icon"
+                                    size="large"
+                                    name="cloud-upload"
+                                  />
+                                </ion-col>
+                              </ion-row>
+                            </ion-grid>
+                          </ion-card>
+                        )}
+                      </ion-col>
+                    ]
+                  : null}
               </ion-row>
             ))}
           </ion-grid>
@@ -455,7 +741,16 @@ export class AppPhotos {
           />
         </ion-infinite-scroll>
         <input id="file-upload" type="file" multiple />
-      </ion-content>
+      </ion-content>,
+      <div>
+        {this.editMode ? (
+          <ion-footer>
+            <ion-toolbar>
+              <ion-title>{this.checkedItems.length} Photos Selected</ion-title>
+            </ion-toolbar>
+          </ion-footer>
+        ) : null}
+      </div>
     ];
   }
 

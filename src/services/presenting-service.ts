@@ -22,6 +22,38 @@ export default class PresentingService {
     }
   }
 
+  async presentToolbarLoader(message: string): Promise<void> {
+    const loadingToolbar = document.querySelector('.loadingToolbar');
+
+    if (loadingToolbar) {
+      const loadingTitle = loadingToolbar.querySelector('ion-title');
+      await loadingTitle.componentOnReady();
+      loadingTitle.innerText = message;
+      loadingToolbar.classList.add('show');
+    }
+  }
+
+  toolbarLoaderIsPresent(): boolean {
+    const loadingToolbar = document.querySelector('.loadingToolbar');
+
+    if (loadingToolbar) {
+      return loadingToolbar.classList.contains('show');
+    } else {
+      return false;
+    }
+  }
+
+  async dismissToolbarLoader(): Promise<void> {
+    const loadingToolbar = document.querySelector('.loadingToolbar');
+
+    if (loadingToolbar) {
+      const loadingTitle = loadingToolbar.querySelector('ion-title');
+      await loadingTitle.componentOnReady();
+      loadingTitle.innerText = '';
+      loadingToolbar.classList.remove('show');
+    }
+  }
+
   async toast(message: string): Promise<void> {
     const toastController = document.querySelector('ion-toast-controller');
     await toastController.componentOnReady();
@@ -36,8 +68,9 @@ export default class PresentingService {
 
   async deletePhotos(
     ids: string[],
-    callback: any,
-    albumId?: string
+    endCallback: any,
+    albumId?: string,
+    startCallback?: any
   ): Promise<void> {
     if (!ids || ids.length < 1) {
       return;
@@ -58,21 +91,19 @@ export default class PresentingService {
         role: 'destructive',
         icon: 'trash',
         handler: () => {
-          if (ids.length === 1) {
-            this.loading('Deleting photo...');
-          } else {
-            this.loading('Deleting photos...');
+          if (startCallback) {
+            startCallback();
           }
 
           PhotosService.deletePhotos(ids).then(async result => {
-            await this.dismissLoading();
             if (result === true) {
-              callback();
+              endCallback();
             } else {
               this.errorAlert(
                 'Removal failed',
                 'The removal of some photos failed. Please try again in a few minutes!'
               );
+              endCallback();
             }
           });
         }
@@ -85,17 +116,19 @@ export default class PresentingService {
         role: 'destructive',
         icon: 'remove-circle',
         handler: () => {
-          this.loading('Removing photos...');
+          if (startCallback) {
+            startCallback();
+          }
           PhotosService.removePhotosFromList(ids, albumId).then(
             async result => {
-              await this.dismissLoading();
               if (result === true) {
-                callback();
+                endCallback();
               } else {
                 this.errorAlert(
                   'Removal failed',
                   'The removal of some photos failed. Please try again in a few minutes!'
                 );
+                endCallback();
               }
             }
           );

@@ -1,3 +1,7 @@
 app-photo ion-slides {
   height: 100%;
 }
+
+app-photo .swiper-slide img {
+  width: 100%;
+}

@@ -14,6 +14,8 @@ export class SelectAlbum {
   @State() isLoaded: boolean;
 
   @Prop() selectedPhotos: any[] = [];
+  @Prop() startCallback: any;
+  @Prop() endCallback: any;
 
   constructor() {
     this.present = new PresentingService();
@@ -57,6 +59,9 @@ export class SelectAlbum {
   async addPhotosToAlbum(event: any, album: any) {
     event.preventDefault();
     await this.closePopover();
+    if (this.startCallback) {
+      this.startCallback();
+    }
     const result: boolean = await PhotosService.addPhotosToAlbum(
       album.albumId,
       this.selectedPhotos
@@ -67,6 +72,9 @@ export class SelectAlbum {
       this.present.toast(
         'Failed to add photo(s) to album "' + album.albumName + '".'
       );
+    }
+    if (this.endCallback) {
+      this.endCallback();
     }
   }
 

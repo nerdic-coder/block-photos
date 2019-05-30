@@ -1,7 +1,9 @@
 import StorageService from './storage-service';
-import uuidv4 from 'uuid/v4';
+import imageCompression from 'browser-image-compression';
+import Compressor from 'compressorjs';
 
 import AlbumsService from './albums-service';
+import { PhotoType } from '../models/photo-type';
 
 export default class PhotosService {
   static async getPhotosList(
@@ -12,8 +14,12 @@ export default class PhotosService {
     const errorsList = [];
     try {
       const rawCachedPhotosList = albumId
-        ? await StorageService.getItem(albumId, updateCache)
-        : await StorageService.getItem('picture-list.json', updateCache);
+        ? await StorageService.getItem(albumId, updateCache, updateCache)
+        : await StorageService.getItem(
+            'picture-list.json',
+            updateCache,
+            updateCache
+          );
 
       if (rawCachedPhotosList) {
         cachedPhotosList = JSON.parse(rawCachedPhotosList);
@@ -30,23 +36,58 @@ export default class PhotosService {
     };
   }
 
-  static async loadPhoto(id: string): Promise<any> {
-    let cachedPhoto = await StorageService.getItem(id);
+  static async loadPhoto(
+    metadata: PhotoMetadata,
+    photoType?: PhotoType
+  ): Promise<any> {
+    const mainId = metadata.id;
+    let updateCache = false;
+    if (photoType === PhotoType.Thumbnail) {
+      metadata.id = metadata.id + '-thumbnail';
+      updateCache = true;
+    } else if (photoType === PhotoType.Viewer) {
+      metadata.id = metadata.id + '-viewer';
+    }
+    let rawPhoto = await StorageService.getItem(metadata.id, updateCache);
+    if (!rawPhoto && photoType === PhotoType.Thumbnail) {
+      rawPhoto = await StorageService.getItem(mainId, false);
+      const thumbnailData = await PhotosService.compressPhoto(
+        await imageCompression.getFilefromDataUrl(rawPhoto),
+        PhotoType.Thumbnail,
+        metadata.type
+      );
+      await StorageService.setItem(mainId + '-thumbnail', thumbnailData);
+      rawPhoto = thumbnailData;
+    } else if (!rawPhoto && photoType === PhotoType.Viewer) {
+      rawPhoto = await StorageService.getItem(mainId, false);
+      const viewerData = await PhotosService.compressPhoto(
+        await imageCompression.getFilefromDataUrl(rawPhoto),
+        PhotoType.Viewer,
+        metadata.type
+      );
+      await StorageService.setItem(mainId + '-viewer', viewerData, false);
+      rawPhoto = viewerData;
+    }
 
-    if (!cachedPhoto) {
+    if (!rawPhoto) {
       return false;
     }
 
-    if (cachedPhoto && !cachedPhoto.match('data:image/.*')) {
-      cachedPhoto = 'data:image/png;base64,' + cachedPhoto;
+    if (rawPhoto && !rawPhoto.match('data:image/.*')) {
+      metadata.type
+        ? (rawPhoto = 'data:' + metadata.type + ';base64,' + rawPhoto)
+        : (rawPhoto = 'data:image/jpeg;base64,' + rawPhoto);
     }
-    return cachedPhoto;
+
+    return rawPhoto;
   }
 
   static async uploadPhoto(
-    file: any,
+    metadata: PhotoMetadata,
     data: any,
-    albumId?: string
+    albumId?: string,
+    thumbnailData?: any,
+    viewerData?: any
   ): Promise<any> {
     const photosListResponse = await PhotosService.getPhotosList(true);
     let photosList = photosListResponse.photosList;
@@ -67,41 +108,46 @@ export default class PhotosService {
     }
 
     const errorsList = [];
-    const photoId = uuidv4() + file.filename.replace('.', '').replace(' ', '');
     const listdata = {
-      id: photoId,
-      filename: file.filename
+      id: metadata.id,
+      filename: metadata.filename
     };
-    const metadata = {
-      id: photoId,
-      filename: file.filename,
-      uploadedDate: new Date(),
-      stats: file.stats,
-      albums: [albumId]
-    };
+
     try {
       // Save raw data to a file
-      await StorageService.setItem(photoId, data);
-
+      await StorageService.setItem(metadata.id, data, false);
+      if (thumbnailData) {
+        await StorageService.setItem(metadata.id + '-thumbnail', thumbnailData);
+      }
+      if (viewerData) {
+        await StorageService.setItem(
+          metadata.id + '-viewer',
+          viewerData,
+          false
+        );
+      }
       // Save photos metadata to a file
-      await StorageService.setItem(photoId + '-meta', JSON.stringify(metadata));
+      await StorageService.setItem(
+        metadata.id + '-meta',
+        JSON.stringify(metadata)
+      );
 
       photosList.unshift(listdata);
       if (albumId) {
-        await AlbumsService.updateAlbumThumbnail(albumId, photoId);
+        await AlbumsService.updateAlbumThumbnail(albumId, metadata.id);
 
         album.unshift(listdata);
       }
     } catch (error) {
-      const fileSizeInMegabytes = file.stats.size / 1000000;
+      const fileSizeInMegabytes = metadata.stats.size / 1000000;
       if (fileSizeInMegabytes >= 5) {
         errorsList.push({
-          id: file.filename,
+          id: metadata.filename,
           errorCode: 'err_filesize'
         });
       } else {
         errorsList.push({
-          id: file.filename,
+          id: metadata.filename,
           errorCode: 'err_failed'
         });
       }
@@ -117,6 +163,63 @@ export default class PhotosService {
     }
 
     return { photosList, errorsList };
+  }
+
+  static async compressPhoto(
+    itemValue: any,
+    photoType?: PhotoType,
+    mimeType = 'image/jpeg'
+  ) {
+    try {
+      return new Promise(async resolve => {
+        if (photoType === PhotoType.Thumbnail) {
+          const compressor = new Compressor(itemValue, {
+            quality: 0.4,
+            maxWidth: 500,
+            mimeType,
+            checkOrientation: false,
+            success(result) {
+              const reader = new FileReader();
+
+              reader.addEventListener('loadend', () => {
+                // reader.result contains the contents of blob as a DataURL
+                resolve(reader.result);
+              });
+              reader.readAsDataURL(result);
+            },
+            error(err) {
+              console.error(err.message);
+            }
+          });
+          console.debug(compressor);
+          return;
+        } else if (photoType === PhotoType.Viewer) {
+          const compressor = new Compressor(itemValue, {
+            quality: 0.6,
+            maxWidth: 2560,
+            mimeType,
+            checkOrientation: false,
+            success(result) {
+              const reader = new FileReader();
+
+              reader.addEventListener('loadend', () => {
+                // reader.result contains the contents of blob as a DataURL
+                resolve(reader.result);
+              });
+              reader.readAsDataURL(result);
+            },
+            error(err) {
+              console.error(err.message);
+            }
+          });
+          console.debug(compressor);
+          return;
+        }
+      });
+    } catch (error) {
+      console.error('Compress failed', error);
+      return itemValue;
+    }
   }
 
   static async addPhotosToAlbum(
@@ -160,9 +263,11 @@ export default class PhotosService {
     let returnState = false;
     const metadata = await PhotosService.getPhotoMetaData(photoId);
     try {
-      // Delete photo and the photo metadata
+      // Delete photo, compressed photos and the photo metadata
       await StorageService.deleteItem(photoId);
       await StorageService.deleteItem(photoId + '-meta');
+      await StorageService.deleteItem(photoId + '-thumbnail');
+      await StorageService.deleteItem(photoId + '-viewer');
       returnState = true;
     } catch (error) {
       returnState = false;
@@ -191,9 +296,10 @@ export default class PhotosService {
     let returnState = false;
     try {
       await StorageService.setItem(photoId, source);
+      // TODO: Update compressed
       returnState = true;
     } catch (error) {
-      console.log(error, source);
+      console.error(error, source);
       returnState = false;
     }
 
@@ -214,14 +320,18 @@ export default class PhotosService {
         photosList.splice(index, 1);
         await StorageService.setItem(listName, JSON.stringify(photosList));
 
-        await AlbumsService.updateAlbumThumbnail(albumId, photosList[0].id);
+        if (photosList.length > 0) {
+          await AlbumsService.updateAlbumThumbnail(albumId, photosList[0].id);
+        }
         break;
       }
       index++;
     }
 
-    const metadata = await PhotosService.getPhotoMetaData(photoId);
-    if (metadata && metadata !== 'deleted') {
+    const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      photoId
+    );
+    if (metadata) {
       metadata.albums = metadata.albums.includes(albumId)
         ? metadata.albums.filter(album => album !== albumId)
         : metadata.albums;
@@ -242,6 +352,7 @@ export default class PhotosService {
       }
       returnState = true;
     } catch (error) {
+      console.error(error);
       returnState = false;
     }
 
@@ -276,7 +387,10 @@ export default class PhotosService {
     albumId?: string
   ): Promise<any> {
     const response = { previousId: null, nextId: null };
-    const photosListResponse = await PhotosService.getPhotosList(true, albumId);
+    const photosListResponse = await PhotosService.getPhotosList(
+      false,
+      albumId
+    );
     const photosList = photosListResponse.photosList;
 
     let index = 0;
@@ -297,28 +411,32 @@ export default class PhotosService {
     return response;
   }
 
-  static async getPhotoMetaData(photoId: string): Promise<any> {
-    let cachedPhotoMetaData = await StorageService.getItem(photoId + '-meta');
+  static async getPhotoMetaData(photoId: string): Promise<PhotoMetadata> {
+    const cachedPhotoMetaData: string = await StorageService.getItem(
+      photoId + '-meta',
+      true,
+      true
+    );
 
     if (!cachedPhotoMetaData) {
       const photosListResponse = await PhotosService.getPhotosList();
       const photosList = photosListResponse.photosList;
-
+      let photoMetaData: PhotoMetadata;
       let index = 0;
       for (const photo of photosList) {
         // Current photo
         if (photo.id === photoId) {
-          cachedPhotoMetaData = photosList[index];
+          photoMetaData = photosList[index];
           PhotosService.setPhotoMetaData(photoId, cachedPhotoMetaData);
           break;
         }
         index++;
       }
-      return cachedPhotoMetaData;
-    } else if (cachedPhotoMetaData !== 'deleted') {
+      return photoMetaData;
+    } else if (cachedPhotoMetaData) {
       return JSON.parse(cachedPhotoMetaData);
     } else {
-      return false;
+      return null;
     }
   }
 
@@ -337,7 +455,7 @@ export default class PhotosService {
     return true;
   }
 
-  static async rotatePhoto(photoId: string): Promise<boolean> {
+  static async rotatePhoto(photoId: string): Promise<number> {
     const metadata = await PhotosService.getPhotoMetaData(photoId);
 
     let currentOrientation = 1;
@@ -351,15 +469,15 @@ export default class PhotosService {
       currentOrientation = metadata.stats.exifdata.tags.Orientation;
     }
 
-    if (!metadata.stats) {
+    if (!metadata || !metadata.stats) {
       metadata.stats = { exifdata: { tags: {} } };
     }
 
-    if (!metadata.stats.exifdata) {
+    if (!metadata || !metadata.stats.exifdata) {
       metadata.stats.exifdata = { tags: {} };
     }
 
-    if (!metadata.stats.exifdata.tags) {
+    if (!metadata || !metadata.stats.exifdata.tags) {
       metadata.stats.exifdata.tags = {};
     }
 
@@ -373,6 +491,12 @@ export default class PhotosService {
       metadata.stats.exifdata.tags.Orientation = 1;
     }
 
-    return PhotosService.setPhotoMetaData(photoId, metadata);
+    const setResult = await PhotosService.setPhotoMetaData(photoId, metadata);
+
+    if (setResult) {
+      return metadata.stats.exifdata.tags.Orientation;
+    } else {
+      return null;
+    }
   }
 }

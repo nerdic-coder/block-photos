@@ -1,19 +1,22 @@
 import loadImage from 'blueimp-load-image';
-
+import uuidv4 from 'uuid/v4';
 import PhotosService from './photos-service';
 import PresentingService from './presenting-service';
+import { PhotoType } from '../models/photo-type';
 
 export default class UploadService {
   private root: any;
   private present: PresentingService;
   private callback: any;
+  private startedCallback: any;
   private dropEventBinding: any;
   private handleFileSelectEventBinding: any;
   private albumId: string;
 
-  constructor(callback: any, albumId?: string) {
+  constructor(callback: any, albumId?: string, startedCallback?: any) {
     this.present = new PresentingService();
     this.callback = callback;
+    this.startedCallback = startedCallback;
     this.dropEventBinding = this.dropEvent.bind(this);
     this.handleFileSelectEventBinding = this.handleFileSelectEvent.bind(this);
     this.root = document.getElementById('photos-list');
@@ -22,8 +25,10 @@ export default class UploadService {
 
   addEventListeners(fileDialog: boolean): void {
     this.root = document.getElementById('photos-list');
-    this.root.addEventListener('dragover', this.dragoverEvent);
-    this.root.addEventListener('drop', this.dropEventBinding);
+    if (this.root) {
+      this.root.addEventListener('dragover', this.dragoverEvent);
+      this.root.addEventListener('drop', this.dropEventBinding);
+    }
     if (fileDialog && document.getElementById('file-upload')) {
       document
         .getElementById('file-upload')
@@ -32,8 +37,10 @@ export default class UploadService {
   }
 
   removeEventListeners(fileDialog: boolean): void {
-    this.root.removeEventListener('dragover', this.dragoverEvent);
-    this.root.removeEventListener('drop', this.dropEventBinding);
+    if (this.root) {
+      this.root.removeEventListener('dragover', this.dragoverEvent);
+      this.root.removeEventListener('drop', this.dropEventBinding);
+    }
     if (fileDialog && document.getElementById('file-upload')) {
       document
         .getElementById('file-upload')
@@ -86,19 +93,32 @@ export default class UploadService {
   }
 
   async processUpload(list: any, currentIndex: number): Promise<void> {
-    if (currentIndex !== 0) {
-      await this.present.dismissLoading();
+    if (currentIndex === 0) {
+      if (this.startedCallback && typeof this.startedCallback === 'function') {
+        // execute the callback, passing parameters as necessary
+        this.startedCallback();
+      }
     }
-    await this.present.loading(
-      'Uploading photo ' + (currentIndex + 1) + '/' + list.length + '.'
+    this.present.presentToolbarLoader(
+      'Uploading photo ' + (currentIndex + 1) + ' of ' + list.length + '.'
     );
     // If dropped items aren't files, reject them
     if (list[currentIndex]) {
-      const file = list[currentIndex].file;
+      const tempFile = list[currentIndex].file;
       if (list[currentIndex].kind === 'file') {
-        if (file.type.indexOf('image') !== -1) {
+        if (tempFile.type.indexOf('image') !== -1) {
+          const thumbnailData = await PhotosService.compressPhoto(
+            tempFile,
+            PhotoType.Thumbnail,
+            tempFile.type
+          );
+          const viewerData = await PhotosService.compressPhoto(
+            tempFile,
+            PhotoType.Viewer,
+            tempFile.type
+          );
           loadImage.parseMetaData(
-            file,
+            tempFile,
             data => {
               const reader = new FileReader();
 
@@ -118,20 +138,34 @@ export default class UploadService {
                       }
                     };
                   }
-                  const metadata = {
+                  const photoId: string =
+                    uuidv4() +
+                    loadedFile.name.replace('.', '').replace(' ', '');
+                  const metadata: PhotoMetadata = {
+                    id: photoId,
                     filename: loadedFile.name,
-                    stats: loadedFile
+                    stats: loadedFile,
+                    type: tempFile.type,
+                    size: tempFile.size,
+                    uploadedDate: new Date(),
+                    albums: [this.albumId]
                   };
-                  await this.uploadPhoto(metadata, event.target.result);
+
+                  await this.uploadPhoto(
+                    metadata,
+                    event.target.result,
+                    thumbnailData,
+                    viewerData
+                  );
                   if (loadedList[currentIndex + 1]) {
                     this.processUpload(loadedList, currentIndex + 1);
                   } else {
                     this.uploadFilesDone();
                   }
                 };
-              })(file, list, orientation);
+              })(tempFile, list, orientation);
               // Read in the image file as a data URL.
-              reader.readAsDataURL(file);
+              reader.readAsDataURL(tempFile);
             },
             {
               maxMetaDataSize: 262144,
@@ -141,7 +175,7 @@ export default class UploadService {
         } else {
           this.present.toast(
             'The file "' +
-              file.name +
+              tempFile.name +
               '" could not be uploaded, are you sure it\'s a photo?'
           );
           if (list[currentIndex + 1]) {
@@ -151,10 +185,10 @@ export default class UploadService {
           }
         }
       } else {
-        if (file && file.name) {
+        if (tempFile && tempFile.name) {
           this.present.toast(
             'The file "' +
-              file.name +
+              tempFile.name +
               '" could not be uploaded, are you sure it\'s a photo?'
           );
         } else {
@@ -180,12 +214,19 @@ export default class UploadService {
     }
   }
 
-  async uploadPhoto(metadata: any, data: any): Promise<void> {
+  async uploadPhoto(
+    metadata: PhotoMetadata,
+    data: any,
+    thumbnailData?: any,
+    viewerData?: any
+  ): Promise<void> {
     if (metadata && data) {
       const response = await PhotosService.uploadPhoto(
         metadata,
         data,
-        this.albumId
+        this.albumId,
+        thumbnailData,
+        viewerData
       );
       if (response.errorsList && response.errorsList.length > 0) {
         for (const error of response.errorsList) {
@@ -206,7 +247,7 @@ export default class UploadService {
   }
 
   uploadFilesDone(): void {
-    this.present.dismissLoading();
+    this.present.dismissToolbarLoader();
     if (this.callback && typeof this.callback === 'function') {
       // execute the callback, passing parameters as necessary
       this.callback();

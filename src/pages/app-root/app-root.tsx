@@ -1,4 +1,4 @@
-import { Component, Listen, Prop, State } from '@stencil/core';
+import { Component, Prop, State } from '@stencil/core';
 import { Plugins } from '@capacitor/core';
 import * as Sentry from '@sentry/browser';
 
@@ -27,30 +27,30 @@ export class AppRoot {
    * so that the new service worker can take over
    * and serve the fresh content
    */
-  @Listen('window:swUpdate')
-  async onSWUpdate() {
-    const toast = await this.toastCtrl.create({
-      message: 'New version available',
-      showCloseButton: true,
-      closeButtonText: 'Reload'
-    });
-    await toast.present();
-    await toast.onWillDismiss();
-    window.location.reload();
-  }
+  // @Listen('window:swUpdate')
+  // async onSWUpdate() {
+  //   const toast = await this.toastCtrl.create({
+  //     message: 'New version available',
+  //     showCloseButton: true,
+  //     closeButtonText: 'Reload'
+  //   });
+  //   await toast.present();
+  //   await toast.onWillDismiss();
+  //   window.location.reload();
+  // }
 
   async componentWillLoad() {
     try {
       if (await SettingsService.getAnalyticsSetting(true)) {
         Sentry.init({
           dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
-          release: 'block-photos@3.0'
+          release: 'block-photos@4.0'
         });
       }
     } catch (error) {
       Sentry.init({
         dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
-        release: 'block-photos@3.0'
+        release: 'block-photos@4.0'
       });
     }
 

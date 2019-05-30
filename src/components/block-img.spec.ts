@@ -1,6 +1,6 @@
 // import BlockImg from './block-img';
 
-import * as blockstack from 'blockstack';
+import blockstack from 'blockstack';
 
 jest.mock('blockstack');
 

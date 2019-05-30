@@ -27,23 +27,25 @@
   <meta http-equiv="Content-Security-Policy" content="
       default-src 'self';
       img-src 'self' https://* data data: capacitor: blob:;
-      child-src 'self' blockstack:;
+      child-src 'self' blob: blockstack:;
       style-src 'self' 'unsafe-inline';
       script-src 'self' 'unsafe-eval' 'unsafe-inline'
         https://storage.googleapis.com
         https://cdn.amplitude.com
         capacitor:
         file:
-        data:;
-      worker-src 'self' data:;
+        data:
+        blob:;
+      worker-src 'self' data: blob:;
       connect-src
         'self'
-        ws://localhost:*
-        wss://localhost:*
-        wss://app.block-photos.com
+        ws:
+        wss:
+        wss:
         https:
         capacitor:
-        file:;">
+        file:
+        data:;">
   <!--
       manifest.json provides metadata used when your web app is added to the
       homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/

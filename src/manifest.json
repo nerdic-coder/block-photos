@@ -1,11 +1,11 @@
 {
   "name": "block-photos",
   "short_name": "block-photos",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "icons": [
     {
-      "src": "assets/icon/icon.png",
+      "src": "https://app.block-photos.com/assets/icon/icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }

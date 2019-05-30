@@ -2,7 +2,9 @@ import { Component, State } from '@stencil/core';
 
 import AlbumsService from '../../services/albums-service';
 import AnalyticsService from '../../services/analytics-service';
+import StorageService from '../../services/storage-service';
 import PresentingService from '../../services/presenting-service';
+import { PhotoType } from '../../models/photo-type';
 
 declare var blockstack;
 
@@ -12,6 +14,7 @@ declare var blockstack;
 export class AppAlbums {
   private present: PresentingService;
   private refresherScroll: any;
+  private timestampChecker: any;
 
   @State() albums: any[] = [];
   @State() albumsLoaded: boolean;
@@ -39,7 +42,24 @@ export class AppAlbums {
 
     this.loadAlbums(false);
 
+    this.timestampChecker = setInterval(
+      this.checkTimestampUpdate.bind(this),
+      10000
+    );
+
     AnalyticsService.logEvent('photos-list');
+  }
+
+  async componentDidUnload() {
+    clearInterval(this.timestampChecker);
+  }
+
+  async checkTimestampUpdate() {
+    if (!this.editMode) {
+      if (await StorageService.checkUpdatedTimestamp()) {
+        this.loadAlbums(true, false);
+      }
+    }
   }
 
   refreshList() {
@@ -234,22 +254,53 @@ export class AppAlbums {
           <ion-buttons slot="end">
             {this.editMode
               ? [
-                  <ion-button onClick={() => this.deactivateEditor()}>
-                    <ion-icon color="light" name="close" />
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    onClick={() => this.deactivateEditor()}
+                  >
+                    <ion-label color="light">Done</ion-label>
                   </ion-button>
                 ]
               : [
-                  <ion-button onClick={() => this.loadAlbums(true)}>
-                    <ion-icon name="refresh" />
+                  <ion-button
+                    class="ion-hide-sm-down"
+                    fill="outline"
+                    color="secondary"
+                    onClick={() => this.loadAlbums(true)}
+                  >
+                    <ion-label color="light">Refresh</ion-label>
+                    <ion-icon slot="end" color="light" name="refresh" />
                   </ion-button>,
-                  <ion-button onClick={event => this.activateEditor(event)}>
-                    <ion-icon name="create" mode="md" />
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    onClick={event => this.activateEditor(event)}
+                  >
+                    <ion-label color="light">Edit</ion-label>
+                    <ion-icon
+                      slot="end"
+                      color="light"
+                      name="create"
+                      mode="md"
+                    />
                   </ion-button>,
-                  <ion-button onClick={() => this.presentCreateAlbumPrompt()}>
-                    <ion-icon name="add-circle" />
+                  <ion-button
+                    fill="outline"
+                    color="secondary"
+                    onClick={() => this.presentCreateAlbumPrompt()}
+                  >
+                    <ion-label color="light">Create</ion-label>
+                    <ion-icon slot="end" color="light" name="add-circle" />
                   </ion-button>
                 ]}
-            <ion-menu-button />
+            {!this.editMode ? (
+              <ion-menu-toggle>
+                <ion-button fill="outline" color="secondary">
+                  <ion-label color="light">Menu</ion-label>
+                </ion-button>
+              </ion-menu-toggle>
+            ) : null}
           </ion-buttons>
         </ion-toolbar>
       </ion-header>,
@@ -263,12 +314,16 @@ export class AppAlbums {
           <ion-refresher-content />
         </ion-refresher>
         {empty && this.albumsLoaded ? (
-          <ion-card mode="md" padding text-center>
-            <h2>Welcome to Block Photos albums section.</h2>
-            <h3>
-              Use the add button (<ion-icon size="small" name="add-circle" />)
-              to create your first album.
-            </h3>
+          <ion-card
+            mode="md"
+            class="pointer"
+            padding
+            text-center
+            onClick={() => this.presentCreateAlbumPrompt()}
+          >
+            <h2>Albums</h2>
+            <h3>Click here to create your first album.</h3>
+            <ion-icon class="cloud-icon" size="large" name="add-circle" />
           </ion-card>
         ) : (
           <ion-grid no-padding>
@@ -287,6 +342,7 @@ export class AppAlbums {
                             <block-img
                               photoId={col.thumbnailId}
                               rotate={false}
+                              phototType={PhotoType.Thumbnail}
                             />
                           ) : (
                             <ion-img
@@ -343,6 +399,7 @@ export class AppAlbums {
                     </ion-card>
                   </ion-col>
                 ))}
+                {row.length === 1 ? <ion-col /> : null}
               </ion-row>
             ))}
           </ion-grid>

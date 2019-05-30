@@ -1,9 +1,11 @@
 import { Component, Prop, State } from '@stencil/core';
 import loadImage from 'blueimp-load-image';
+import Downloader from 'js-file-downloader';
 
 import PhotosService from '../../services/photos-service';
 import PresentingService from '../../services/presenting-service';
 import AnalyticsService from '../../services/analytics-service';
+import { PhotoType } from '../../models/photo-type';
 
 declare var blockstack;
 // declare var Caman;
@@ -19,15 +21,22 @@ export class AppPhoto {
   private firstSlide = true;
   private slideToOne = false;
   private keydownPressedListener: any;
+  private photoType: PhotoType = PhotoType.Viewer;
+  private updateFromSlide: boolean;
+  private previousPhotoId: string;
+  private nextPhotoId: string;
 
   @Prop({ mutable: true }) photoId: string;
   @Prop() albumId: string;
   @Prop() updateCallback: any;
 
-  @State() previousPhotoId: string;
-  @State() nextPhotoId: string;
   @State() photos: any[];
   @State() garbage: number;
+  @State() firstTimeLoaded: boolean;
+  @State() downloadInProgress: boolean;
+  @State() deleteInProgress: boolean;
+  @State() rotationInProgress: boolean;
+  @State() addToAlbumInProgress: boolean;
 
   constructor() {
     this.photos = [];
@@ -64,30 +73,42 @@ export class AppPhoto {
       loop: false
     };
 
+    this.updateFromSlide = false;
     this.photos = [
       ...this.photos,
       { photoId: this.photoId, isLoaded: false, source: '' }
     ];
-    await this.setNextAndPreviousPhoto(this.photoId);
-    await this.getPhoto(this.photoId, 1);
+    setTimeout(async () => {
+      await this.setNextAndPreviousPhoto(this.photoId);
+      this.updateFromSlide = true;
+      await this.getPhoto(this.photoId, 1);
 
-    this.modalController = document.querySelector('ion-modal-controller');
-    this.modalController.componentOnReady();
+      this.modalController = document.querySelector('ion-modal-controller');
+      this.modalController.componentOnReady();
 
-    document.addEventListener('keydown', this.keydownPressedListener);
+      document.addEventListener('keydown', this.keydownPressedListener);
 
-    AnalyticsService.logEvent('photo-page');
+      AnalyticsService.logEvent('photo-page');
+    }, 500);
   }
 
   async componentDidUpdate() {
-    if (this.slides) {
-      this.slides.lockSwipes(false);
+    if (!this.updateFromSlide) {
+      return;
     }
+    this.updateFromSlide = false;
+
+    // if (this.slides) {
+    //   this.slides.lockSwipes(false);
+    // }
     if (this.slideToOne) {
       this.slideToOne = false;
       this.firstSlide = true;
       this.slideCorrection(0);
     } else {
+      setTimeout(() => {
+        this.firstTimeLoaded = true;
+      }, 2000);
       this.firstSlide = false;
     }
   }
@@ -107,6 +128,10 @@ export class AppPhoto {
       setTimeout(() => {
         this.slideCorrection(iteration + 1);
       }, 10);
+    } else {
+      setTimeout(() => {
+        this.firstTimeLoaded = true;
+      }, 2000);
     }
     // else {
     // const photoId = this.photoId;
@@ -132,11 +157,19 @@ export class AppPhoto {
     }
   }
 
-  async getPhoto(photoId: string, index: number): Promise<void> {
+  async getPhoto(
+    photoId: string,
+    index: number,
+    newRotation?: number
+  ): Promise<void> {
     let rotation = 1;
-    const metadata = await PhotosService.getPhotoMetaData(photoId);
+    const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      photoId
+    );
 
-    if (
+    if (newRotation) {
+      rotation = newRotation;
+    } else if (
       metadata &&
       metadata.stats &&
       metadata.stats.exifdata &&
@@ -144,44 +177,38 @@ export class AppPhoto {
     ) {
       rotation = metadata.stats.exifdata.tags.Orientation;
       // Handle correct orientation for iOS
-      if (this.iOS() && metadata.stats.exifdata.tags.OriginalOrientation) {
-        const originalOrientation =
-          metadata.stats.exifdata.tags.OriginalOrientation;
-        // If the orientation is unchanged don't rotate at all with CSS, iOS handles it automatic
-        if (rotation === originalOrientation) {
-          rotation = 1;
-        } else if (rotation === 1 && originalOrientation === 6) {
-          rotation = 8;
-        } else if (rotation === 1) {
-          rotation = originalOrientation;
-        } else if (rotation === 3 && originalOrientation === 6) {
-          rotation = 6;
-        } else if (rotation === 8 && originalOrientation === 6) {
-          rotation = 3;
-        } else if (rotation === 3 && originalOrientation === 8) {
-          rotation = 6;
-        } else if (rotation === 6 && originalOrientation === 8) {
-          rotation = 3;
-        } else if (rotation === 8 && originalOrientation === 3) {
-          rotation = 6;
-        } else if (rotation === 6 && originalOrientation === 3) {
-          rotation = 8;
-        }
-      }
+      // if (this.iOS() && metadata.stats.exifdata.tags.OriginalOrientation) {
+      //   const originalOrientation =
+      //     metadata.stats.exifdata.tags.OriginalOrientation;
+      //   // If the orientation is unchanged don't rotate at all with CSS, iOS handles it automatic
+      //   if (rotation === originalOrientation) {
+      //     rotation = 1;
+      //   } else if (rotation === 1 && originalOrientation === 6) {
+      //     rotation = 8;
+      //   } else if (rotation === 1) {
+      //     rotation = originalOrientation;
+      //   } else if (rotation === 3 && originalOrientation === 6) {
+      //     rotation = 6;
+      //   } else if (rotation === 8 && originalOrientation === 6) {
+      //     rotation = 3;
+      //   } else if (rotation === 3 && originalOrientation === 8) {
+      //     rotation = 6;
+      //   } else if (rotation === 6 && originalOrientation === 8) {
+      //     rotation = 3;
+      //   } else if (rotation === 8 && originalOrientation === 3) {
+      //     rotation = 6;
+      //   } else if (rotation === 6 && originalOrientation === 3) {
+      //     rotation = 8;
+      //   }
+      // }
     }
 
-    if (
-      rotation !== 1 &&
-      metadata &&
-      metadata.stats &&
-      metadata.stats.exifdata &&
-      metadata.stats.exifdata.tags.Orientation
-    ) {
+    if (rotation !== 1) {
       const imageOptions = {
-        orientation: metadata.stats.exifdata.tags.Orientation
+        orientation: rotation
       };
       loadImage(
-        await PhotosService.loadPhoto(photoId),
+        await PhotosService.loadPhoto(metadata, this.photoType),
         processedPhoto => {
           this.handleProcessedPhoto(processedPhoto, index, photoId);
         },
@@ -193,7 +220,7 @@ export class AppPhoto {
           {
             photoId,
             isLoaded: true,
-            source: await PhotosService.loadPhoto(photoId)
+            source: await PhotosService.loadPhoto(metadata, this.photoType)
           },
           ...this.photos
         ];
@@ -204,13 +231,13 @@ export class AppPhoto {
           {
             photoId,
             isLoaded: true,
-            source: await PhotosService.loadPhoto(photoId)
+            source: await PhotosService.loadPhoto(metadata, this.photoType)
           }
         ];
       } else {
         this.photos[
           this.getPhotoIndex(photoId)
-        ].source = await PhotosService.loadPhoto(photoId);
+        ].source = await PhotosService.loadPhoto(metadata, this.photoType);
         this.photos[this.getPhotoIndex(photoId)].isLoaded = true;
         this.garbage += 1;
       }
@@ -257,28 +284,29 @@ export class AppPhoto {
     }
   }
 
-  iOS(): boolean {
-    const iDevices = [
-      'iPad Simulator',
-      'iPhone Simulator',
-      'iPod Simulator',
-      'iPad',
-      'iPhone',
-      'iPod'
-    ];
+  // iOS(): boolean {
+  //   const iDevices = [
+  //     'iPad Simulator',
+  //     'iPhone Simulator',
+  //     'iPod Simulator',
+  //     'iPad',
+  //     'iPhone',
+  //     'iPod'
+  //   ];
 
-    if (navigator.platform) {
-      while (iDevices.length) {
-        if (navigator.platform === iDevices.pop()) {
-          return true;
-        }
-      }
-    }
+  //   if (navigator.platform) {
+  //     while (iDevices.length) {
+  //       if (navigator.platform === iDevices.pop()) {
+  //         return true;
+  //       }
+  //     }
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 
   async setNextAndPreviousPhoto(photoId: string): Promise<void> {
+    this.updateFromSlide = true;
     if (photoId && photoId !== null) {
       const nextAndPreviousPhoto = await PhotosService.getNextAndPreviousPhoto(
         photoId,
@@ -287,25 +315,27 @@ export class AppPhoto {
       this.photoId = photoId;
       this.previousPhotoId = nextAndPreviousPhoto.previousId;
       this.nextPhotoId = nextAndPreviousPhoto.nextId;
+      let tempPhotos = this.photos;
 
       if (this.nextPhotoId && !this.photoExist(this.nextPhotoId)) {
-        this.slides.lockSwipes(true);
-        this.photos = [
-          ...this.photos,
+        // this.slides.lockSwipes(true);
+        tempPhotos = [
+          ...tempPhotos,
           { photoId: this.nextPhotoId, isLoaded: false, source: '' }
         ];
         this.getPhoto(this.nextPhotoId, 1);
       }
 
       if (this.previousPhotoId && !this.photoExist(this.previousPhotoId)) {
-        this.slides.lockSwipes(true);
+        // this.slides.lockSwipes(true);
         this.slideToOne = true;
-        this.photos = [
+        tempPhotos = [
           { photoId: this.previousPhotoId, isLoaded: false, source: '' },
-          ...this.photos
+          ...tempPhotos
         ];
         this.getPhoto(this.previousPhotoId, 1);
       }
+      this.photos = tempPhotos;
     }
   }
 
@@ -338,28 +368,28 @@ export class AppPhoto {
   }
 
   async rotatePhoto(): Promise<void> {
-    await this.present.loading('Rotating photo...');
-    const result = await PhotosService.rotatePhoto(this.photoId);
-    if (!result) {
-      await this.present.dismissLoading();
+    this.rotationInProgress = true;
+    const newRotation: number = await PhotosService.rotatePhoto(this.photoId);
+    if (!newRotation) {
+      this.rotationInProgress = false;
       const metadata = await PhotosService.getPhotoMetaData(this.photoId);
       await this.present.toast(
         'Failed to rotate photo "' + metadata.filename + '".'
       );
     } else {
-      this.getPhoto(this.photoId, 1);
+      this.getPhoto(this.photoId, 1, newRotation);
+      this.rotationInProgress = false;
 
       if (this.updateCallback && typeof this.updateCallback === 'function') {
         // execute the callback, passing parameters as necessary
-        this.updateCallback(this.photoId);
+        this.updateCallback(this.photoId, newRotation);
       }
-
-      this.present.dismissLoading();
     }
     AnalyticsService.logEvent('photo-page-rotate');
   }
 
   async deletePhotoCallback() {
+    this.deleteInProgress = false;
     if (this.updateCallback && typeof this.updateCallback === 'function') {
       // execute the callback, passing parameters as necessary
       this.updateCallback();
@@ -379,6 +409,10 @@ export class AppPhoto {
     AnalyticsService.logEvent('photo-page-delete');
   }
 
+  deletePhotoStartCallback(): void {
+    this.deleteInProgress = true;
+  }
+
   async closeModal() {
     await this.modalController.dismiss();
     this.photoId = null;
@@ -393,9 +427,38 @@ export class AppPhoto {
     const popover = await popoverController.create({
       component: 'select-album',
       componentProps: {
-        selectedPhotos: [this.photoId]
+        selectedPhotos: [this.photoId],
+        startCallback: this.albumSelectorStartCallback.bind(this),
+        endCallback: this.albumSelectorEndCallback.bind(this)
       },
       event
+    });
+    return popover.present();
+  }
+
+  albumSelectorStartCallback() {
+    this.addToAlbumInProgress = true;
+  }
+
+  albumSelectorEndCallback() {
+    this.addToAlbumInProgress = false;
+  }
+
+  async presentFilterSelector(event: any) {
+    const popoverController: any = document.querySelector(
+      'ion-popover-controller'
+    );
+    await popoverController.componentOnReady();
+
+    const popover = await popoverController.create({
+      component: 'filter-popover',
+      componentProps: {
+        selectedPhotos: [this.photoId]
+      },
+      event,
+      backdropDismiss: true,
+      showBackdrop: false,
+      translucent: true
     });
     return popover.present();
   }
@@ -417,35 +480,134 @@ export class AppPhoto {
     );
   }
 
+  async downloadOriginal(event: MouseEvent): Promise<void> {
+    event.preventDefault();
+    this.downloadInProgress = true;
+    const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      this.photoId
+    );
+    const data = await PhotosService.loadPhoto(metadata, PhotoType.Download);
+    new Downloader({
+      url: data,
+      filename: metadata.filename
+    })
+      .then(() => {
+        // Called when download ended
+        this.downloadInProgress = false;
+      })
+      .catch(error => {
+        // Called when an error occurred
+        console.error(error);
+        this.downloadInProgress = false;
+        this.present.toast('Downloading of the photo failed!');
+      });
+  }
+
   render() {
     return [
       <ion-header>
         <ion-toolbar mode="md" color="primary">
-          <ion-buttons slot="start">
-            <ion-button onClick={() => this.closeModal()}>
-              <ion-icon color="light" name="close" size="large" />
-            </ion-button>
-          </ion-buttons>
-          <ion-title>Photo</ion-title>
+          {/* <ion-buttons slot="start">
+          </ion-buttons> */}
+          {/* <ion-title>Photo</ion-title> */}
           <ion-buttons slot="end">
-            <ion-button onClick={event => this.presentAlbumSelector(event)}>
-              <ion-icon color="light" name="add-circle" />
-            </ion-button>
-            <ion-button onClick={() => this.rotatePhoto()}>
-              <ion-icon color="light" name="sync" />
+            <ion-button
+              fill="outline"
+              color="secondary"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress
+              }
+              onClick={event => this.presentAlbumSelector(event)}
+            >
+              <ion-label color="light">Albums</ion-label>
+              {this.addToAlbumInProgress ? (
+                <ion-spinner name="circles" slot="end" color="light" />
+              ) : (
+                <ion-icon slot="end" color="light" name="add-circle" />
+              )}
             </ion-button>
             <ion-button
+              fill="outline"
+              color="secondary"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress
+              }
+              onClick={() => this.rotatePhoto()}
+            >
+              <ion-label color="light">Rotate</ion-label>
+              {this.rotationInProgress ? (
+                <ion-spinner name="circles" slot="end" color="light" />
+              ) : (
+                <ion-icon slot="end" color="light" name="sync" />
+              )}
+            </ion-button>
+            {/* <ion-button onClick={() => this.presentFilterSelector(event)}>
+              <ion-icon color="light" name="color-wand" />
+            </ion-button> */}
+            <ion-button
+              fill="outline"
+              color="secondary"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress
+              }
               onClick={() =>
                 this.present.deletePhotos(
                   [this.photoId],
                   this.deletePhotoCallback.bind(this),
-                  this.albumId
+                  this.albumId,
+                  this.deletePhotoStartCallback.bind(this)
                 )
               }
             >
-              <ion-icon color="light" name="trash" />
+              <ion-label color="light">Delete</ion-label>
+              {this.deleteInProgress ? (
+                <ion-spinner name="circles" slot="end" color="light" />
+              ) : (
+                <ion-icon slot="end" color="light" name="trash" />
+              )}
             </ion-button>
             <ion-button
+              fill="outline"
+              color="secondary"
+              class="ion-hide-sm-down"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress
+              }
+              onClick={event => this.downloadOriginal(event)}
+            >
+              <ion-label color="light">Download</ion-label>
+              {this.downloadInProgress ? (
+                <ion-spinner name="circles" slot="end" color="light" />
+              ) : (
+                <ion-icon slot="end" color="light" name="download" />
+              )}
+            </ion-button>
+            <ion-button
+              fill="outline"
+              color="secondary"
+              disabled={
+                this.downloadInProgress ||
+                this.deleteInProgress ||
+                this.rotationInProgress ||
+                this.addToAlbumInProgress
+              }
+              onClick={() => this.closeModal()}
+            >
+              <ion-label color="light">Done</ion-label>
+            </ion-button>
+            {/* <ion-button
               disabled={!this.previousPhotoId}
               onClick={() => this.slides.slidePrev()}
             >
@@ -456,7 +618,7 @@ export class AppPhoto {
               onClick={() => this.slides.slideNext()}
             >
               <ion-icon color="light" name="arrow-forward" />
-            </ion-button>
+            </ion-button> */}
           </ion-buttons>
         </ion-toolbar>
       </ion-header>,
@@ -470,7 +632,10 @@ export class AppPhoto {
             <ion-slide>
               <div
                 class={
-                  'swiper-zoom-container' + (photo.isLoaded ? '' : ' hidden')
+                  'swiper-zoom-container' +
+                  ((photo.isLoaded && this.firstTimeLoaded) || photo.first
+                    ? ''
+                    : ' hidden')
                 }
               >
                 <img
@@ -483,7 +648,11 @@ export class AppPhoto {
               <ion-spinner
                 name="circles"
                 color="tertiary"
-                class={photo.isLoaded ? 'hidden' : ''}
+                class={
+                  (photo.isLoaded && this.firstTimeLoaded) || photo.first
+                    ? 'hidden'
+                    : ''
+                }
               />
             </ion-slide>
           ))}
