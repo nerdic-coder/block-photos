@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.getcapacitor.app"
+        applicationId "com.nerdiccoder.blockphotos"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 7

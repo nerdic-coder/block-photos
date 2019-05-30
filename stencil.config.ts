@@ -6,10 +6,10 @@ import globals from 'rollup-plugin-node-globals';
 export const config: Config = {
   outputTargets: [
     {
-      type: 'www'
-      // serviceWorker: {
-      //   swSrc: 'src/sw.js'
-      // }
+      type: 'www',
+      serviceWorker: {
+        swSrc: 'src/sw.js'
+      }
     }
   ],
   copy: [
