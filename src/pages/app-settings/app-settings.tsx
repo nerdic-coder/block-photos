@@ -2,6 +2,7 @@ import { Component, State } from '@stencil/core';
 import PresentingService from '../../services/presenting-service';
 import AnalyticsService from '../../services/analytics-service';
 import SettingsService from '../../services/settings-service';
+import CacheService from '../../services/cache-service';
 
 @Component({
   tag: 'app-settings'
@@ -107,6 +108,40 @@ export class AppSettings {
     SettingsService.setAnalyticsSetting(!this.allowAnalytics);
   }
 
+  async clearCache(event) {
+    if (event) {
+      event.preventDefault();
+    }
+    const actionSheetController = document.querySelector(
+      'ion-action-sheet-controller'
+    );
+    await actionSheetController.componentOnReady();
+
+    const buttons = [
+      {
+        text: 'Clear cache',
+        role: 'destructive',
+        icon: 'reverse-camera',
+        handler: () => {
+          CacheService.clear();
+        }
+      }
+    ];
+
+    buttons.push({
+      text: 'Cancel',
+      icon: 'close',
+      role: 'cancel',
+      handler: null
+    });
+
+    const actionSheet = await actionSheetController.create({
+      header: 'Are you sure you want to clear the cache?',
+      buttons
+    });
+    await actionSheet.present();
+  }
+
   render() {
     return [
       <ion-header>
@@ -141,6 +176,19 @@ export class AppSettings {
             </p>
           </ion-item>
         </ion-card>
+        <ion-card>
+          <ion-item href="#" onClick={event => this.clearCache(event)}>
+            <ion-icon name="reverse-camera" slot="end" color="primary" />
+            <ion-label>Clear photos cache</ion-label>
+          </ion-item>
+          <ion-item>
+            <p>
+              Photos starting to take up too much space? Empty the photos cache
+              here to clear up some space on your device.
+            </p>
+          </ion-item>
+        </ion-card>
+
         <ion-card>
           <ion-item
             detail
