@@ -4,6 +4,7 @@ import Compressor from 'compressorjs';
 
 import AlbumsService from './albums-service';
 import { PhotoType } from '../models/photo-type';
+import { Plugins } from '@capacitor/core';
 
 export default class PhotosService {
   static async getPhotosList(
@@ -51,22 +52,31 @@ export default class PhotosService {
     let rawPhoto = await StorageService.getItem(metadata.id, updateCache);
     if (!rawPhoto && photoType === PhotoType.Thumbnail) {
       rawPhoto = await StorageService.getItem(mainId, false);
-      const thumbnailData = await PhotosService.compressPhoto(
-        await imageCompression.getFilefromDataUrl(rawPhoto),
-        PhotoType.Thumbnail,
-        metadata.type
-      );
-      await StorageService.setItem(mainId + '-thumbnail', thumbnailData);
-      rawPhoto = thumbnailData;
+      const { Device } = Plugins;
+      const info = await Device.getInfo();
+      if (info.model !== 'iPhone' && info.model !== 'iPad') {
+        const thumbnailData = await PhotosService.compressPhoto(
+          await imageCompression.getFilefromDataUrl(rawPhoto),
+          PhotoType.Thumbnail,
+          metadata.type
+        );
+        await StorageService.setItem(mainId + '-thumbnail', thumbnailData);
+
+        rawPhoto = thumbnailData;
+      }
     } else if (!rawPhoto && photoType === PhotoType.Viewer) {
       rawPhoto = await StorageService.getItem(mainId, false);
-      const viewerData = await PhotosService.compressPhoto(
-        await imageCompression.getFilefromDataUrl(rawPhoto),
-        PhotoType.Viewer,
-        metadata.type
-      );
-      await StorageService.setItem(mainId + '-viewer', viewerData, false);
-      rawPhoto = viewerData;
+      const { Device } = Plugins;
+      const info = await Device.getInfo();
+      if (info.model !== 'iPhone' && info.model !== 'iPad') {
+        const viewerData = await PhotosService.compressPhoto(
+          await imageCompression.getFilefromDataUrl(rawPhoto),
+          PhotoType.Viewer,
+          metadata.type
+        );
+        await StorageService.setItem(mainId + '-viewer', viewerData, true);
+        rawPhoto = viewerData;
+      }
     }
 
     if (!rawPhoto) {
@@ -84,7 +94,7 @@ export default class PhotosService {
 
   static async uploadPhoto(
     metadata: PhotoMetadata,
-    data: any,
+    originalData: any,
     albumId?: string,
     thumbnailData?: any,
     viewerData?: any
@@ -115,16 +125,12 @@ export default class PhotosService {
 
     try {
       // Save raw data to a file
-      await StorageService.setItem(metadata.id, data, false);
+      await StorageService.setItem(metadata.id, originalData, false);
       if (thumbnailData) {
         await StorageService.setItem(metadata.id + '-thumbnail', thumbnailData);
       }
       if (viewerData) {
-        await StorageService.setItem(
-          metadata.id + '-viewer',
-          viewerData,
-          false
-        );
+        await StorageService.setItem(metadata.id + '-viewer', viewerData, true);
       }
       // Save photos metadata to a file
       await StorageService.setItem(

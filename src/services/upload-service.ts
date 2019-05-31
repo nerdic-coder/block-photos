@@ -3,6 +3,7 @@ import uuidv4 from 'uuid/v4';
 import PhotosService from './photos-service';
 import PresentingService from './presenting-service';
 import { PhotoType } from '../models/photo-type';
+import { Plugins } from '@capacitor/core';
 
 export default class UploadService {
   private root: any;
@@ -107,16 +108,22 @@ export default class UploadService {
       const tempFile = list[currentIndex].file;
       if (list[currentIndex].kind === 'file') {
         if (tempFile.type.indexOf('image') !== -1) {
-          const thumbnailData = await PhotosService.compressPhoto(
-            tempFile,
-            PhotoType.Thumbnail,
-            tempFile.type
-          );
-          const viewerData = await PhotosService.compressPhoto(
-            tempFile,
-            PhotoType.Viewer,
-            tempFile.type
-          );
+          const { Device } = Plugins;
+          const info = await Device.getInfo();
+          let thumbnailData = null;
+          let viewerData = null;
+          if (info.model !== 'iPhone' && info.model !== 'iPad') {
+            thumbnailData = await PhotosService.compressPhoto(
+              tempFile,
+              PhotoType.Thumbnail,
+              tempFile.type
+            );
+            viewerData = await PhotosService.compressPhoto(
+              tempFile,
+              PhotoType.Viewer,
+              tempFile.type
+            );
+          }
           loadImage.parseMetaData(
             tempFile,
             data => {
