@@ -137,29 +137,7 @@ export default class UploadService {
               // Closure to capture the file information.
               reader.onload = ((loadedFile, loadedList, loadedOrientation) => {
                 return async event => {
-                  let originalData = event.target.result;
-                  if (info.model === 'iPhone' || info.model === 'iPad') {
-                    const loadedData = await loadImage(originalData, null, {
-                      orientation
-                    });
-                    if (loadedData.type === 'error') {
-                      this.present.toast(
-                        'The file "' +
-                          tempFile.name +
-                          '" could not be uploaded, are you sure it\'s a photo?'
-                      );
-                      if (list[currentIndex + 1]) {
-                        this.processUpload(list, currentIndex + 1);
-                      } else {
-                        this.uploadFilesDone();
-                      }
-                      return;
-                    } else if (loadedData.tagName === 'CANVAS') {
-                      originalData = loadedData.toDataURL();
-                    } else {
-                      originalData = loadedData.src;
-                    }
-                  }
+                  const originalData = event.target.result;
                   if (loadedOrientation) {
                     loadedFile.exifdata = {
                       tags: {

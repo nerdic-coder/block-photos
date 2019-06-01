@@ -39,7 +39,8 @@ export default class PhotosService {
 
   static async loadPhoto(
     metadata: PhotoMetadata,
-    photoType?: PhotoType
+    photoType?: PhotoType,
+    returnPhototype?: boolean
   ): Promise<any> {
     const mainId = metadata.id;
     let updateCache = false;
@@ -63,6 +64,8 @@ export default class PhotosService {
         await StorageService.setItem(mainId + '-thumbnail', thumbnailData);
 
         rawPhoto = thumbnailData;
+      } else {
+        photoType = PhotoType.Download;
       }
     } else if (!rawPhoto && photoType === PhotoType.Viewer) {
       rawPhoto = await StorageService.getItem(mainId, false);
@@ -76,6 +79,8 @@ export default class PhotosService {
         );
         await StorageService.setItem(mainId + '-viewer', viewerData, true);
         rawPhoto = viewerData;
+      } else {
+        photoType = PhotoType.Download;
       }
     }
 
@@ -89,7 +94,11 @@ export default class PhotosService {
         : (rawPhoto = 'data:image/jpeg;base64,' + rawPhoto);
     }
 
-    return rawPhoto;
+    if (returnPhototype) {
+      return { base64: rawPhoto, photoType };
+    } else {
+      return rawPhoto;
+    }
   }
 
   static async uploadPhoto(
