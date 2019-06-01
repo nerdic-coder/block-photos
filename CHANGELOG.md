@@ -1,5 +1,9 @@
 # Changelog
 
+## v4.1.0 (01/06/2019)
+
+- [**enhancement**] Add setting for clearing photos cache
+
 ## v4.0.0 (31/05/2019)
 
 - [**enhancement**] #48 Automatically sync photos between devices
