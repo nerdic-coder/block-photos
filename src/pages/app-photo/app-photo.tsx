@@ -210,15 +210,14 @@ export class AppPhoto {
     }
 
     if (rotation !== 1) {
-      const imageOptions = {
-        orientation: rotation
-      };
       loadImage(
         await PhotosService.loadPhoto(metadata, this.photoType),
         processedPhoto => {
           this.handleProcessedPhoto(processedPhoto, index, photoId);
         },
-        imageOptions
+        {
+          orientation: rotation
+        }
       );
     } else {
       if (index === 0) {
