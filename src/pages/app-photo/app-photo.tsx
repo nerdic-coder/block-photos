@@ -510,7 +510,7 @@ export class AppPhoto {
 
   render() {
     return [
-      <ion-header>
+      <ion-header mode="md">
         <ion-toolbar mode="md" color="primary">
           {/* <ion-buttons slot="start">
           </ion-buttons> */}
