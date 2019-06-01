@@ -177,7 +177,7 @@ export class AppSettings {
           </ion-item>
         </ion-card>
         <ion-card>
-          <ion-item href="#" onClick={event => this.clearCache(event)}>
+          <ion-item onClick={event => this.clearCache(event)} detail={false}>
             <ion-icon name="reverse-camera" slot="end" color="primary" />
             <ion-label>Clear photos cache</ion-label>
           </ion-item>

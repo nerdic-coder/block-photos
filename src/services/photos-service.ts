@@ -220,6 +220,26 @@ export default class PhotosService {
           });
           console.debug(compressor);
           return;
+        } else {
+          const compressor = new Compressor(itemValue, {
+            quality: 1,
+            mimeType,
+            checkOrientation: false,
+            success(result) {
+              const reader = new FileReader();
+
+              reader.addEventListener('loadend', () => {
+                // reader.result contains the contents of blob as a DataURL
+                resolve(reader.result);
+              });
+              reader.readAsDataURL(result);
+            },
+            error(err) {
+              console.error(err.message);
+            }
+          });
+          console.debug(compressor);
+          return;
         }
       });
     } catch (error) {

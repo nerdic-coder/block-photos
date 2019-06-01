@@ -1,6 +1,7 @@
-import { Component, Prop, State } from '@stencil/core';
+import { Component, Listen, Prop, State } from '@stencil/core';
 import { Plugins } from '@capacitor/core';
 import * as Sentry from '@sentry/browser';
+import localForage from 'localforage';
 
 import AnalyticsService from '../../services/analytics-service';
 import CacheService from '../../services/cache-service';
@@ -27,19 +28,25 @@ export class AppRoot {
    * so that the new service worker can take over
    * and serve the fresh content
    */
-  // @Listen('window:swUpdate')
-  // async onSWUpdate() {
-  //   const toast = await this.toastCtrl.create({
-  //     message: 'New version available',
-  //     showCloseButton: true,
-  //     closeButtonText: 'Reload'
-  //   });
-  //   await toast.present();
-  //   await toast.onWillDismiss();
-  //   window.location.reload();
-  // }
+  @Listen('window:swUpdate')
+  async onSWUpdate() {
+    const toast = await this.toastCtrl.create({
+      message: 'New version available',
+      showCloseButton: true,
+      closeButtonText: 'Reload'
+    });
+    await toast.present();
+    await toast.onWillDismiss();
+    window.location.reload();
+  }
 
   async componentWillLoad() {
+    localForage.config({
+      name: 'BlockPhotos',
+      version: 1.0,
+      storeName: 'blockphotos', // Should be alphanumeric, with underscores.
+      description: 'Block Photos Cache'
+    });
     try {
       if (await SettingsService.getAnalyticsSetting(true)) {
         Sentry.init({

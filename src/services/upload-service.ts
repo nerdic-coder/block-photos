@@ -137,6 +137,14 @@ export default class UploadService {
               // Closure to capture the file information.
               reader.onload = ((loadedFile, loadedList, loadedOrientation) => {
                 return async event => {
+                  let originalData = event.target.result;
+                  if (info.model === 'iPhone' || info.model === 'iPad') {
+                    originalData = await PhotosService.compressPhoto(
+                      tempFile,
+                      PhotoType.Download,
+                      tempFile.type
+                    );
+                  }
                   if (loadedOrientation) {
                     loadedFile.exifdata = {
                       tags: {
@@ -160,7 +168,7 @@ export default class UploadService {
 
                   await this.uploadPhoto(
                     metadata,
-                    event.target.result,
+                    originalData,
                     thumbnailData,
                     viewerData
                   );
