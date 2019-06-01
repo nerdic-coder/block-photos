@@ -224,7 +224,7 @@ export default class PhotosService {
           const compressor = new Compressor(itemValue, {
             quality: 1,
             mimeType,
-            checkOrientation: false,
+            checkOrientation: true,
             success(result) {
               const reader = new FileReader();
 
