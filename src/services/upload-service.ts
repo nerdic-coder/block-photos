@@ -112,12 +112,12 @@ export default class UploadService {
           const info = await Device.getInfo();
           let thumbnailData = null;
           let viewerData = null;
+          thumbnailData = await PhotosService.compressPhoto(
+            tempFile,
+            PhotoType.Thumbnail,
+            tempFile.type
+          );
           if (info.model !== 'iPhone' && info.model !== 'iPad') {
-            thumbnailData = await PhotosService.compressPhoto(
-              tempFile,
-              PhotoType.Thumbnail,
-              tempFile.type
-            );
             viewerData = await PhotosService.compressPhoto(
               tempFile,
               PhotoType.Viewer,
