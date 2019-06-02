@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.1.0 (01/06/2019)
+
+- [**enhancement**] New setting for clearing photos cache
+- [**enhancement**] Improve compression from iOS
+
 ## v4.0.0 (31/05/2019)
 
 - [**enhancement**] #48 Automatically sync photos between devices

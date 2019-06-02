@@ -4,6 +4,7 @@ import Compressor from 'compressorjs';
 
 import AlbumsService from './albums-service';
 import { PhotoType } from '../models/photo-type';
+import { Plugins } from '@capacitor/core';
 
 export default class PhotosService {
   static async getPhotosList(
@@ -38,7 +39,8 @@ export default class PhotosService {
 
   static async loadPhoto(
     metadata: PhotoMetadata,
-    photoType?: PhotoType
+    photoType?: PhotoType,
+    returnPhototype?: boolean
   ): Promise<any> {
     const mainId = metadata.id;
     let updateCache = false;
@@ -51,22 +53,35 @@ export default class PhotosService {
     let rawPhoto = await StorageService.getItem(metadata.id, updateCache);
     if (!rawPhoto && photoType === PhotoType.Thumbnail) {
       rawPhoto = await StorageService.getItem(mainId, false);
-      const thumbnailData = await PhotosService.compressPhoto(
-        await imageCompression.getFilefromDataUrl(rawPhoto),
-        PhotoType.Thumbnail,
-        metadata.type
-      );
-      await StorageService.setItem(mainId + '-thumbnail', thumbnailData);
-      rawPhoto = thumbnailData;
+      const { Device } = Plugins;
+      const info = await Device.getInfo();
+      if (info.model !== 'iPhone' && info.model !== 'iPad') {
+        const thumbnailData = await PhotosService.compressPhoto(
+          await imageCompression.getFilefromDataUrl(rawPhoto),
+          PhotoType.Thumbnail,
+          metadata.type
+        );
+        await StorageService.setItem(mainId + '-thumbnail', thumbnailData);
+
+        rawPhoto = thumbnailData;
+      } else {
+        photoType = PhotoType.Download;
+      }
     } else if (!rawPhoto && photoType === PhotoType.Viewer) {
       rawPhoto = await StorageService.getItem(mainId, false);
-      const viewerData = await PhotosService.compressPhoto(
-        await imageCompression.getFilefromDataUrl(rawPhoto),
-        PhotoType.Viewer,
-        metadata.type
-      );
-      await StorageService.setItem(mainId + '-viewer', viewerData, false);
-      rawPhoto = viewerData;
+      const { Device } = Plugins;
+      const info = await Device.getInfo();
+      if (info.model !== 'iPhone' && info.model !== 'iPad') {
+        const viewerData = await PhotosService.compressPhoto(
+          await imageCompression.getFilefromDataUrl(rawPhoto),
+          PhotoType.Viewer,
+          metadata.type
+        );
+        await StorageService.setItem(mainId + '-viewer', viewerData, true);
+        rawPhoto = viewerData;
+      } else {
+        photoType = PhotoType.Download;
+      }
     }
 
     if (!rawPhoto) {
@@ -79,12 +94,16 @@ export default class PhotosService {
         : (rawPhoto = 'data:image/jpeg;base64,' + rawPhoto);
     }
 
-    return rawPhoto;
+    if (returnPhototype) {
+      return { base64: rawPhoto, photoType };
+    } else {
+      return rawPhoto;
+    }
   }
 
   static async uploadPhoto(
     metadata: PhotoMetadata,
-    data: any,
+    originalData: any,
     albumId?: string,
     thumbnailData?: any,
     viewerData?: any
@@ -115,16 +134,12 @@ export default class PhotosService {
 
     try {
       // Save raw data to a file
-      await StorageService.setItem(metadata.id, data, false);
+      await StorageService.setItem(metadata.id, originalData, false);
       if (thumbnailData) {
         await StorageService.setItem(metadata.id + '-thumbnail', thumbnailData);
       }
       if (viewerData) {
-        await StorageService.setItem(
-          metadata.id + '-viewer',
-          viewerData,
-          false
-        );
+        await StorageService.setItem(metadata.id + '-viewer', viewerData, true);
       }
       // Save photos metadata to a file
       await StorageService.setItem(
@@ -197,6 +212,26 @@ export default class PhotosService {
           const compressor = new Compressor(itemValue, {
             quality: 0.6,
             maxWidth: 2560,
+            mimeType,
+            checkOrientation: false,
+            success(result) {
+              const reader = new FileReader();
+
+              reader.addEventListener('loadend', () => {
+                // reader.result contains the contents of blob as a DataURL
+                resolve(reader.result);
+              });
+              reader.readAsDataURL(result);
+            },
+            error(err) {
+              console.error(err.message);
+            }
+          });
+          console.debug(compressor);
+          return;
+        } else {
+          const compressor = new Compressor(itemValue, {
+            quality: 1,
             mimeType,
             checkOrientation: false,
             success(result) {

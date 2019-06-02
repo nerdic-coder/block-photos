@@ -6,6 +6,7 @@ import PhotosService from '../../services/photos-service';
 import PresentingService from '../../services/presenting-service';
 import AnalyticsService from '../../services/analytics-service';
 import { PhotoType } from '../../models/photo-type';
+import { Plugins } from '@capacitor/core';
 
 declare var blockstack;
 // declare var Caman;
@@ -31,12 +32,13 @@ export class AppPhoto {
   @Prop() updateCallback: any;
 
   @State() photos: any[];
-  @State() garbage: number;
+  @State() garbage = 1;
   @State() firstTimeLoaded: boolean;
   @State() downloadInProgress: boolean;
   @State() deleteInProgress: boolean;
   @State() rotationInProgress: boolean;
   @State() addToAlbumInProgress: boolean;
+  @State() isIpad: boolean;
 
   constructor() {
     this.photos = [];
@@ -45,8 +47,12 @@ export class AppPhoto {
   }
 
   async componentWillLoad() {
+    const { Device } = Plugins;
+    const info = await Device.getInfo();
+    if (info.model === 'iPad') {
+      this.isIpad = true;
+    }
     this.firstSlide = true;
-    this.garbage = 1;
   }
 
   async componentDidLoad() {
@@ -204,15 +210,14 @@ export class AppPhoto {
     }
 
     if (rotation !== 1) {
-      const imageOptions = {
-        orientation: rotation
-      };
       loadImage(
         await PhotosService.loadPhoto(metadata, this.photoType),
         processedPhoto => {
           this.handleProcessedPhoto(processedPhoto, index, photoId);
         },
-        imageOptions
+        {
+          orientation: rotation
+        }
       );
     } else {
       if (index === 0) {
@@ -505,7 +510,7 @@ export class AppPhoto {
 
   render() {
     return [
-      <ion-header>
+      <ion-header mode="md">
         <ion-toolbar mode="md" color="primary">
           {/* <ion-buttons slot="start">
           </ion-buttons> */}
@@ -579,6 +584,7 @@ export class AppPhoto {
               fill="outline"
               color="secondary"
               class="ion-hide-sm-down"
+              hidden={this.isIpad}
               disabled={
                 this.deleteInProgress ||
                 this.addToAlbumInProgress ||

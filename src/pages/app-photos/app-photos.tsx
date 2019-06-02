@@ -10,6 +10,7 @@ import PresentingService from '../../services/presenting-service';
 import UploadService from '../../services/upload-service';
 import AnalyticsService from '../../services/analytics-service';
 import { PhotoType } from '../../models/photo-type';
+import { Plugins } from '@capacitor/core';
 
 declare var blockstack;
 
@@ -39,6 +40,7 @@ export class AppPhotos {
   @State() refreshPhotos: any = {};
   @State() listLoaded: boolean;
   @State() editMode: boolean;
+  @State() isIpad: boolean;
   @State() checkedItems: any[] = [];
   @State() uploadInProgress: boolean;
   @State() downloadInProgress: boolean;
@@ -55,6 +57,11 @@ export class AppPhotos {
   }
 
   async componentWillLoad() {
+    const { Device } = Plugins;
+    const info = await Device.getInfo();
+    if (info.model === 'iPad') {
+      this.isIpad = true;
+    }
     this.uploadService = new UploadService(
       this.uploadFilesDoneCallback.bind(this),
       this.albumId,
@@ -525,6 +532,7 @@ export class AppPhotos {
                     fill="outline"
                     color="secondary"
                     class="ion-hide-sm-down"
+                    hidden={this.isIpad}
                     disabled={
                       this.checkedItems.length === 0 ||
                       this.downloadInProgress ||

@@ -181,8 +181,7 @@ ion-slide ion-spinner {
   visibility: hidden;
 }
 
-#file-upload,
-.display-none {
+#file-upload {
   display: none;
 }
 
