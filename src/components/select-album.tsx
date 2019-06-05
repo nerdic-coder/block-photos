@@ -1,4 +1,4 @@
-import { Component, Prop, State } from '@stencil/core';
+import { Component, Prop, State, h } from '@stencil/core';
 
 import AlbumsService from '../services/albums-service';
 import PresentingService from '../services/presenting-service';

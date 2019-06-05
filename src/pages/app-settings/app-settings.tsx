@@ -1,4 +1,4 @@
-import { Component, State } from '@stencil/core';
+import { Component, State, h } from '@stencil/core';
 import PresentingService from '../../services/presenting-service';
 import AnalyticsService from '../../services/analytics-service';
 import SettingsService from '../../services/settings-service';
@@ -157,7 +157,7 @@ export class AppSettings {
         </ion-toolbar>
       </ion-header>,
 
-      <ion-content padding>
+      <ion-content>
         <ion-card>
           <ion-item>
             <ion-label>Share Analytics Data</ion-label>

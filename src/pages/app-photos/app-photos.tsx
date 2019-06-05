@@ -1,7 +1,7 @@
-import { Component, Prop, State } from '@stencil/core';
+import { Component, Prop, State, h } from '@stencil/core';
 
-import JSZip from 'jszip';
-import Downloader from 'js-file-downloader';
+// import JSZip from 'jszip';
+// import Downloader from 'js-file-downloader';
 
 import AlbumsService from '../../services/albums-service';
 import StorageService from '../../services/storage-service';
@@ -96,6 +96,7 @@ export class AppPhotos {
     this.photosLoaded = 0;
 
     this.infiniteScroll = document.getElementById('infinite-scroll');
+    this.infiniteScroll.disabled = false;
     this.refresherScroll = document.getElementById('photos-refresher-scroll');
     this.uploadService.addEventListeners(true);
     this.loadPhotosList(true);
@@ -183,6 +184,7 @@ export class AppPhotos {
   }
 
   loadPhotosRange(event?: any) {
+    console.log('loadPhotosRange', event);
     setTimeout(() => {
       if (event) {
         this.infiniteScroll.complete();
@@ -280,39 +282,38 @@ export class AppPhotos {
     event.preventDefault();
     this.downloadInProgress = true;
     if (this.checkedItems.length > 0) {
-      const zip = new JSZip();
-      for (const key in this.checkedItems) {
-        if (this.checkedItems.hasOwnProperty(key)) {
-          const photoId = this.checkedItems[key];
-          const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
-            photoId
-          );
-          const data: string = await PhotosService.loadPhoto(
-            metadata,
-            PhotoType.Download
-          );
-          const fetchedData = await fetch(data);
-          const arrayBuffer = await fetchedData.arrayBuffer();
-
-          zip.file(metadata.filename, arrayBuffer);
-        }
-      }
-      zip.generateAsync({ type: 'base64' }).then((base64: string) => {
-        new Downloader({
-          url: 'data:application/zip;base64,' + base64,
-          filename: 'block-photos.zip'
-        })
-          .then(() => {
-            // Called when download ended
-            this.downloadInProgress = false;
-          })
-          .catch(error => {
-            // Called when an error occurred
-            console.error(error);
-            this.downloadInProgress = false;
-            this.present.toast('Downloading of the photo failed!');
-          });
-      });
+      // const zip = new JSZip();
+      // for (const key in this.checkedItems) {
+      //   if (this.checkedItems.hasOwnProperty(key)) {
+      //     const photoId = this.checkedItems[key];
+      //     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      //       photoId
+      //     );
+      //     const data: string = await PhotosService.loadPhoto(
+      //       metadata,
+      //       PhotoType.Download
+      //     );
+      //     const fetchedData = await fetch(data);
+      //     const arrayBuffer = await fetchedData.arrayBuffer();
+      //     zip.file(metadata.filename, arrayBuffer);
+      //   }
+      // }
+      // zip.generateAsync({ type: 'base64' }).then((base64: string) => {
+      //   new Downloader({
+      //     url: 'data:application/zip;base64,' + base64,
+      //     filename: 'block-photos.zip'
+      //   })
+      //     .then(() => {
+      //       // Called when download ended
+      //       this.downloadInProgress = false;
+      //     })
+      //     .catch(error => {
+      //       // Called when an error occurred
+      //       console.error(error);
+      //       this.downloadInProgress = false;
+      //       this.present.toast('Downloading of the photo failed!');
+      //     });
+      // });
     }
   }
 
@@ -621,7 +622,6 @@ export class AppPhotos {
         </ion-refresher>
         {empty && this.listLoaded ? (
           <ion-card
-            padding
             text-center
             class="pointer ion-align-items-center"
             onClick={event => this.openFileDialog(event)}
@@ -739,7 +739,6 @@ export class AppPhotos {
           </ion-grid>
         )}
         <ion-infinite-scroll
-          threshold="100px"
           id="infinite-scroll"
           onIonInfinite={event => this.loadPhotosRange(event)}
         >

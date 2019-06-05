@@ -1,4 +1,4 @@
-import { Component, Prop, State } from '@stencil/core';
+import { Component, Prop, State, h } from '@stencil/core';
 import loadImage from 'blueimp-load-image';
 import Downloader from 'js-file-downloader';
 

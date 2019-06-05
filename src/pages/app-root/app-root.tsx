@@ -1,4 +1,4 @@
-import { Component, Listen, Prop, State } from '@stencil/core';
+import { Component, Listen, State, h } from '@stencil/core';
 import { Plugins } from '@capacitor/core';
 import * as Sentry from '@sentry/browser';
 import localForage from 'localforage';
@@ -14,8 +14,7 @@ declare var blockstack;
   styleUrl: 'app-root.css'
 })
 export class AppRoot {
-  @Prop({ connect: 'ion-toast-controller' })
-  toastCtrl: HTMLIonToastControllerElement;
+  private toastCtrl: HTMLIonToastControllerElement;
 
   @State() isAuthenticated: boolean;
 
@@ -28,8 +27,9 @@ export class AppRoot {
    * so that the new service worker can take over
    * and serve the fresh content
    */
-  @Listen('window:swUpdate')
+  @Listen('swUpdate', { target: 'window' })
   async onSWUpdate() {
+    this.toastCtrl = document.querySelector('ion-toast-controller');
     const toast = await this.toastCtrl.create({
       message: 'New version available',
       showCloseButton: true,
@@ -117,8 +117,11 @@ export class AppRoot {
           <ion-route url="/photo/:photoId" component="app-photo" />
           <ion-route url="/albums/" component="app-albums" />
         </ion-router>
-        <ion-split-pane disabled={!this.isAuthenticated}>
-          <ion-menu side="end" menuId="first">
+        <ion-split-pane
+          disabled={!this.isAuthenticated}
+          content-id="menu-content"
+        >
+          <ion-menu side="end" menuId="first" content-id="menu-content">
             <ion-header>
               <ion-toolbar mode="md" color="primary">
                 <ion-title>Menu</ion-title>
@@ -153,7 +156,7 @@ export class AppRoot {
               </ion-list>
             </ion-content>
           </ion-menu>
-          <ion-router-outlet animated={true} main />
+          <ion-router-outlet animated={true} id="menu-content" />
         </ion-split-pane>
         <ion-alert-controller />
         <ion-action-sheet-controller />

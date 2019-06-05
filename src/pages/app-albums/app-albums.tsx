@@ -1,4 +1,4 @@
-import { Component, State } from '@stencil/core';
+import { Component, State, h } from '@stencil/core';
 
 import AlbumsService from '../../services/albums-service';
 import AnalyticsService from '../../services/analytics-service';
@@ -317,7 +317,6 @@ export class AppAlbums {
           <ion-card
             mode="md"
             class="pointer"
-            padding
             text-center
             onClick={() => this.presentCreateAlbumPrompt()}
           >

@@ -5,124 +5,44 @@
  */
 
 
-import '@stencil/core';
-
-import '@ionic/core';
-import 'ionicons';
+import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
 import {
   PhotoType,
 } from './models/photo-type';
 
 
 export namespace Components {
-
+  interface AppAlbums {}
+  interface AppPhoto {
+    'albumId': string;
+    'photoId': string;
+    'updateCallback': any;
+  }
+  interface AppPhotos {
+    'albumId': string;
+    'photoId': string;
+  }
+  interface AppRoot {}
+  interface AppSettings {}
+  interface AppSignin {}
   interface BlockImg {
     'photoId': string;
     'phototType': PhotoType;
     'refresh': number;
     'rotate': boolean;
   }
-  interface BlockImgAttributes extends StencilHTMLAttributes {
-    'photoId'?: string;
-    'phototType'?: PhotoType;
-    'refresh'?: number;
-    'rotate'?: boolean;
-  }
-
   interface FilterPopover {
     'selectedPhotos': any[];
   }
-  interface FilterPopoverAttributes extends StencilHTMLAttributes {
-    'selectedPhotos'?: any[];
-  }
-
   interface SelectAlbum {
     'endCallback': any;
     'selectedPhotos': any[];
     'startCallback': any;
   }
-  interface SelectAlbumAttributes extends StencilHTMLAttributes {
-    'endCallback'?: any;
-    'selectedPhotos'?: any[];
-    'startCallback'?: any;
-  }
-
-  interface AppAlbums {}
-  interface AppAlbumsAttributes extends StencilHTMLAttributes {}
-
-  interface AppPhoto {
-    'albumId': string;
-    'photoId': string;
-    'updateCallback': any;
-  }
-  interface AppPhotoAttributes extends StencilHTMLAttributes {
-    'albumId'?: string;
-    'photoId'?: string;
-    'updateCallback'?: any;
-  }
-
-  interface AppPhotos {
-    'albumId': string;
-    'photoId': string;
-  }
-  interface AppPhotosAttributes extends StencilHTMLAttributes {
-    'albumId'?: string;
-    'photoId'?: string;
-  }
-
-  interface AppRoot {}
-  interface AppRootAttributes extends StencilHTMLAttributes {}
-
-  interface AppSettings {}
-  interface AppSettingsAttributes extends StencilHTMLAttributes {}
-
-  interface AppSignin {}
-  interface AppSigninAttributes extends StencilHTMLAttributes {}
 }
 
 declare global {
-  interface StencilElementInterfaces {
-    'BlockImg': Components.BlockImg;
-    'FilterPopover': Components.FilterPopover;
-    'SelectAlbum': Components.SelectAlbum;
-    'AppAlbums': Components.AppAlbums;
-    'AppPhoto': Components.AppPhoto;
-    'AppPhotos': Components.AppPhotos;
-    'AppRoot': Components.AppRoot;
-    'AppSettings': Components.AppSettings;
-    'AppSignin': Components.AppSignin;
-  }
 
-  interface StencilIntrinsicElements {
-    'block-img': Components.BlockImgAttributes;
-    'filter-popover': Components.FilterPopoverAttributes;
-    'select-album': Components.SelectAlbumAttributes;
-    'app-albums': Components.AppAlbumsAttributes;
-    'app-photo': Components.AppPhotoAttributes;
-    'app-photos': Components.AppPhotosAttributes;
-    'app-root': Components.AppRootAttributes;
-    'app-settings': Components.AppSettingsAttributes;
-    'app-signin': Components.AppSigninAttributes;
-  }
-
-
-  interface HTMLBlockImgElement extends Components.BlockImg, HTMLStencilElement {}
-  var HTMLBlockImgElement: {
-    prototype: HTMLBlockImgElement;
-    new (): HTMLBlockImgElement;
-  };
-
-  interface HTMLFilterPopoverElement extends Components.FilterPopover, HTMLStencilElement {}
-  var HTMLFilterPopoverElement: {
-    prototype: HTMLFilterPopoverElement;
-    new (): HTMLFilterPopoverElement;
-  };
-
-  interface HTMLSelectAlbumElement extends Components.SelectAlbum, HTMLStencilElement {}
-  var HTMLSelectAlbumElement: {
-    prototype: HTMLSelectAlbumElement;
-    new (): HTMLSelectAlbumElement;
-  };
 
   interface HTMLAppAlbumsElement extends Components.AppAlbums, HTMLStencilElement {}
   var HTMLAppAlbumsElement: {
@@ -160,37 +80,85 @@ declare global {
     new (): HTMLAppSigninElement;
   };
 
-  interface HTMLElementTagNameMap {
-    'block-img': HTMLBlockImgElement
-    'filter-popover': HTMLFilterPopoverElement
-    'select-album': HTMLSelectAlbumElement
-    'app-albums': HTMLAppAlbumsElement
-    'app-photo': HTMLAppPhotoElement
-    'app-photos': HTMLAppPhotosElement
-    'app-root': HTMLAppRootElement
-    'app-settings': HTMLAppSettingsElement
-    'app-signin': HTMLAppSigninElement
-  }
+  interface HTMLBlockImgElement extends Components.BlockImg, HTMLStencilElement {}
+  var HTMLBlockImgElement: {
+    prototype: HTMLBlockImgElement;
+    new (): HTMLBlockImgElement;
+  };
 
-  interface ElementTagNameMap {
-    'block-img': HTMLBlockImgElement;
-    'filter-popover': HTMLFilterPopoverElement;
-    'select-album': HTMLSelectAlbumElement;
+  interface HTMLFilterPopoverElement extends Components.FilterPopover, HTMLStencilElement {}
+  var HTMLFilterPopoverElement: {
+    prototype: HTMLFilterPopoverElement;
+    new (): HTMLFilterPopoverElement;
+  };
+
+  interface HTMLSelectAlbumElement extends Components.SelectAlbum, HTMLStencilElement {}
+  var HTMLSelectAlbumElement: {
+    prototype: HTMLSelectAlbumElement;
+    new (): HTMLSelectAlbumElement;
+  };
+  interface HTMLElementTagNameMap {
     'app-albums': HTMLAppAlbumsElement;
     'app-photo': HTMLAppPhotoElement;
     'app-photos': HTMLAppPhotosElement;
     'app-root': HTMLAppRootElement;
     'app-settings': HTMLAppSettingsElement;
     'app-signin': HTMLAppSigninElement;
+    'block-img': HTMLBlockImgElement;
+    'filter-popover': HTMLFilterPopoverElement;
+    'select-album': HTMLSelectAlbumElement;
   }
-
-
-  export namespace JSX {
-    export interface Element {}
-    export interface IntrinsicElements extends StencilIntrinsicElements {
-      [tagName: string]: any;
-    }
-  }
-  export interface HTMLAttributes extends StencilHTMLAttributes {}
-
 }
+
+declare namespace LocalJSX {
+  interface AppAlbums extends JSXBase.HTMLAttributes<HTMLAppAlbumsElement> {}
+  interface AppPhoto extends JSXBase.HTMLAttributes<HTMLAppPhotoElement> {
+    'albumId'?: string;
+    'photoId'?: string;
+    'updateCallback'?: any;
+  }
+  interface AppPhotos extends JSXBase.HTMLAttributes<HTMLAppPhotosElement> {
+    'albumId'?: string;
+    'photoId'?: string;
+  }
+  interface AppRoot extends JSXBase.HTMLAttributes<HTMLAppRootElement> {}
+  interface AppSettings extends JSXBase.HTMLAttributes<HTMLAppSettingsElement> {}
+  interface AppSignin extends JSXBase.HTMLAttributes<HTMLAppSigninElement> {}
+  interface BlockImg extends JSXBase.HTMLAttributes<HTMLBlockImgElement> {
+    'photoId'?: string;
+    'phototType'?: PhotoType;
+    'refresh'?: number;
+    'rotate'?: boolean;
+  }
+  interface FilterPopover extends JSXBase.HTMLAttributes<HTMLFilterPopoverElement> {
+    'selectedPhotos'?: any[];
+  }
+  interface SelectAlbum extends JSXBase.HTMLAttributes<HTMLSelectAlbumElement> {
+    'endCallback'?: any;
+    'selectedPhotos'?: any[];
+    'startCallback'?: any;
+  }
+
+  interface IntrinsicElements {
+    'app-albums': AppAlbums;
+    'app-photo': AppPhoto;
+    'app-photos': AppPhotos;
+    'app-root': AppRoot;
+    'app-settings': AppSettings;
+    'app-signin': AppSignin;
+    'block-img': BlockImg;
+    'filter-popover': FilterPopover;
+    'select-album': SelectAlbum;
+  }
+}
+
+export { LocalJSX as JSX };
+
+
+declare module "@stencil/core" {
+  export namespace JSX {
+    interface IntrinsicElements extends LocalJSX.IntrinsicElements {}
+  }
+}
+
+
