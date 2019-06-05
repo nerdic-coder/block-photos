@@ -300,12 +300,33 @@ export default class PhotosService {
     try {
       // Delete photo, compressed photos and the photo metadata
       await StorageService.deleteItem(photoId);
+      returnState = true;
+    } catch (error) {
+      returnState = error.message.includes('DoesNotExist') ? true : false;
+    }
+
+    try {
+      // Delete photo, compressed photos and the photo metadata
       await StorageService.deleteItem(photoId + '-meta');
+      returnState = true;
+    } catch (error) {
+      returnState = error.message.includes('DoesNotExist') ? true : false;
+    }
+
+    try {
+      // Delete photo, compressed photos and the photo metadata
       await StorageService.deleteItem(photoId + '-thumbnail');
+      returnState = true;
+    } catch (error) {
+      returnState = error.message.includes('DoesNotExist') ? true : false;
+    }
+
+    try {
+      // Delete photo, compressed photos and the photo metadata
       await StorageService.deleteItem(photoId + '-viewer');
       returnState = true;
     } catch (error) {
-      returnState = false;
+      returnState = error.message.includes('DoesNotExist') ? true : false;
     }
 
     if (!returnState) {

@@ -38,9 +38,7 @@ export default class StorageService {
 
   static async deleteItem(itemId: string) {
     const userSession = new blockstack.UserSession();
-    await userSession.putFile(itemId, '');
-    // TODO: wait for implementation
-    // await userSession.deleteFile(itemId);
+    await userSession.deleteFile(itemId);
     await CacheService.deleteItem(itemId);
   }
 

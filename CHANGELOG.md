@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.2.0 (05/06/2019)
+
+- [**enhancement**] Updating blockstack.js library to version 19.2.1
+- [**bug**] Fix deletion of photos from the photo viewer getting stuck on black page
+
 ## v4.1.0 (01/06/2019)
 
 - [**enhancement**] New setting for clearing photos cache
