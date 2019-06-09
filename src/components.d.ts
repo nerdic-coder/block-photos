@@ -75,6 +75,9 @@ export namespace Components {
 
   interface AppSettings {}
   interface AppSettingsAttributes extends StencilHTMLAttributes {}
+
+  interface AppSignin {}
+  interface AppSigninAttributes extends StencilHTMLAttributes {}
 }
 
 declare global {
@@ -87,6 +90,7 @@ declare global {
     'AppPhotos': Components.AppPhotos;
     'AppRoot': Components.AppRoot;
     'AppSettings': Components.AppSettings;
+    'AppSignin': Components.AppSignin;
   }
 
   interface StencilIntrinsicElements {
@@ -98,6 +102,7 @@ declare global {
     'app-photos': Components.AppPhotosAttributes;
     'app-root': Components.AppRootAttributes;
     'app-settings': Components.AppSettingsAttributes;
+    'app-signin': Components.AppSigninAttributes;
   }
 
 
@@ -149,6 +154,12 @@ declare global {
     new (): HTMLAppSettingsElement;
   };
 
+  interface HTMLAppSigninElement extends Components.AppSignin, HTMLStencilElement {}
+  var HTMLAppSigninElement: {
+    prototype: HTMLAppSigninElement;
+    new (): HTMLAppSigninElement;
+  };
+
   interface HTMLElementTagNameMap {
     'block-img': HTMLBlockImgElement
     'filter-popover': HTMLFilterPopoverElement
@@ -158,6 +169,7 @@ declare global {
     'app-photos': HTMLAppPhotosElement
     'app-root': HTMLAppRootElement
     'app-settings': HTMLAppSettingsElement
+    'app-signin': HTMLAppSigninElement
   }
 
   interface ElementTagNameMap {
@@ -169,6 +181,7 @@ declare global {
     'app-photos': HTMLAppPhotosElement;
     'app-root': HTMLAppRootElement;
     'app-settings': HTMLAppSettingsElement;
+    'app-signin': HTMLAppSigninElement;
   }
 
 
