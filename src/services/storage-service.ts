@@ -11,7 +11,9 @@ export default class StorageService {
     let item = await CacheService.getItem(itemId);
     if (!item || forceUpdateCache) {
       const userSession = new blockstack.UserSession();
-      item = await userSession.getFile(itemId);
+      item = await userSession.getFile(itemId, {
+        decrypt: false
+      });
       if (updateCache || forceUpdateCache) {
         CacheService.setItem(itemId, item);
       }
@@ -26,7 +28,9 @@ export default class StorageService {
     cacheItem = true
   ): Promise<void> {
     const userSession = new blockstack.UserSession();
-    await userSession.putFile(itemId, itemValue);
+    await userSession.putFile(itemId, itemValue, {
+      encrypt: false
+    });
     if (cacheItem) {
       await CacheService.setItem(itemId, itemValue);
     }
