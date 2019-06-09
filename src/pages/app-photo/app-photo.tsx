@@ -394,22 +394,30 @@ export class AppPhoto {
   }
 
   async deletePhotoCallback() {
-    this.deleteInProgress = false;
     if (this.updateCallback && typeof this.updateCallback === 'function') {
       // execute the callback, passing parameters as necessary
       this.updateCallback();
     }
 
-    const deletedIndex: number = await this.slides.getActiveIndex();
-    if (this.nextPhotoId) {
-      this.photos.splice(deletedIndex, 1);
-      await this.setNextAndPreviousPhoto(this.nextPhotoId);
-    } else if (this.previousPhotoId) {
-      this.photos.splice(deletedIndex, 1);
-      await this.setNextAndPreviousPhoto(this.previousPhotoId);
-    } else {
+    // const deletedIndex: number = await this.slides.getActiveIndex();
+    // console.log('deletedIndex', deletedIndex);
+    // if (this.nextPhotoId) {
+    //   console.log('nextPhotoId', this.nextPhotoId);
+    //   // this.photos.filter(item => item.photoId !== this.photos[deletedIndex].photoId);
+    //   this.photos.splice(deletedIndex, 1);
+    //   await this.setNextAndPreviousPhoto(this.nextPhotoId);
+    // } else if (this.previousPhotoId) {
+    //   console.log('previousPhotoId', this.previousPhotoId);
+    //   // this.photos.filter(item => item.photoId !== this.photos[deletedIndex].photoId);
+    //   this.photos.splice(deletedIndex, 1);
+    //   // this.garbage += 1;
+    //   await this.setNextAndPreviousPhoto(this.previousPhotoId);
+    // } else {
+    setTimeout(() => {
+      this.deleteInProgress = false;
       this.modalController.dismiss();
-    }
+    }, 1000);
+    // }
 
     AnalyticsService.logEvent('photo-page-delete');
   }
