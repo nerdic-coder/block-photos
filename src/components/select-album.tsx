@@ -58,14 +58,15 @@ export class SelectAlbum {
 
   async addPhotosToAlbum(event: any, album: any) {
     event.preventDefault();
-    await this.closePopover();
     if (this.startCallback) {
       this.startCallback();
     }
+    await this.closePopover();
     const result: boolean = await PhotosService.addPhotosToAlbum(
       album.albumId,
       this.selectedPhotos
     );
+    this.selectedPhotos = null;
     if (result) {
       this.present.toast('Photo(s) added to album "' + album.albumName + '".');
     } else {
@@ -82,7 +83,6 @@ export class SelectAlbum {
     const popoverController = document.querySelector('ion-popover-controller');
     await popoverController.componentOnReady();
     popoverController.dismiss();
-    this.selectedPhotos = null;
   }
 
   render() {
