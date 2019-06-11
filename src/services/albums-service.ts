@@ -124,10 +124,7 @@ export default class AlbumsService {
   static async deleteAlbum(albumId: string): Promise<any> {
     let returnState = false;
     try {
-      // Put empty file, since deleteFile is yet not supported
-      await StorageService.setItem(albumId, '');
-      // TODO: add back when available.
-      // await deleteFile(albumId);
+      StorageService.deleteItem(albumId);
       returnState = true;
     } catch (error) {
       returnState = false;

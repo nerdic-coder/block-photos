@@ -1,6 +1,6 @@
 {
   "name": "block-photos",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "private": false,
   "description": "The app for storing your photos privatly in the cloud!",
   "repository": {
@@ -99,7 +99,7 @@
     "@ionic/core": "4.4.2",
     "@sentry/browser": "5.4.0",
     "blueimp-load-image": "2.21.0",
-    "browser-image-compression": "1.0.2",
+    "browser-image-compression": "1.0.5",
     "compressorjs": "1.0.5",
     "cors": "2.8.5",
     "electron-is-dev": "1.1.0",
@@ -126,9 +126,9 @@
     "@stencil/core": "0.18.1",
     "@types/jest": "24.0.13",
     "@types/puppeteer": "1.12.4",
-    "blockstack": "19.1.0",
+    "blockstack": "19.2.1",
     "electron": "5.0.2",
-    "husky": "2.3.0",
+    "husky": "2.4.0",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
     "nightwatch": "1.1.11",
