@@ -9,6 +9,7 @@ import { PhotoType } from '../../models/photo-type';
 import { Plugins } from '@capacitor/core';
 
 declare var blockstack;
+declare var navigator;
 // declare var Caman;
 
 @Component({
@@ -516,6 +517,29 @@ export class AppPhoto {
       });
   }
 
+  async shareOriginal(event: MouseEvent): Promise<void> {
+    event.preventDefault();
+
+    console.log('share 1', navigator);
+    if (navigator && navigator.share) {
+      console.log('share 2');
+      await this.shareNative();
+    } else {
+      // await shareFallback();
+    }
+  }
+
+  async shareNative() {
+    return new Promise(async resolve => {
+      const shareUrl = `${window.location.protocol}//${window.location.host}`;
+      await navigator.share({
+        text: 'Check out my cool photo!',
+        url: shareUrl
+      });
+      resolve();
+    });
+  }
+
   render() {
     return [
       <ion-header mode="md">
@@ -607,6 +631,20 @@ export class AppPhoto {
               ) : (
                 <ion-icon slot="end" color="light" name="download" />
               )}
+            </ion-button>
+            <ion-button
+              fill="outline"
+              color="secondary"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress
+              }
+              onClick={event => this.shareOriginal(event)}
+            >
+              <ion-label color="light">Share</ion-label>
+              <ion-icon slot="end" color="light" name="share" />
             </ion-button>
             <ion-button
               fill="outline"
