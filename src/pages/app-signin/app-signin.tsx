@@ -5,6 +5,7 @@ import { Plugins } from '@capacitor/core';
 
 import PresentingService from '../../services/presenting-service';
 import isElectron from 'is-electron';
+import SettingsService from '../../services/settings-service';
 
 declare var blockstack;
 
@@ -27,7 +28,8 @@ export class AppSignin {
     const router: any = document.querySelector('ion-router');
     await router.componentOnReady();
 
-    const userSession = new blockstack.UserSession();
+    const appConfig = SettingsService.getAppConfig();
+    const userSession = new blockstack.UserSession({ appConfig });
     if (userSession.isUserSignedIn()) {
       this.hideSplash();
       router.push('/photos', 'root');
@@ -77,7 +79,8 @@ export class AppSignin {
       info.platform === 'ios' ||
       isElectron()
     ) {
-      const userSession = new blockstack.UserSession();
+      const appConfig = SettingsService.getAppConfig();
+      const userSession = new blockstack.UserSession({ appConfig });
       const appDomain = 'https://app.block-photos.com';
       const transitPrivateKey = userSession.generateAndStoreTransitKey();
       const redirectURI = appDomain + '/redirect.html';
@@ -92,7 +95,8 @@ export class AppSignin {
       );
       blockstack.redirectToSignInWithAuthRequest(authRequest);
     } else {
-      const userSession = new blockstack.UserSession();
+      const appConfig = SettingsService.getAppConfig();
+      const userSession = new blockstack.UserSession({ appConfig });
       userSession.redirectToSignIn();
     }
   }

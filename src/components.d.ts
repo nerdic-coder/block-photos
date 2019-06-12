@@ -9,6 +9,7 @@ import '@stencil/core';
 
 import '@ionic/core';
 import 'ionicons';
+import 'web-social-share';
 import {
   PhotoType,
 } from './models/photo-type';
@@ -76,6 +77,15 @@ export namespace Components {
   interface AppSettings {}
   interface AppSettingsAttributes extends StencilHTMLAttributes {}
 
+  interface AppShared {
+    'photoId': string;
+    'username': string;
+  }
+  interface AppSharedAttributes extends StencilHTMLAttributes {
+    'photoId'?: string;
+    'username'?: string;
+  }
+
   interface AppSignin {}
   interface AppSigninAttributes extends StencilHTMLAttributes {}
 }
@@ -90,6 +100,7 @@ declare global {
     'AppPhotos': Components.AppPhotos;
     'AppRoot': Components.AppRoot;
     'AppSettings': Components.AppSettings;
+    'AppShared': Components.AppShared;
     'AppSignin': Components.AppSignin;
   }
 
@@ -102,6 +113,7 @@ declare global {
     'app-photos': Components.AppPhotosAttributes;
     'app-root': Components.AppRootAttributes;
     'app-settings': Components.AppSettingsAttributes;
+    'app-shared': Components.AppSharedAttributes;
     'app-signin': Components.AppSigninAttributes;
   }
 
@@ -154,6 +166,12 @@ declare global {
     new (): HTMLAppSettingsElement;
   };
 
+  interface HTMLAppSharedElement extends Components.AppShared, HTMLStencilElement {}
+  var HTMLAppSharedElement: {
+    prototype: HTMLAppSharedElement;
+    new (): HTMLAppSharedElement;
+  };
+
   interface HTMLAppSigninElement extends Components.AppSignin, HTMLStencilElement {}
   var HTMLAppSigninElement: {
     prototype: HTMLAppSigninElement;
@@ -169,6 +187,7 @@ declare global {
     'app-photos': HTMLAppPhotosElement
     'app-root': HTMLAppRootElement
     'app-settings': HTMLAppSettingsElement
+    'app-shared': HTMLAppSharedElement
     'app-signin': HTMLAppSigninElement
   }
 
@@ -181,6 +200,7 @@ declare global {
     'app-photos': HTMLAppPhotosElement;
     'app-root': HTMLAppRootElement;
     'app-settings': HTMLAppSettingsElement;
+    'app-shared': HTMLAppSharedElement;
     'app-signin': HTMLAppSigninElement;
   }
 

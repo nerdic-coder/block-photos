@@ -1,4 +1,5 @@
 import CacheService from './cache-service';
+import SettingsService from './settings-service';
 
 declare var blockstack;
 
@@ -6,13 +7,16 @@ export default class StorageService {
   static async getItem(
     itemId: string,
     updateCache?: boolean,
-    forceUpdateCache?: boolean
+    forceUpdateCache?: boolean,
+    username?: string,
+    decrypt = true
   ) {
     let item = await CacheService.getItem(itemId);
-    if (!item || forceUpdateCache) {
-      const userSession = new blockstack.UserSession();
-      item = await userSession.getFile(itemId);
-      if (updateCache || forceUpdateCache) {
+    if (!item || forceUpdateCache || username) {
+      const appConfig = SettingsService.getAppConfig();
+      const userSession = new blockstack.UserSession({ appConfig });
+      item = await userSession.getFile(itemId, { decrypt, username });
+      if ((updateCache || forceUpdateCache) && !username) {
         CacheService.setItem(itemId, item);
       }
     }
@@ -23,21 +27,26 @@ export default class StorageService {
   static async setItem(
     itemId: string,
     itemValue: any,
-    cacheItem = true
+    cacheItem = true,
+    encrypt = true
   ): Promise<void> {
-    const userSession = new blockstack.UserSession();
-    await userSession.putFile(itemId, itemValue);
+    const appConfig = SettingsService.getAppConfig();
+    const userSession = new blockstack.UserSession({ appConfig });
+    await userSession.putFile(itemId, itemValue, { encrypt });
+    console.log('getFileUrl', await userSession.getFileUrl(itemId));
     if (cacheItem) {
       await CacheService.setItem(itemId, itemValue);
     }
 
     const timeStamp = Math.floor(Date.now() / 1000);
+    // TODO: Can be stored decrypted and only when an update flag is given
     userSession.putFile('block-photos-last-updated', timeStamp.toString());
     CacheService.setItem('block-photos-last-checked', timeStamp.toString());
   }
 
   static async deleteItem(itemId: string) {
-    const userSession = new blockstack.UserSession();
+    const appConfig = SettingsService.getAppConfig();
+    const userSession = new blockstack.UserSession({ appConfig });
     await userSession.deleteFile(itemId);
     await CacheService.deleteItem(itemId);
   }
@@ -58,7 +67,8 @@ export default class StorageService {
       );
       return false;
     } else {
-      const userSession = new blockstack.UserSession();
+      const appConfig = SettingsService.getAppConfig();
+      const userSession = new blockstack.UserSession({ appConfig });
       const updatedTimeStamp = await userSession.getFile(
         'block-photos-last-updated'
       );

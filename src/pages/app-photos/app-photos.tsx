@@ -11,6 +11,7 @@ import UploadService from '../../services/upload-service';
 import AnalyticsService from '../../services/analytics-service';
 import { PhotoType } from '../../models/photo-type';
 import { Plugins } from '@capacitor/core';
+import SettingsService from '../../services/settings-service';
 
 declare var blockstack;
 
@@ -78,7 +79,8 @@ export class AppPhotos {
     this.router = document.querySelector('ion-router');
     await this.router.componentOnReady();
     // Go to signin page if no active session exist
-    const userSession = new blockstack.UserSession();
+    const appConfig = SettingsService.getAppConfig();
+    const userSession = new blockstack.UserSession({ appConfig });
     if (!userSession.isUserSignedIn()) {
       this.router.push('/', 'root');
       return;

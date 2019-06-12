@@ -40,7 +40,9 @@ export default class PhotosService {
   static async loadPhoto(
     metadata: PhotoMetadata,
     photoType?: PhotoType,
-    returnPhototype?: boolean
+    returnPhototype?: boolean,
+    username?: string,
+    decrypt = true
   ): Promise<any> {
     const mainId = metadata.id;
     let updateCache = false;
@@ -50,7 +52,13 @@ export default class PhotosService {
     } else if (photoType === PhotoType.Viewer) {
       metadata.id = metadata.id + '-viewer';
     }
-    let rawPhoto = await StorageService.getItem(metadata.id, updateCache);
+    let rawPhoto = await StorageService.getItem(
+      metadata.id,
+      updateCache,
+      false,
+      username,
+      decrypt
+    );
     if (!rawPhoto && photoType === PhotoType.Thumbnail) {
       rawPhoto = await StorageService.getItem(mainId, false);
       const { Device } = Plugins;
@@ -178,6 +186,34 @@ export default class PhotosService {
     }
 
     return { photosList, errorsList };
+  }
+
+  static async uploadSharedPhoto(data: any, metadata: PhotoMetadata) {
+    const errorsList = [];
+    try {
+      // Save raw data to a file
+      await StorageService.setItem(metadata.id + '-shared', data, false, false);
+      // Save photos metadata to a file
+      await StorageService.setItem(
+        metadata.id + '-shared-meta',
+        JSON.stringify(metadata),
+        false,
+        false
+      );
+    } catch (error) {
+      const fileSizeInMegabytes = metadata.stats.size / 1000000;
+      if (fileSizeInMegabytes >= 5) {
+        errorsList.push({
+          id: metadata.filename,
+          errorCode: 'err_filesize'
+        });
+      } else {
+        errorsList.push({
+          id: metadata.filename,
+          errorCode: 'err_failed'
+        });
+      }
+    }
   }
 
   static async compressPhoto(
@@ -467,11 +503,17 @@ export default class PhotosService {
     return response;
   }
 
-  static async getPhotoMetaData(photoId: string): Promise<PhotoMetadata> {
+  static async getPhotoMetaData(
+    photoId: string,
+    username?: string,
+    decrypt = true
+  ): Promise<PhotoMetadata> {
     const cachedPhotoMetaData: string = await StorageService.getItem(
       photoId + '-meta',
       true,
-      true
+      true,
+      username,
+      decrypt
     );
 
     if (!cachedPhotoMetaData) {

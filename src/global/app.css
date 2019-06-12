@@ -99,6 +99,8 @@ body {
   --ion-color-light-contrast-rgb: 0, 0, 0;
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
+
+  --web-social-share-brand-font-size: 14px;
 }
 
 ion-spinner {

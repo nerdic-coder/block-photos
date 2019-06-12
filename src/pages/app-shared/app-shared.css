@@ -1,0 +1,7 @@
+app-shared ion-slides {
+  height: 100%;
+}
+
+app-shared .swiper-slide img {
+  width: 100%;
+}
