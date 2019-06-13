@@ -520,9 +520,7 @@ export class AppPhoto {
       });
   }
 
-  async shareOriginal(event: MouseEvent): Promise<void> {
-    event.preventDefault();
-
+  async shareOriginal(): Promise<void> {
     this.shareInProgress = true;
 
     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
@@ -753,7 +751,7 @@ export class AppPhoto {
                 this.rotationInProgress ||
                 this.shareInProgress
               }
-              onClick={event => this.shareOriginal(event)}
+              onClick={() => this.shareOriginal()}
             >
               <ion-label color="light">Share</ion-label>
               {this.shareInProgress ? (

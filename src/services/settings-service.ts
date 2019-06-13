@@ -24,6 +24,6 @@ export default class SettingsService {
   }
 
   static getAppConfig() {
-    return new blockstack.AppConfig(['store_write', 'publish_data', 'email']);
+    return new blockstack.AppConfig(['store_write', 'publish_data']);
   }
 }
