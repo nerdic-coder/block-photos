@@ -1,5 +1,4 @@
 import StorageService from './storage-service';
-import imageCompression from 'browser-image-compression';
 import Compressor from 'compressorjs';
 
 import AlbumsService from './albums-service';
@@ -64,10 +63,13 @@ export default class PhotosService {
       const { Device } = Plugins;
       const info = await Device.getInfo();
       if (info.model !== 'iPhone' && info.model !== 'iPad') {
+        const fetchedData = await fetch(rawPhoto);
+        const blob = await fetchedData.blob();
         const thumbnailData = await PhotosService.compressPhoto(
-          await imageCompression.getFilefromDataUrl(rawPhoto),
+          blob,
           PhotoType.Thumbnail,
-          metadata.type
+          metadata.type,
+          true
         );
         await StorageService.setItem(mainId + '-thumbnail', thumbnailData);
 
@@ -80,8 +82,10 @@ export default class PhotosService {
       const { Device } = Plugins;
       const info = await Device.getInfo();
       if (info.model !== 'iPhone' && info.model !== 'iPad') {
+        const fetchedData = await fetch(rawPhoto);
+        const blob = await fetchedData.blob();
         const viewerData = await PhotosService.compressPhoto(
-          await imageCompression.getFilefromDataUrl(rawPhoto),
+          blob,
           PhotoType.Viewer,
           metadata.type
         );
@@ -188,9 +192,29 @@ export default class PhotosService {
     return { photosList, errorsList };
   }
 
-  static async uploadSharedPhoto(data: any, metadata: PhotoMetadata) {
+  static async uploadSharedPhoto(
+    data: any,
+    metadata: PhotoMetadata
+  ): Promise<any> {
     const errorsList = [];
     try {
+      metadata.shared = true;
+      const sharedResponse = await PhotosService.getPhotosList(
+        true,
+        'shared-list.json'
+      );
+      let sharedList = sharedResponse.photosList;
+      if (
+        (!sharedList || sharedList == null) &&
+        sharedResponse.errorsList.length === 0
+      ) {
+        sharedList = [];
+      }
+
+      const listdata = {
+        id: metadata.id + '-shared',
+        filename: metadata.filename
+      };
       // Save raw data to a file
       await StorageService.setItem(metadata.id + '-shared', data, false, false);
       // Save photos metadata to a file
@@ -199,6 +223,20 @@ export default class PhotosService {
         JSON.stringify(metadata),
         false,
         false
+      );
+      // Update shared flag on original metadata
+      await StorageService.setItem(
+        metadata.id + '-meta',
+        JSON.stringify(metadata)
+      );
+
+      sharedList.unshift(listdata);
+
+      console.log('sharedList', sharedList);
+
+      await StorageService.setItem(
+        'shared-list.json',
+        JSON.stringify(sharedList)
       );
     } catch (error) {
       const fileSizeInMegabytes = metadata.stats.size / 1000000;
@@ -219,7 +257,8 @@ export default class PhotosService {
   static async compressPhoto(
     itemValue: any,
     photoType?: PhotoType,
-    mimeType = 'image/jpeg'
+    mimeType = 'image/jpeg',
+    checkOrientation = false
   ) {
     try {
       return new Promise(async resolve => {
@@ -228,7 +267,7 @@ export default class PhotosService {
             quality: 0.4,
             maxWidth: 500,
             mimeType,
-            checkOrientation: false,
+            checkOrientation,
             success(result) {
               const reader = new FileReader();
 
@@ -249,7 +288,7 @@ export default class PhotosService {
             quality: 0.6,
             maxWidth: 2560,
             mimeType,
-            checkOrientation: false,
+            checkOrientation,
             success(result) {
               const reader = new FileReader();
 

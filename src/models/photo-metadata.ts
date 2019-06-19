@@ -7,4 +7,5 @@ interface PhotoMetadata {
   size: number;
   uploadedDate: Date;
   albums: string[];
+  shared: boolean;
 }

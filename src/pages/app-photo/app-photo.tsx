@@ -523,17 +523,10 @@ export class AppPhoto {
   async shareOriginal(): Promise<void> {
     this.shareInProgress = true;
 
-    const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
-      this.photoId
-    );
-    const data = await PhotosService.loadPhoto(metadata, PhotoType.Download);
-    PhotosService.uploadSharedPhoto(data, metadata);
     const appConfig = SettingsService.getAppConfig();
     const userSession = new blockstack.UserSession({ appConfig });
     const userData = userSession.loadUserData();
-    const shareUrl = `${window.location.protocol}//${
-      window.location.host
-    }/#/shared/${userData.username}/${this.photoId}`;
+    const shareUrl = `${window.location.protocol}//${window.location.host}/#/shared/${userData.username}/${this.photoId}`;
 
     if (navigator && navigator.share) {
       await this.shareNative(shareUrl);
@@ -541,6 +534,15 @@ export class AppPhoto {
     } else {
       await this.shareFallback(shareUrl);
       this.shareInProgress = false;
+    }
+
+    const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      this.photoId
+    );
+
+    if (!metadata.shared) {
+      const data = await PhotosService.loadPhoto(metadata, PhotoType.Download);
+      PhotosService.uploadSharedPhoto(data, metadata);
     }
   }
 

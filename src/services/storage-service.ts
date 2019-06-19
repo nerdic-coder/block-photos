@@ -33,15 +33,9 @@ export default class StorageService {
     const appConfig = SettingsService.getAppConfig();
     const userSession = new blockstack.UserSession({ appConfig });
     await userSession.putFile(itemId, itemValue, { encrypt });
-    console.log('getFileUrl', await userSession.getFileUrl(itemId));
     if (cacheItem) {
       await CacheService.setItem(itemId, itemValue);
     }
-
-    const timeStamp = Math.floor(Date.now() / 1000);
-    // TODO: Can be stored decrypted and only when an update flag is given
-    userSession.putFile('block-photos-last-updated', timeStamp.toString());
-    CacheService.setItem('block-photos-last-checked', timeStamp.toString());
   }
 
   static async deleteItem(itemId: string) {
@@ -70,7 +64,8 @@ export default class StorageService {
       const appConfig = SettingsService.getAppConfig();
       const userSession = new blockstack.UserSession({ appConfig });
       const updatedTimeStamp = await userSession.getFile(
-        'block-photos-last-updated'
+        'block-photos-last-updated',
+        { decrypt: false }
       );
       if (updatedTimeStamp > checkedTimestamp) {
         await CacheService.setItem(
@@ -82,5 +77,16 @@ export default class StorageService {
         return false;
       }
     }
+  }
+
+  static async updateTimestamp() {
+    const appConfig = SettingsService.getAppConfig();
+    const userSession = new blockstack.UserSession({ appConfig });
+
+    const timeStamp = Math.floor(Date.now() / 1000);
+    userSession.putFile('block-photos-last-updated', timeStamp.toString(), {
+      encrypt: false
+    });
+    CacheService.setItem('block-photos-last-checked', timeStamp.toString());
   }
 }

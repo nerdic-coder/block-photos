@@ -17,6 +17,7 @@ declare var blockstack;
 export class AppShared {
   private present: PresentingService;
   private photoType: PhotoType = PhotoType.Download;
+  private originalSource: any;
 
   @Prop() photoId: string;
   @Prop() username: string;
@@ -26,6 +27,7 @@ export class AppShared {
   @State() importInProgress: boolean;
   @State() photo: any;
   @State() isUserSignedIn: boolean;
+  @State() isUserTheSame: boolean;
 
   constructor() {
     this.photo = {
@@ -38,8 +40,6 @@ export class AppShared {
   }
 
   async componentWillLoad() {
-    console.log('photoId', this.photoId);
-    console.log('userId', this.username);
     const { Device } = Plugins;
     const info = await Device.getInfo();
     if (info.model === 'iPad') {
@@ -49,6 +49,11 @@ export class AppShared {
     const appConfig = SettingsService.getAppConfig();
     const userSession = new blockstack.UserSession({ appConfig });
     this.isUserSignedIn = userSession.isUserSignedIn();
+    this.isUserTheSame =
+      this.isUserSignedIn &&
+      userSession.loadUserData().username === this.username
+        ? true
+        : false;
 
     await this.getPhoto(this.photoId);
   }
@@ -76,15 +81,17 @@ export class AppShared {
       rotation = metadata.stats.exifdata.tags.Orientation;
     }
 
+    this.originalSource = await PhotosService.loadPhoto(
+      metadata,
+      this.photoType,
+      false,
+      this.username,
+      false
+    );
+
     if (rotation !== 1) {
       loadImage(
-        await PhotosService.loadPhoto(
-          metadata,
-          this.photoType,
-          false,
-          this.username,
-          false
-        ),
+        this.originalSource,
         processedPhoto => {
           this.handleProcessedPhoto(processedPhoto);
         },
@@ -93,17 +100,10 @@ export class AppShared {
         }
       );
     } else {
-      this.photo.source = await PhotosService.loadPhoto(
-        metadata,
-        this.photoType,
-        false,
-        this.username,
-        false
-      );
       this.photo = {
         photoId: this.photo.photoId,
         isLoaded: true,
-        source: this.photo.source,
+        source: this.originalSource,
         metadata: this.photo.metadata
       };
     }
@@ -153,7 +153,30 @@ export class AppShared {
   async importPhoto(event: MouseEvent) {
     event.preventDefault();
     this.importInProgress = true;
-    await PhotosService.uploadPhoto(this.photo.metadata, this.photo.source);
+    const fetchedData = await fetch(this.originalSource);
+    const blob = await fetchedData.blob();
+    const thumbnailData = await PhotosService.compressPhoto(
+      blob,
+      PhotoType.Thumbnail,
+      this.photo.metadata.type
+    );
+    let viewerData = null;
+    const { Device } = Plugins;
+    const info = await Device.getInfo();
+    if (info.model !== 'iPhone' && info.model !== 'iPad') {
+      viewerData = await PhotosService.compressPhoto(
+        blob,
+        PhotoType.Viewer,
+        this.photo.metadata.type
+      );
+    }
+    await PhotosService.uploadPhoto(
+      this.photo.metadata,
+      this.photo.source,
+      null,
+      thumbnailData,
+      viewerData
+    );
     this.importInProgress = false;
   }
 
@@ -184,7 +207,7 @@ export class AppShared {
               fill="outline"
               color="secondary"
               class="ion-hide-sm-down"
-              hidden={!this.isUserSignedIn}
+              hidden={!this.isUserSignedIn || this.isUserTheSame}
               disabled={this.downloadInProgress || this.importInProgress}
               onClick={event => this.importPhoto(event)}
             >

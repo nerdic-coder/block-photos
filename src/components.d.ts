@@ -9,7 +9,6 @@ import '@stencil/core';
 
 import '@ionic/core';
 import 'ionicons';
-import 'web-social-share';
 import {
   PhotoType,
 } from './models/photo-type';
