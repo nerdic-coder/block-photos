@@ -58,8 +58,15 @@ export default class PhotosService {
       username,
       decrypt
     );
+
     if (!rawPhoto && photoType === PhotoType.Thumbnail) {
-      rawPhoto = await StorageService.getItem(mainId, false);
+      rawPhoto = await StorageService.getItem(
+        mainId,
+        false,
+        false,
+        username,
+        decrypt
+      );
       const { Device } = Plugins;
       const info = await Device.getInfo();
       if (info.model !== 'iPhone' && info.model !== 'iPad') {
@@ -69,7 +76,7 @@ export default class PhotosService {
           blob,
           PhotoType.Thumbnail,
           metadata.type,
-          true
+          false
         );
         await StorageService.setItem(mainId + '-thumbnail', thumbnailData);
 
@@ -78,7 +85,13 @@ export default class PhotosService {
         photoType = PhotoType.Download;
       }
     } else if (!rawPhoto && photoType === PhotoType.Viewer) {
-      rawPhoto = await StorageService.getItem(mainId, false);
+      rawPhoto = await StorageService.getItem(
+        mainId,
+        false,
+        false,
+        username,
+        decrypt
+      );
       const { Device } = Plugins;
       const info = await Device.getInfo();
       if (info.model !== 'iPhone' && info.model !== 'iPad') {
@@ -97,6 +110,7 @@ export default class PhotosService {
     }
 
     if (!rawPhoto) {
+      await PhotosService.deletePhoto(mainId);
       return false;
     }
 
@@ -199,6 +213,7 @@ export default class PhotosService {
     const errorsList = [];
     try {
       metadata.shared = true;
+      metadata.id = metadata.id + '-shared';
       const sharedResponse = await PhotosService.getPhotosList(
         true,
         'shared-list.json'
@@ -212,27 +227,26 @@ export default class PhotosService {
       }
 
       const listdata = {
-        id: metadata.id + '-shared',
+        id: metadata.id,
         filename: metadata.filename
       };
       // Save raw data to a file
-      await StorageService.setItem(metadata.id + '-shared', data, false, false);
+      await StorageService.setItem(metadata.id, data, false, false);
       // Save photos metadata to a file
       await StorageService.setItem(
-        metadata.id + '-shared-meta',
+        metadata.id + '-meta',
         JSON.stringify(metadata),
         false,
         false
       );
-      // Update shared flag on original metadata
-      await StorageService.setItem(
-        metadata.id + '-meta',
-        JSON.stringify(metadata)
-      );
+      // console.log('originalMetadata.id', originalMetadata.id);
+      // // Update shared flag on original metadata
+      // await StorageService.setItem(
+      //   originalMetadata.id + '-meta',
+      //   JSON.stringify(originalMetadata)
+      // );
 
       sharedList.unshift(listdata);
-
-      console.log('sharedList', sharedList);
 
       await StorageService.setItem(
         'shared-list.json',
@@ -252,6 +266,8 @@ export default class PhotosService {
         });
       }
     }
+
+    return errorsList;
   }
 
   static async compressPhoto(
@@ -369,9 +385,16 @@ export default class PhotosService {
     return true;
   }
 
-  static async deletePhoto(photoId: string): Promise<boolean> {
+  static async deletePhoto(
+    photoId: string,
+    skipMetadata?: boolean,
+    decrypt = true
+  ): Promise<boolean> {
     let returnState = false;
-    const metadata = await PhotosService.getPhotoMetaData(photoId);
+    let metadata = null;
+    if (!skipMetadata) {
+      metadata = await PhotosService.getPhotoMetaData(photoId, null, decrypt);
+    }
     try {
       // Delete photo, compressed photos and the photo metadata
       await StorageService.deleteItem(photoId);
@@ -408,17 +431,28 @@ export default class PhotosService {
       return false;
     }
 
-    // Remove photo from main list
-    returnState = await PhotosService.removePhotoFromList(photoId);
+    if (decrypt) {
+      // Remove photo from main list
+      returnState = await PhotosService.removePhotoFromList(photoId);
 
-    // Remove photo from albums
-    if (metadata.albums && metadata.albums.length > 0) {
-      for (const albumId of metadata.albums) {
-        returnState = await PhotosService.removePhotoFromList(photoId, albumId);
-        if (!returnState) {
-          return false;
+      // Remove photo from albums
+      if (!skipMetadata && metadata.albums && metadata.albums.length > 0) {
+        for (const albumId of metadata.albums) {
+          returnState = await PhotosService.removePhotoFromList(
+            photoId,
+            albumId
+          );
+          if (!returnState) {
+            return false;
+          }
         }
       }
+    } else {
+      // Remove photo from shared list
+      returnState = await PhotosService.removePhotoFromList(
+        photoId,
+        'shared-list.json'
+      );
     }
     return returnState;
   }
@@ -472,11 +506,14 @@ export default class PhotosService {
     return true;
   }
 
-  static async deletePhotos(photoIds: string[]): Promise<boolean> {
+  static async deletePhotos(
+    photoIds: string[],
+    decrypt = true
+  ): Promise<boolean> {
     let returnState = false;
     try {
       for (const photoId of photoIds) {
-        const result = await PhotosService.deletePhoto(photoId);
+        const result = await PhotosService.deletePhoto(photoId, false, decrypt);
         if (!result) {
           throw result;
         }
@@ -556,24 +593,9 @@ export default class PhotosService {
     );
 
     if (!cachedPhotoMetaData) {
-      const photosListResponse = await PhotosService.getPhotosList();
-      const photosList = photosListResponse.photosList;
-      let photoMetaData: PhotoMetadata;
-      let index = 0;
-      for (const photo of photosList) {
-        // Current photo
-        if (photo.id === photoId) {
-          photoMetaData = photosList[index];
-          PhotosService.setPhotoMetaData(photoId, cachedPhotoMetaData);
-          break;
-        }
-        index++;
-      }
-      return photoMetaData;
-    } else if (cachedPhotoMetaData) {
-      return JSON.parse(cachedPhotoMetaData);
-    } else {
       return null;
+    } else {
+      return JSON.parse(cachedPhotoMetaData);
     }
   }
 

@@ -31,6 +31,7 @@ export class AppPhoto {
 
   @Prop({ mutable: true }) photoId: string;
   @Prop() albumId: string;
+  @Prop() decrypt: boolean;
   @Prop() updateCallback: any;
 
   @State() photos: any[];
@@ -174,7 +175,9 @@ export class AppPhoto {
   ): Promise<void> {
     let rotation = 1;
     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
-      photoId
+      photoId,
+      null,
+      this.decrypt
     );
 
     if (newRotation) {
@@ -215,7 +218,13 @@ export class AppPhoto {
 
     if (rotation !== 1) {
       loadImage(
-        await PhotosService.loadPhoto(metadata, this.photoType),
+        await PhotosService.loadPhoto(
+          metadata,
+          this.photoType,
+          false,
+          null,
+          this.decrypt
+        ),
         processedPhoto => {
           this.handleProcessedPhoto(processedPhoto, index, photoId);
         },
@@ -229,7 +238,13 @@ export class AppPhoto {
           {
             photoId,
             isLoaded: true,
-            source: await PhotosService.loadPhoto(metadata, this.photoType)
+            source: await PhotosService.loadPhoto(
+              metadata,
+              this.photoType,
+              false,
+              null,
+              this.decrypt
+            )
           },
           ...this.photos
         ];
@@ -240,13 +255,25 @@ export class AppPhoto {
           {
             photoId,
             isLoaded: true,
-            source: await PhotosService.loadPhoto(metadata, this.photoType)
+            source: await PhotosService.loadPhoto(
+              metadata,
+              this.photoType,
+              false,
+              null,
+              this.decrypt
+            )
           }
         ];
       } else {
         this.photos[
           this.getPhotoIndex(photoId)
-        ].source = await PhotosService.loadPhoto(metadata, this.photoType);
+        ].source = await PhotosService.loadPhoto(
+          metadata,
+          this.photoType,
+          false,
+          null,
+          this.decrypt
+        );
         this.photos[this.getPhotoIndex(photoId)].isLoaded = true;
         this.garbage += 1;
       }
@@ -503,7 +530,13 @@ export class AppPhoto {
     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
       this.photoId
     );
-    const data = await PhotosService.loadPhoto(metadata, PhotoType.Download);
+    const data = await PhotosService.loadPhoto(
+      metadata,
+      PhotoType.Download,
+      false,
+      null,
+      this.decrypt
+    );
     new Downloader({
       url: data,
       filename: metadata.filename
@@ -542,7 +575,29 @@ export class AppPhoto {
 
     if (!metadata.shared) {
       const data = await PhotosService.loadPhoto(metadata, PhotoType.Download);
-      PhotosService.uploadSharedPhoto(data, metadata);
+      if (!data) {
+        this.present.toast('Failed to share the photo!');
+        // Hide the share actions
+        const webSocialShare: any = document.querySelector('web-social-share');
+        if (webSocialShare) {
+          webSocialShare.show = false;
+        }
+        return;
+      }
+      const errorsList = await PhotosService.uploadSharedPhoto(data, metadata);
+      if (errorsList && errorsList.length > 0) {
+        for (const error of errorsList) {
+          if (error.errorCode === 'err_filesize') {
+            this.present.toast(
+              'Failed to share "' +
+                error.id +
+                '", photo exceeds file size limit of 5MB.'
+            );
+          } else {
+            this.present.toast('Failed to share "' + error.id + '".');
+          }
+        }
+      }
     }
   }
 
@@ -658,6 +713,7 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              hidden={!this.decrypt}
               disabled={
                 this.deleteInProgress ||
                 this.addToAlbumInProgress ||
@@ -677,6 +733,7 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              hidden={!this.decrypt}
               disabled={
                 this.deleteInProgress ||
                 this.addToAlbumInProgress ||
@@ -746,6 +803,7 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              hidden={!this.decrypt}
               disabled={
                 this.deleteInProgress ||
                 this.addToAlbumInProgress ||

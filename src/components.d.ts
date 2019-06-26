@@ -17,12 +17,14 @@ import {
 export namespace Components {
 
   interface BlockImg {
+    'decrypt': boolean;
     'photoId': string;
     'phototType': PhotoType;
     'refresh': number;
     'rotate': boolean;
   }
   interface BlockImgAttributes extends StencilHTMLAttributes {
+    'decrypt'?: boolean;
     'photoId'?: string;
     'phototType'?: PhotoType;
     'refresh'?: number;
@@ -52,11 +54,13 @@ export namespace Components {
 
   interface AppPhoto {
     'albumId': string;
+    'decrypt': boolean;
     'photoId': string;
     'updateCallback': any;
   }
   interface AppPhotoAttributes extends StencilHTMLAttributes {
     'albumId'?: string;
+    'decrypt'?: boolean;
     'photoId'?: string;
     'updateCallback'?: any;
   }
@@ -64,10 +68,12 @@ export namespace Components {
   interface AppPhotos {
     'albumId': string;
     'photoId': string;
+    'sharing': boolean;
   }
   interface AppPhotosAttributes extends StencilHTMLAttributes {
     'albumId'?: string;
     'photoId'?: string;
+    'sharing'?: boolean;
   }
 
   interface AppRoot {}

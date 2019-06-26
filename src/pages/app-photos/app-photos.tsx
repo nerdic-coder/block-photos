@@ -51,6 +51,7 @@ export class AppPhotos {
 
   @Prop({ mutable: true }) photoId: string;
   @Prop({ mutable: true }) albumId: string;
+  @Prop({ mutable: true }) sharing: boolean;
 
   constructor() {
     this.present = new PresentingService();
@@ -72,6 +73,10 @@ export class AppPhotos {
     if (this.albumId) {
       // Load album list
       this.album = await AlbumsService.getAlbumMetaData(this.albumId);
+    }
+
+    if (this.sharing) {
+      this.albumId = 'shared-list.json';
     }
   }
 
@@ -124,8 +129,13 @@ export class AppPhotos {
 
   ionRouteDidChange(event: any) {
     if (event && event.detail && event.detail.to === '/photos') {
+      this.sharing = false;
       this.albumId = null;
       this.album = null;
+      this.refreshPhotosList();
+    } else if (event && event.detail && event.detail.to === '/sharing') {
+      this.sharing = true;
+      this.albumId = 'shared-list.json';
       this.refreshPhotosList();
     }
   }
@@ -287,11 +297,16 @@ export class AppPhotos {
         if (this.checkedItems.hasOwnProperty(key)) {
           const photoId = this.checkedItems[key];
           const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
-            photoId
+            photoId,
+            null,
+            !this.sharing
           );
           const data: string = await PhotosService.loadPhoto(
             metadata,
-            PhotoType.Download
+            PhotoType.Download,
+            false,
+            null,
+            !this.sharing
           );
           const fetchedData = await fetch(data);
           const arrayBuffer = await fetchedData.arrayBuffer();
@@ -372,6 +387,7 @@ export class AppPhotos {
       component: this.appPhotoElement,
       componentProps: {
         photoId,
+        decrypt: !this.sharing,
         albumId: this.albumId,
         updateCallback: this.updateCallback.bind(this)
       },
@@ -469,6 +485,7 @@ export class AppPhotos {
                   <ion-button
                     fill="outline"
                     color="secondary"
+                    hidden={this.sharing}
                     disabled={
                       this.checkedItems.length === 0 ||
                       this.downloadInProgress ||
@@ -489,6 +506,7 @@ export class AppPhotos {
                     fill="outline"
                     color="secondary"
                     onClick={() => this.rotatePhotos()}
+                    hidden={this.sharing}
                     disabled={
                       this.checkedItems.length === 0 ||
                       this.downloadInProgress ||
@@ -591,6 +609,7 @@ export class AppPhotos {
                   <ion-button
                     fill="outline"
                     color="secondary"
+                    hidden={this.sharing}
                     disabled={this.uploadInProgress === true}
                     onClick={event => this.openFileDialog(event)}
                   >
@@ -621,7 +640,7 @@ export class AppPhotos {
         >
           <ion-refresher-content />
         </ion-refresher>
-        {empty && this.listLoaded ? (
+        {empty && this.listLoaded && !this.sharing ? (
           <ion-card
             padding
             text-center
@@ -673,6 +692,7 @@ export class AppPhotos {
                         photoId={col.id}
                         phototType={PhotoType.Thumbnail}
                         refresh={this.refreshPhotos[col.id]}
+                        decrypt={!this.sharing}
                       />
                     </div>
                   </ion-col>
@@ -680,7 +700,7 @@ export class AppPhotos {
                 {row.length === 1
                   ? [
                       <ion-col no-padding align-self-stretch>
-                        {this.editMode ? (
+                        {this.editMode || this.sharing ? (
                           ''
                         ) : (
                           <ion-card
@@ -710,7 +730,7 @@ export class AppPhotos {
                 {row.length === 2
                   ? [
                       <ion-col no-padding align-self-stretch>
-                        {this.editMode ? (
+                        {this.editMode || this.sharing ? (
                           ''
                         ) : (
                           <ion-card

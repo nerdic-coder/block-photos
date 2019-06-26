@@ -1,6 +1,7 @@
 import { Component, Prop, State } from '@stencil/core';
 import loadImage from 'blueimp-load-image';
 import Downloader from 'js-file-downloader';
+import uuidv4 from 'uuid/v4';
 
 import PresentingService from '../../services/presenting-service';
 import PhotosService from '../../services/photos-service';
@@ -54,23 +55,24 @@ export class AppShared {
       userSession.loadUserData().username === this.username
         ? true
         : false;
+  }
 
-    await this.getPhoto(this.photoId);
+  componentDidLoad() {
+    this.getPhoto(this.photoId);
   }
 
   async getPhoto(photoId: string): Promise<void> {
     let rotation = 1;
-    const profile = await blockstack.lookupProfile(this.username);
-    console.log(profile);
+    // const profile = await blockstack.lookupProfile(this.username);
+    // console.log('profile', profile);
     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
       photoId + '-shared',
       this.username,
       false
     );
 
-    metadata.id = metadata.id + '-shared';
+    metadata.id = metadata.id;
     this.photo.metadata = metadata;
-    console.log('this.photo.metadata', this.photo.metadata);
 
     if (
       metadata &&
@@ -170,9 +172,14 @@ export class AppShared {
         this.photo.metadata.type
       );
     }
+
+    const photoId: string =
+      uuidv4() + this.photo.metadata.filename.replace('.', '').replace(' ', '');
+    const newMetadata = this.photo.metadata;
+    newMetadata.id = photoId;
     await PhotosService.uploadPhoto(
-      this.photo.metadata,
-      this.photo.source,
+      newMetadata,
+      this.originalSource,
       null,
       thumbnailData,
       viewerData

@@ -11,17 +11,23 @@ export default class StorageService {
     username?: string,
     decrypt = true
   ) {
-    let item = await CacheService.getItem(itemId);
-    if (!item || forceUpdateCache || username) {
-      const appConfig = SettingsService.getAppConfig();
-      const userSession = new blockstack.UserSession({ appConfig });
-      item = await userSession.getFile(itemId, { decrypt, username });
-      if ((updateCache || forceUpdateCache) && !username) {
-        CacheService.setItem(itemId, item);
+    try {
+      let item = await CacheService.getItem(itemId);
+      if (!item || forceUpdateCache || username) {
+        const appConfig = SettingsService.getAppConfig();
+        const userSession = new blockstack.UserSession({ appConfig });
+        item = await userSession.getFile(itemId, { decrypt, username });
+        if ((updateCache || forceUpdateCache) && !username) {
+          CacheService.setItem(itemId, item);
+        }
+      }
+
+      return item;
+    } catch (error) {
+      if (error.toString().includes("Cannot read property '-1' of null")) {
+        StorageService.deleteItem(itemId);
       }
     }
-
-    return item;
   }
 
   static async setItem(
