@@ -85,7 +85,7 @@ export default class StorageService {
     }
   }
 
-  static async updateTimestamp() {
+  static async updateTimestamp(updateCache = true) {
     const appConfig = SettingsService.getAppConfig();
     const userSession = new blockstack.UserSession({ appConfig });
 
@@ -93,6 +93,8 @@ export default class StorageService {
     userSession.putFile('block-photos-last-updated', timeStamp.toString(), {
       encrypt: false
     });
-    CacheService.setItem('block-photos-last-checked', timeStamp.toString());
+    if (updateCache) {
+      CacheService.setItem('block-photos-last-checked', timeStamp.toString());
+    }
   }
 }

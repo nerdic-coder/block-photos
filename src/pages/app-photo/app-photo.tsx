@@ -528,7 +528,9 @@ export class AppPhoto {
     event.preventDefault();
     this.downloadInProgress = true;
     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
-      this.photoId
+      this.photoId,
+      null,
+      this.decrypt
     );
     const data = await PhotosService.loadPhoto(
       metadata,
@@ -563,17 +565,21 @@ export class AppPhoto {
 
     if (navigator && navigator.share) {
       await this.shareNative(shareUrl);
-      this.shareInProgress = false;
     } else {
       await this.shareFallback(shareUrl);
-      this.shareInProgress = false;
     }
 
     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
       this.photoId
     );
 
-    if (!metadata.shared) {
+    const exist: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      this.photoId + '-shared',
+      null,
+      false
+    );
+
+    if (!exist) {
       const data = await PhotosService.loadPhoto(metadata, PhotoType.Download);
       if (!data) {
         this.present.toast('Failed to share the photo!');
@@ -585,6 +591,7 @@ export class AppPhoto {
         return;
       }
       const errorsList = await PhotosService.uploadSharedPhoto(data, metadata);
+      this.shareInProgress = false;
       if (errorsList && errorsList.length > 0) {
         for (const error of errorsList) {
           if (error.errorCode === 'err_filesize') {
@@ -598,6 +605,8 @@ export class AppPhoto {
           }
         }
       }
+    } else {
+      this.shareInProgress = false;
     }
   }
 
@@ -663,6 +672,42 @@ export class AppPhoto {
 
       resolve();
     });
+  }
+
+  async activateEditor() {
+    const popoverController: any = document.querySelector(
+      'ion-popover-controller'
+    );
+    await popoverController.componentOnReady();
+
+    const componentProps = {
+      selectedPhotos: [this.photoId],
+      deleteCallback: this.delete.bind(this),
+      rotateCallback: null
+    };
+
+    if (this.decrypt) {
+      componentProps.rotateCallback = this.rotatePhoto.bind(this);
+    }
+
+    const popover = await popoverController.create({
+      component: 'edit-popover',
+      componentProps,
+      event,
+      backdropDismiss: true,
+      showBackdrop: false,
+      translucent: true
+    });
+    return popover.present();
+  }
+
+  delete() {
+    this.present.deletePhotos(
+      [this.photoId],
+      this.deletePhotoCallback.bind(this),
+      this.albumId,
+      this.deletePhotoStartCallback.bind(this)
+    );
   }
 
   render() {
@@ -733,6 +778,7 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              class="ion-hide-sm-down"
               hidden={!this.decrypt}
               disabled={
                 this.deleteInProgress ||
@@ -756,6 +802,7 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              class="ion-hide-sm-down"
               disabled={
                 this.deleteInProgress ||
                 this.addToAlbumInProgress ||
@@ -763,14 +810,7 @@ export class AppPhoto {
                 this.rotationInProgress ||
                 this.shareInProgress
               }
-              onClick={() =>
-                this.present.deletePhotos(
-                  [this.photoId],
-                  this.deletePhotoCallback.bind(this),
-                  this.albumId,
-                  this.deletePhotoStartCallback.bind(this)
-                )
-              }
+              onClick={() => this.delete()}
             >
               <ion-label color="light">Delete</ion-label>
               {this.deleteInProgress ? (
@@ -818,6 +858,26 @@ export class AppPhoto {
                 <ion-spinner name="circles" slot="end" color="light" />
               ) : (
                 <ion-icon slot="end" color="light" name="share" />
+              )}
+            </ion-button>
+            <ion-button
+              fill="outline"
+              color="secondary"
+              class="ion-hide-md-up"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress ||
+                this.shareInProgress
+              }
+              onClick={() => this.activateEditor()}
+            >
+              <ion-label color="light">Edit</ion-label>
+              {this.rotationInProgress || this.deleteInProgress ? (
+                <ion-spinner name="circles" slot="end" color="light" />
+              ) : (
+                <ion-icon slot="end" color="light" name="checkmark-circle" />
               )}
             </ion-button>
             <ion-button

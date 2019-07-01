@@ -524,6 +524,8 @@ export default class PhotosService {
       returnState = false;
     }
 
+    StorageService.updateTimestamp();
+
     return returnState;
   }
 

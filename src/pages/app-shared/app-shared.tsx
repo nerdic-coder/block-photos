@@ -225,6 +225,18 @@ export class AppShared {
                 <ion-icon slot="end" color="light" name="photos" />
               )}
             </ion-button>
+            {this.isUserSignedIn ? (
+              <ion-menu-toggle>
+                <ion-button fill="outline" color="secondary">
+                  <ion-label color="light">Menu</ion-label>
+                </ion-button>
+              </ion-menu-toggle>
+            ) : (
+              <ion-button fill="outline" color="secondary" href="/">
+                <ion-label color="light">Authenticate</ion-label>
+                <ion-icon slot="end" color="light" name="unlock" />
+              </ion-button>
+            )}
           </ion-buttons>
         </ion-toolbar>
       </ion-header>,

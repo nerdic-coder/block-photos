@@ -177,7 +177,11 @@ export class AppSettings {
           </ion-item>
         </ion-card>
         <ion-card>
-          <ion-item onClick={event => this.clearCache(event)} detail={false}>
+          <ion-item
+            class="pointer"
+            onClick={event => this.clearCache(event)}
+            detail={false}
+          >
             <ion-icon name="reverse-camera" slot="end" color="primary" />
             <ion-label>Clear photos cache</ion-label>
           </ion-item>
@@ -192,41 +196,61 @@ export class AppSettings {
         <ion-card>
           <ion-item
             detail
-            href="#"
+            class="pointer"
             onClick={event => this.visitBlockstackProfile(event)}
           >
             <ion-icon name="person" slot="start" color="primary" />
             <ion-label>Go to profile on Blockstack</ion-label>
           </ion-item>
 
-          <ion-item detail href="#" onClick={event => this.sendEmail(event)}>
+          <ion-item
+            detail
+            class="pointer"
+            onClick={event => this.sendEmail(event)}
+          >
             <ion-icon name="mail" slot="start" color="primary" />
             <ion-label text-wrap>Email johan@block-photos.com</ion-label>
           </ion-item>
 
-          <ion-item detail href="#" onClick={event => this.reportIssue(event)}>
+          <ion-item
+            detail
+            class="pointer"
+            onClick={event => this.reportIssue(event)}
+          >
             <ion-icon name="bug" slot="start" color="danger" />
             <ion-label>Report issue</ion-label>
           </ion-item>
         </ion-card>
         <ion-card>
-          <ion-item detail href="#" onClick={event => this.donateCrypto(event)}>
+          <ion-item
+            detail
+            class="pointer"
+            onClick={event => this.donateCrypto(event)}
+          >
             <ion-icon name="logo-bitcoin" slot="start" color="primary" />
             <ion-label>Donate with Crypto</ion-label>
           </ion-item>
           <ion-item
             detail
-            href="#"
+            class="pointer"
             onClick={event => this.upvoteProductHunt(event)}
           >
             <ion-icon name="thumbs-up" slot="start" color="primary" />
             <ion-label>Upvote on Product Hunt</ion-label>
           </ion-item>
-          <ion-item detail href="#" onClick={event => this.twitter(event)}>
+          <ion-item
+            detail
+            class="pointer"
+            onClick={event => this.twitter(event)}
+          >
             <ion-icon name="logo-twitter" slot="start" color="primary" />
             <ion-label>Follow us on Twitter</ion-label>
           </ion-item>
-          <ion-item detail href="#" onClick={event => this.github(event)}>
+          <ion-item
+            detail
+            class="pointer"
+            onClick={event => this.github(event)}
+          >
             <ion-icon name="logo-github" slot="start" color="primary" />
             <ion-label>Read our source code</ion-label>
           </ion-item>

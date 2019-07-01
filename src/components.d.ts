@@ -31,6 +31,17 @@ export namespace Components {
     'rotate'?: boolean;
   }
 
+  interface EditPopover {
+    'deleteCallback': any;
+    'rotateCallback': any;
+    'selectedPhotos': any[];
+  }
+  interface EditPopoverAttributes extends StencilHTMLAttributes {
+    'deleteCallback'?: any;
+    'rotateCallback'?: any;
+    'selectedPhotos'?: any[];
+  }
+
   interface FilterPopover {
     'selectedPhotos': any[];
   }
@@ -98,6 +109,7 @@ export namespace Components {
 declare global {
   interface StencilElementInterfaces {
     'BlockImg': Components.BlockImg;
+    'EditPopover': Components.EditPopover;
     'FilterPopover': Components.FilterPopover;
     'SelectAlbum': Components.SelectAlbum;
     'AppAlbums': Components.AppAlbums;
@@ -111,6 +123,7 @@ declare global {
 
   interface StencilIntrinsicElements {
     'block-img': Components.BlockImgAttributes;
+    'edit-popover': Components.EditPopoverAttributes;
     'filter-popover': Components.FilterPopoverAttributes;
     'select-album': Components.SelectAlbumAttributes;
     'app-albums': Components.AppAlbumsAttributes;
@@ -127,6 +140,12 @@ declare global {
   var HTMLBlockImgElement: {
     prototype: HTMLBlockImgElement;
     new (): HTMLBlockImgElement;
+  };
+
+  interface HTMLEditPopoverElement extends Components.EditPopover, HTMLStencilElement {}
+  var HTMLEditPopoverElement: {
+    prototype: HTMLEditPopoverElement;
+    new (): HTMLEditPopoverElement;
   };
 
   interface HTMLFilterPopoverElement extends Components.FilterPopover, HTMLStencilElement {}
@@ -185,6 +204,7 @@ declare global {
 
   interface HTMLElementTagNameMap {
     'block-img': HTMLBlockImgElement
+    'edit-popover': HTMLEditPopoverElement
     'filter-popover': HTMLFilterPopoverElement
     'select-album': HTMLSelectAlbumElement
     'app-albums': HTMLAppAlbumsElement
@@ -198,6 +218,7 @@ declare global {
 
   interface ElementTagNameMap {
     'block-img': HTMLBlockImgElement;
+    'edit-popover': HTMLEditPopoverElement;
     'filter-popover': HTMLFilterPopoverElement;
     'select-album': HTMLSelectAlbumElement;
     'app-albums': HTMLAppAlbumsElement;
