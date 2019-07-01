@@ -94,7 +94,7 @@ export class SelectAlbum {
           </ion-list-header>
           {this.albums.map(album => (
             <ion-item
-              href="#"
+              class="pointer"
               detail={false}
               onClick={event => this.addPhotosToAlbum(event, album)}
             >

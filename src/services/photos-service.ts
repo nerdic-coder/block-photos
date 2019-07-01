@@ -1,5 +1,4 @@
 import StorageService from './storage-service';
-import imageCompression from 'browser-image-compression';
 import Compressor from 'compressorjs';
 
 import AlbumsService from './albums-service';
@@ -40,7 +39,9 @@ export default class PhotosService {
   static async loadPhoto(
     metadata: PhotoMetadata,
     photoType?: PhotoType,
-    returnPhototype?: boolean
+    returnPhototype?: boolean,
+    username?: string,
+    decrypt = true
   ): Promise<any> {
     const mainId = metadata.id;
     let updateCache = false;
@@ -50,16 +51,32 @@ export default class PhotosService {
     } else if (photoType === PhotoType.Viewer) {
       metadata.id = metadata.id + '-viewer';
     }
-    let rawPhoto = await StorageService.getItem(metadata.id, updateCache);
+    let rawPhoto = await StorageService.getItem(
+      metadata.id,
+      updateCache,
+      false,
+      username,
+      decrypt
+    );
+
     if (!rawPhoto && photoType === PhotoType.Thumbnail) {
-      rawPhoto = await StorageService.getItem(mainId, false);
+      rawPhoto = await StorageService.getItem(
+        mainId,
+        false,
+        false,
+        username,
+        decrypt
+      );
       const { Device } = Plugins;
       const info = await Device.getInfo();
       if (info.model !== 'iPhone' && info.model !== 'iPad') {
+        const fetchedData = await fetch(rawPhoto);
+        const blob = await fetchedData.blob();
         const thumbnailData = await PhotosService.compressPhoto(
-          await imageCompression.getFilefromDataUrl(rawPhoto),
+          blob,
           PhotoType.Thumbnail,
-          metadata.type
+          metadata.type,
+          false
         );
         await StorageService.setItem(mainId + '-thumbnail', thumbnailData);
 
@@ -68,12 +85,20 @@ export default class PhotosService {
         photoType = PhotoType.Download;
       }
     } else if (!rawPhoto && photoType === PhotoType.Viewer) {
-      rawPhoto = await StorageService.getItem(mainId, false);
+      rawPhoto = await StorageService.getItem(
+        mainId,
+        false,
+        false,
+        username,
+        decrypt
+      );
       const { Device } = Plugins;
       const info = await Device.getInfo();
       if (info.model !== 'iPhone' && info.model !== 'iPad') {
+        const fetchedData = await fetch(rawPhoto);
+        const blob = await fetchedData.blob();
         const viewerData = await PhotosService.compressPhoto(
-          await imageCompression.getFilefromDataUrl(rawPhoto),
+          blob,
           PhotoType.Viewer,
           metadata.type
         );
@@ -85,6 +110,7 @@ export default class PhotosService {
     }
 
     if (!rawPhoto) {
+      await PhotosService.deletePhoto(mainId);
       return false;
     }
 
@@ -180,10 +206,75 @@ export default class PhotosService {
     return { photosList, errorsList };
   }
 
+  static async uploadSharedPhoto(
+    data: any,
+    metadata: PhotoMetadata
+  ): Promise<any> {
+    const errorsList = [];
+    try {
+      metadata.shared = true;
+      metadata.id = metadata.id + '-shared';
+      const sharedResponse = await PhotosService.getPhotosList(
+        true,
+        'shared-list.json'
+      );
+      let sharedList = sharedResponse.photosList;
+      if (
+        (!sharedList || sharedList == null) &&
+        sharedResponse.errorsList.length === 0
+      ) {
+        sharedList = [];
+      }
+
+      const listdata = {
+        id: metadata.id,
+        filename: metadata.filename
+      };
+      // Save raw data to a file
+      await StorageService.setItem(metadata.id, data, false, false);
+      // Save photos metadata to a file
+      await StorageService.setItem(
+        metadata.id + '-meta',
+        JSON.stringify(metadata),
+        false,
+        false
+      );
+      // console.log('originalMetadata.id', originalMetadata.id);
+      // // Update shared flag on original metadata
+      // await StorageService.setItem(
+      //   originalMetadata.id + '-meta',
+      //   JSON.stringify(originalMetadata)
+      // );
+
+      sharedList.unshift(listdata);
+
+      await StorageService.setItem(
+        'shared-list.json',
+        JSON.stringify(sharedList)
+      );
+    } catch (error) {
+      const fileSizeInMegabytes = metadata.stats.size / 1000000;
+      if (fileSizeInMegabytes >= 5) {
+        errorsList.push({
+          id: metadata.filename,
+          errorCode: 'err_filesize'
+        });
+      } else {
+        errorsList.push({
+          id: metadata.filename,
+          errorCode: 'err_failed'
+        });
+      }
+    }
+
+    return errorsList;
+  }
+
   static async compressPhoto(
     itemValue: any,
     photoType?: PhotoType,
-    mimeType = 'image/jpeg'
+    mimeType = 'image/jpeg',
+    checkOrientation = false
   ) {
     try {
       return new Promise(async resolve => {
@@ -192,7 +283,7 @@ export default class PhotosService {
             quality: 0.4,
             maxWidth: 500,
             mimeType,
-            checkOrientation: false,
+            checkOrientation,
             success(result) {
               const reader = new FileReader();
 
@@ -213,7 +304,7 @@ export default class PhotosService {
             quality: 0.6,
             maxWidth: 2560,
             mimeType,
-            checkOrientation: false,
+            checkOrientation,
             success(result) {
               const reader = new FileReader();
 
@@ -294,9 +385,16 @@ export default class PhotosService {
     return true;
   }
 
-  static async deletePhoto(photoId: string): Promise<boolean> {
+  static async deletePhoto(
+    photoId: string,
+    skipMetadata?: boolean,
+    decrypt = true
+  ): Promise<boolean> {
     let returnState = false;
-    const metadata = await PhotosService.getPhotoMetaData(photoId);
+    let metadata = null;
+    if (!skipMetadata) {
+      metadata = await PhotosService.getPhotoMetaData(photoId, null, decrypt);
+    }
     try {
       // Delete photo, compressed photos and the photo metadata
       await StorageService.deleteItem(photoId);
@@ -333,17 +431,28 @@ export default class PhotosService {
       return false;
     }
 
-    // Remove photo from main list
-    returnState = await PhotosService.removePhotoFromList(photoId);
+    if (decrypt) {
+      // Remove photo from main list
+      returnState = await PhotosService.removePhotoFromList(photoId);
 
-    // Remove photo from albums
-    if (metadata.albums && metadata.albums.length > 0) {
-      for (const albumId of metadata.albums) {
-        returnState = await PhotosService.removePhotoFromList(photoId, albumId);
-        if (!returnState) {
-          return false;
+      // Remove photo from albums
+      if (!skipMetadata && metadata.albums && metadata.albums.length > 0) {
+        for (const albumId of metadata.albums) {
+          returnState = await PhotosService.removePhotoFromList(
+            photoId,
+            albumId
+          );
+          if (!returnState) {
+            return false;
+          }
         }
       }
+    } else {
+      // Remove photo from shared list
+      returnState = await PhotosService.removePhotoFromList(
+        photoId,
+        'shared-list.json'
+      );
     }
     return returnState;
   }
@@ -397,11 +506,14 @@ export default class PhotosService {
     return true;
   }
 
-  static async deletePhotos(photoIds: string[]): Promise<boolean> {
+  static async deletePhotos(
+    photoIds: string[],
+    decrypt = true
+  ): Promise<boolean> {
     let returnState = false;
     try {
       for (const photoId of photoIds) {
-        const result = await PhotosService.deletePhoto(photoId);
+        const result = await PhotosService.deletePhoto(photoId, false, decrypt);
         if (!result) {
           throw result;
         }
@@ -411,6 +523,8 @@ export default class PhotosService {
       console.error(error);
       returnState = false;
     }
+
+    StorageService.updateTimestamp();
 
     return returnState;
   }
@@ -467,32 +581,23 @@ export default class PhotosService {
     return response;
   }
 
-  static async getPhotoMetaData(photoId: string): Promise<PhotoMetadata> {
+  static async getPhotoMetaData(
+    photoId: string,
+    username?: string,
+    decrypt = true
+  ): Promise<PhotoMetadata> {
     const cachedPhotoMetaData: string = await StorageService.getItem(
       photoId + '-meta',
       true,
-      true
+      true,
+      username,
+      decrypt
     );
 
     if (!cachedPhotoMetaData) {
-      const photosListResponse = await PhotosService.getPhotosList();
-      const photosList = photosListResponse.photosList;
-      let photoMetaData: PhotoMetadata;
-      let index = 0;
-      for (const photo of photosList) {
-        // Current photo
-        if (photo.id === photoId) {
-          photoMetaData = photosList[index];
-          PhotosService.setPhotoMetaData(photoId, cachedPhotoMetaData);
-          break;
-        }
-        index++;
-      }
-      return photoMetaData;
-    } else if (cachedPhotoMetaData) {
-      return JSON.parse(cachedPhotoMetaData);
-    } else {
       return null;
+    } else {
+      return JSON.parse(cachedPhotoMetaData);
     }
   }
 

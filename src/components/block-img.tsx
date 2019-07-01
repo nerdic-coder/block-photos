@@ -12,6 +12,7 @@ export class BlockImg {
   @Prop() rotate: boolean;
   @Prop() refresh: number;
   @Prop() phototType: PhotoType = PhotoType.Download;
+  @Prop() decrypt = true;
 
   @State() source: string;
   @State() isLoaded: boolean;
@@ -50,14 +51,18 @@ export class BlockImg {
     }
 
     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
-      photoId
+      photoId,
+      null,
+      this.decrypt
     );
     const photo = await PhotosService.loadPhoto(
       metadata,
       this.phototType,
-      true
+      true,
+      null,
+      this.decrypt
     );
-    let base64;
+    let base64: string;
     if (photo) {
       base64 = photo.base64;
     }

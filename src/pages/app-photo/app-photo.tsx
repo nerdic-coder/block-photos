@@ -7,8 +7,10 @@ import PresentingService from '../../services/presenting-service';
 import AnalyticsService from '../../services/analytics-service';
 import { PhotoType } from '../../models/photo-type';
 import { Plugins } from '@capacitor/core';
+import SettingsService from '../../services/settings-service';
 
 declare var blockstack;
+declare var navigator;
 // declare var Caman;
 
 @Component({
@@ -29,6 +31,7 @@ export class AppPhoto {
 
   @Prop({ mutable: true }) photoId: string;
   @Prop() albumId: string;
+  @Prop() decrypt: boolean;
   @Prop() updateCallback: any;
 
   @State() photos: any[];
@@ -38,6 +41,7 @@ export class AppPhoto {
   @State() deleteInProgress: boolean;
   @State() rotationInProgress: boolean;
   @State() addToAlbumInProgress: boolean;
+  @State() shareInProgress: boolean;
   @State() isIpad: boolean;
 
   constructor() {
@@ -60,7 +64,8 @@ export class AppPhoto {
     await router.componentOnReady();
 
     // Go to signin page if no active session exist
-    const userSession = new blockstack.UserSession();
+    const appConfig = SettingsService.getAppConfig();
+    const userSession = new blockstack.UserSession({ appConfig });
     if (!userSession.isUserSignedIn()) {
       router.push('/', 'root');
       return;
@@ -170,7 +175,9 @@ export class AppPhoto {
   ): Promise<void> {
     let rotation = 1;
     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
-      photoId
+      photoId,
+      null,
+      this.decrypt
     );
 
     if (newRotation) {
@@ -211,7 +218,13 @@ export class AppPhoto {
 
     if (rotation !== 1) {
       loadImage(
-        await PhotosService.loadPhoto(metadata, this.photoType),
+        await PhotosService.loadPhoto(
+          metadata,
+          this.photoType,
+          false,
+          null,
+          this.decrypt
+        ),
         processedPhoto => {
           this.handleProcessedPhoto(processedPhoto, index, photoId);
         },
@@ -225,7 +238,13 @@ export class AppPhoto {
           {
             photoId,
             isLoaded: true,
-            source: await PhotosService.loadPhoto(metadata, this.photoType)
+            source: await PhotosService.loadPhoto(
+              metadata,
+              this.photoType,
+              false,
+              null,
+              this.decrypt
+            )
           },
           ...this.photos
         ];
@@ -236,13 +255,25 @@ export class AppPhoto {
           {
             photoId,
             isLoaded: true,
-            source: await PhotosService.loadPhoto(metadata, this.photoType)
+            source: await PhotosService.loadPhoto(
+              metadata,
+              this.photoType,
+              false,
+              null,
+              this.decrypt
+            )
           }
         ];
       } else {
         this.photos[
           this.getPhotoIndex(photoId)
-        ].source = await PhotosService.loadPhoto(metadata, this.photoType);
+        ].source = await PhotosService.loadPhoto(
+          metadata,
+          this.photoType,
+          false,
+          null,
+          this.decrypt
+        );
         this.photos[this.getPhotoIndex(photoId)].isLoaded = true;
         this.garbage += 1;
       }
@@ -497,9 +528,17 @@ export class AppPhoto {
     event.preventDefault();
     this.downloadInProgress = true;
     const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
-      this.photoId
+      this.photoId,
+      null,
+      this.decrypt
     );
-    const data = await PhotosService.loadPhoto(metadata, PhotoType.Download);
+    const data = await PhotosService.loadPhoto(
+      metadata,
+      PhotoType.Download,
+      false,
+      null,
+      this.decrypt
+    );
     new Downloader({
       url: data,
       filename: metadata.filename
@@ -516,8 +555,200 @@ export class AppPhoto {
       });
   }
 
+  async shareOriginal(): Promise<void> {
+    this.shareInProgress = true;
+
+    const appConfig = SettingsService.getAppConfig();
+    const userSession = new blockstack.UserSession({ appConfig });
+    const userData = userSession.loadUserData();
+    const shareUrl = `${window.location.protocol}//${window.location.host}/#/shared/${userData.username}/${this.photoId}`;
+
+    if (navigator && navigator.share) {
+      await this.shareNative(shareUrl);
+    } else {
+      await this.shareFallback(shareUrl);
+    }
+
+    const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      this.photoId
+    );
+
+    const exist: PhotoMetadata = await PhotosService.getPhotoMetaData(
+      this.photoId + '-shared',
+      null,
+      false
+    );
+
+    if (!exist) {
+      const data = await PhotosService.loadPhoto(metadata, PhotoType.Download);
+      if (!data) {
+        this.present.toast('Failed to share the photo!');
+        // Hide the share actions
+        const webSocialShare: any = document.querySelector('web-social-share');
+        if (webSocialShare) {
+          webSocialShare.show = false;
+        }
+        return;
+      }
+      const errorsList = await PhotosService.uploadSharedPhoto(data, metadata);
+      this.shareInProgress = false;
+      if (errorsList && errorsList.length > 0) {
+        for (const error of errorsList) {
+          if (error.errorCode === 'err_filesize') {
+            this.present.toast(
+              'Failed to share "' +
+                error.id +
+                '", photo exceeds file size limit of 5MB.'
+            );
+          } else {
+            this.present.toast('Failed to share "' + error.id + '".');
+          }
+        }
+      }
+    } else {
+      this.shareInProgress = false;
+    }
+  }
+
+  async shareNative(shareUrl: string) {
+    return new Promise(async resolve => {
+      await navigator.share({
+        text: 'Check out my cool photo!',
+        url: shareUrl
+      });
+      resolve();
+    });
+  }
+
+  shareFallback(shareUrl: string) {
+    return new Promise(async resolve => {
+      const webSocialShare: any = document.querySelector('web-social-share');
+      if (!webSocialShare || !window) {
+        return;
+      }
+      const share = {
+        displayNames: true,
+        config: [
+          {
+            twitter: {
+              socialShareText: 'Check out my cool photo!',
+              socialShareVia: 'Block_Photos',
+              socialShareUrl: shareUrl,
+              socialSharePopupWidth: 300,
+              socialSharePopupHeight: 400
+            }
+          },
+          {
+            email: {
+              socialShareSubject: 'Check out my cool photo!',
+              socialShareBody: shareUrl
+            }
+          },
+          {
+            reddit: {
+              socialShareText: 'Check out my cool photo!',
+              socialShareUrl: shareUrl,
+              socialSharePopupWidth: 300,
+              socialSharePopupHeight: 500
+            }
+          },
+          {
+            whatsapp: {
+              socialShareText: 'Check out my cool photo!',
+              socialShareUrl: shareUrl
+            }
+          },
+          {
+            copy: {
+              socialShareUrl: shareUrl
+            }
+          }
+        ]
+      };
+      // The configuration, set the share options
+      webSocialShare.share = share;
+      // Show/open the share actions
+      webSocialShare.show = true;
+
+      resolve();
+    });
+  }
+
+  async activateEditor() {
+    const popoverController: any = document.querySelector(
+      'ion-popover-controller'
+    );
+    await popoverController.componentOnReady();
+
+    const componentProps = {
+      selectedPhotos: [this.photoId],
+      deleteCallback: this.delete.bind(this),
+      rotateCallback: null
+    };
+
+    if (this.decrypt) {
+      componentProps.rotateCallback = this.rotatePhoto.bind(this);
+    }
+
+    const popover = await popoverController.create({
+      component: 'edit-popover',
+      componentProps,
+      event,
+      backdropDismiss: true,
+      showBackdrop: false,
+      translucent: true
+    });
+    return popover.present();
+  }
+
+  delete() {
+    this.present.deletePhotos(
+      [this.photoId],
+      this.deletePhotoCallback.bind(this),
+      this.albumId,
+      this.deletePhotoStartCallback.bind(this)
+    );
+  }
+
   render() {
     return [
+      <web-social-share show="false">
+        <ion-icon
+          name="logo-twitter"
+          ariaLabel="Twitter"
+          slot="twitter"
+          color="primary"
+          size="large"
+        />
+        <ion-icon
+          name="mail"
+          slot="email"
+          ariaLabel="Email"
+          color="primary"
+          size="large"
+        />
+        <ion-icon
+          name="logo-reddit"
+          slot="reddit"
+          ariaLabel="Email"
+          color="primary"
+          size="large"
+        />
+        <ion-icon
+          name="logo-whatsapp"
+          ariaLabel="WhatsApp"
+          slot="whatsapp"
+          color="primary"
+          size="large"
+        />
+        <ion-icon
+          name="copy"
+          ariaLabel="Copy"
+          slot="copy"
+          color="primary"
+          size="large"
+        />
+      </web-social-share>,
       <ion-header mode="md">
         <ion-toolbar mode="md" color="primary">
           {/* <ion-buttons slot="start">
@@ -527,11 +758,13 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              hidden={!this.decrypt}
               disabled={
                 this.deleteInProgress ||
                 this.addToAlbumInProgress ||
                 this.downloadInProgress ||
-                this.rotationInProgress
+                this.rotationInProgress ||
+                this.shareInProgress
               }
               onClick={event => this.presentAlbumSelector(event)}
             >
@@ -545,11 +778,14 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              class="ion-hide-sm-down"
+              hidden={!this.decrypt}
               disabled={
                 this.deleteInProgress ||
                 this.addToAlbumInProgress ||
                 this.downloadInProgress ||
-                this.rotationInProgress
+                this.rotationInProgress ||
+                this.shareInProgress
               }
               onClick={() => this.rotatePhoto()}
             >
@@ -566,20 +802,15 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              class="ion-hide-sm-down"
               disabled={
                 this.deleteInProgress ||
                 this.addToAlbumInProgress ||
                 this.downloadInProgress ||
-                this.rotationInProgress
+                this.rotationInProgress ||
+                this.shareInProgress
               }
-              onClick={() =>
-                this.present.deletePhotos(
-                  [this.photoId],
-                  this.deletePhotoCallback.bind(this),
-                  this.albumId,
-                  this.deletePhotoStartCallback.bind(this)
-                )
-              }
+              onClick={() => this.delete()}
             >
               <ion-label color="light">Delete</ion-label>
               {this.deleteInProgress ? (
@@ -597,7 +828,8 @@ export class AppPhoto {
                 this.deleteInProgress ||
                 this.addToAlbumInProgress ||
                 this.downloadInProgress ||
-                this.rotationInProgress
+                this.rotationInProgress ||
+                this.shareInProgress
               }
               onClick={event => this.downloadOriginal(event)}
             >
@@ -611,11 +843,52 @@ export class AppPhoto {
             <ion-button
               fill="outline"
               color="secondary"
+              hidden={!this.decrypt}
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress ||
+                this.shareInProgress
+              }
+              onClick={() => this.shareOriginal()}
+            >
+              <ion-label color="light">Share</ion-label>
+              {this.shareInProgress ? (
+                <ion-spinner name="circles" slot="end" color="light" />
+              ) : (
+                <ion-icon slot="end" color="light" name="share" />
+              )}
+            </ion-button>
+            <ion-button
+              fill="outline"
+              color="secondary"
+              class="ion-hide-md-up"
+              disabled={
+                this.deleteInProgress ||
+                this.addToAlbumInProgress ||
+                this.downloadInProgress ||
+                this.rotationInProgress ||
+                this.shareInProgress
+              }
+              onClick={() => this.activateEditor()}
+            >
+              <ion-label color="light">Edit</ion-label>
+              {this.rotationInProgress || this.deleteInProgress ? (
+                <ion-spinner name="circles" slot="end" color="light" />
+              ) : (
+                <ion-icon slot="end" color="light" name="checkmark-circle" />
+              )}
+            </ion-button>
+            <ion-button
+              fill="outline"
+              color="secondary"
               disabled={
                 this.downloadInProgress ||
                 this.deleteInProgress ||
                 this.rotationInProgress ||
-                this.addToAlbumInProgress
+                this.addToAlbumInProgress ||
+                this.shareInProgress
               }
               onClick={() => this.closeModal()}
             >

@@ -5,6 +5,7 @@ import AnalyticsService from '../../services/analytics-service';
 import StorageService from '../../services/storage-service';
 import PresentingService from '../../services/presenting-service';
 import { PhotoType } from '../../models/photo-type';
+import SettingsService from '../../services/settings-service';
 
 declare var blockstack;
 
@@ -31,7 +32,8 @@ export class AppAlbums {
 
   async componentDidLoad() {
     // Go to signin page if no active session exist
-    const userSession = new blockstack.UserSession();
+    const appConfig = SettingsService.getAppConfig();
+    const userSession = new blockstack.UserSession({ appConfig });
     if (!userSession.isUserSignedIn()) {
       const router: any = document.querySelector('ion-router');
       await router.componentOnReady();

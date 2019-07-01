@@ -63,7 +63,8 @@ export class AppRoot {
 
     this.initCapacitor();
 
-    const userSession = new blockstack.UserSession();
+    const appConfig = SettingsService.getAppConfig();
+    const userSession = new blockstack.UserSession({ appConfig });
     this.isAuthenticated = userSession.isUserSignedIn();
   }
 
@@ -71,7 +72,8 @@ export class AppRoot {
     const router: any = document.querySelector('ion-router');
     await router.componentOnReady();
     router.addEventListener('ionRouteDidChange', () => {
-      const userSession = new blockstack.UserSession();
+      const appConfig = SettingsService.getAppConfig();
+      const userSession = new blockstack.UserSession({ appConfig });
       this.isAuthenticated = userSession.isUserSignedIn();
     });
   }
@@ -100,7 +102,8 @@ export class AppRoot {
     // Clear all the users cache in localStorage
     CacheService.clear();
     // End users Blockstack session
-    const userSession = new blockstack.UserSession();
+    const appConfig = SettingsService.getAppConfig();
+    const userSession = new blockstack.UserSession({ appConfig });
     userSession.signUserOut();
 
     AnalyticsService.logEvent('logged-out');
@@ -112,9 +115,23 @@ export class AppRoot {
         <ion-router useHash={true}>
           <ion-route url="/" component="app-signin" />
           <ion-route url="/settings/" component="app-settings" />
-          <ion-route url="/photos/" component="app-photos" />
-          <ion-route url="/album/:albumId" component="app-photos" />
+          <ion-route
+            url="/photos/"
+            component="app-photos"
+            componentProps={{ sharing: false }}
+          />
+          <ion-route
+            url="/album/:albumId"
+            component="app-photos"
+            componentProps={{ sharing: false }}
+          />
           <ion-route url="/photo/:photoId" component="app-photo" />
+          <ion-route url="/shared/:username/:photoId" component="app-shared" />
+          <ion-route
+            url="/sharing/"
+            component="app-photos"
+            componentProps={{ sharing: true }}
+          />
           <ion-route url="/albums/" component="app-albums" />
         </ion-router>
         <ion-split-pane
@@ -139,6 +156,12 @@ export class AppRoot {
                   <ion-item href="/albums">
                     <ion-icon slot="start" color="primary" name="albums" />
                     <ion-label>Albums</ion-label>
+                  </ion-item>
+                </ion-menu-toggle>
+                <ion-menu-toggle autoHide={false}>
+                  <ion-item href="/sharing">
+                    <ion-icon slot="start" color="primary" name="share" />
+                    <ion-label>Sharing</ion-label>
                   </ion-item>
                 </ion-menu-toggle>
                 <ion-menu-toggle autoHide={false}>

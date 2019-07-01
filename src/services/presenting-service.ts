@@ -85,7 +85,7 @@ export default class PresentingService {
     );
     await actionSheetController.componentOnReady();
 
-    const buttons = [
+    let buttons = [
       {
         text: 'Delete from app',
         role: 'destructive',
@@ -110,7 +110,32 @@ export default class PresentingService {
       }
     ];
 
-    if (albumId) {
+    if (albumId && albumId === 'shared-list.json') {
+      buttons = [
+        {
+          text: 'Remove from shared photos',
+          role: 'destructive',
+          icon: 'remove-circle',
+          handler: () => {
+            if (startCallback) {
+              startCallback();
+            }
+
+            PhotosService.deletePhotos(ids, false).then(async result => {
+              if (result === true) {
+                endCallback();
+              } else {
+                this.errorAlert(
+                  'Removal failed',
+                  'The removal of some photos failed. Please try again in a few minutes!'
+                );
+                endCallback();
+              }
+            });
+          }
+        }
+      ];
+    } else if (albumId) {
       buttons.push({
         text: 'Remove from album',
         role: 'destructive',

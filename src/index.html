@@ -32,6 +32,7 @@
       script-src 'self' 'unsafe-eval' 'unsafe-inline'
         https://storage.googleapis.com
         https://cdn.amplitude.com
+        https://unpkg.com
         capacitor:
         file:
         data:
@@ -106,6 +107,10 @@
   </script>
   <!-- <script src="assets/load-image.all.min.js"></script> -->
   <script src="assets/blockstack-19.2.1.min.js"></script>
+  <script type="module"
+    src="https://unpkg.com/web-social-share@latest/dist/websocialshare/websocialshare.esm.js"></script>
+  <script nomodule
+    src="https://unpkg.com/web-social-share@latest/dist/websocialshare/websocialshare.js"></script>
   <!-- <script src="assets/caman.full.min.js"></script> -->
   <script type="module" src="/build/app.esm.js"></script>
   <script nomodule src="/build/app.js"></script>

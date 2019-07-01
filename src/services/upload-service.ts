@@ -4,6 +4,7 @@ import PhotosService from './photos-service';
 import PresentingService from './presenting-service';
 import { PhotoType } from '../models/photo-type';
 import { Plugins } from '@capacitor/core';
+import StorageService from './storage-service';
 
 export default class UploadService {
   private root: any;
@@ -156,7 +157,8 @@ export default class UploadService {
                     type: tempFile.type,
                     size: tempFile.size,
                     uploadedDate: new Date(),
-                    albums: [this.albumId]
+                    albums: [this.albumId],
+                    shared: false
                   };
 
                   await this.uploadPhoto(
@@ -255,6 +257,7 @@ export default class UploadService {
   }
 
   uploadFilesDone(): void {
+    StorageService.updateTimestamp();
     this.present.dismissToolbarLoader();
     if (this.callback && typeof this.callback === 'function') {
       // execute the callback, passing parameters as necessary

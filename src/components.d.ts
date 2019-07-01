@@ -10,26 +10,37 @@ import {
   PhotoType,
 } from './models/photo-type';
 
-
 export namespace Components {
   interface AppAlbums {}
   interface AppPhoto {
     'albumId': string;
+    'decrypt': boolean;
     'photoId': string;
     'updateCallback': any;
   }
   interface AppPhotos {
     'albumId': string;
     'photoId': string;
+    'sharing': boolean;
   }
   interface AppRoot {}
   interface AppSettings {}
+  interface AppShared {
+    'photoId': string;
+    'username': string;
+  }
   interface AppSignin {}
   interface BlockImg {
+    'decrypt': boolean;
     'photoId': string;
     'phototType': PhotoType;
     'refresh': number;
     'rotate': boolean;
+  }
+  interface EditPopover {
+    'deleteCallback': any;
+    'rotateCallback': any;
+    'selectedPhotos': any[];
   }
   interface FilterPopover {
     'selectedPhotos': any[];
@@ -74,6 +85,12 @@ declare global {
     new (): HTMLAppSettingsElement;
   };
 
+  interface HTMLAppSharedElement extends Components.AppShared, HTMLStencilElement {}
+  var HTMLAppSharedElement: {
+    prototype: HTMLAppSharedElement;
+    new (): HTMLAppSharedElement;
+  };
+
   interface HTMLAppSigninElement extends Components.AppSignin, HTMLStencilElement {}
   var HTMLAppSigninElement: {
     prototype: HTMLAppSigninElement;
@@ -84,6 +101,12 @@ declare global {
   var HTMLBlockImgElement: {
     prototype: HTMLBlockImgElement;
     new (): HTMLBlockImgElement;
+  };
+
+  interface HTMLEditPopoverElement extends Components.EditPopover, HTMLStencilElement {}
+  var HTMLEditPopoverElement: {
+    prototype: HTMLEditPopoverElement;
+    new (): HTMLEditPopoverElement;
   };
 
   interface HTMLFilterPopoverElement extends Components.FilterPopover, HTMLStencilElement {}
@@ -103,8 +126,10 @@ declare global {
     'app-photos': HTMLAppPhotosElement;
     'app-root': HTMLAppRootElement;
     'app-settings': HTMLAppSettingsElement;
+    'app-shared': HTMLAppSharedElement;
     'app-signin': HTMLAppSigninElement;
     'block-img': HTMLBlockImgElement;
+    'edit-popover': HTMLEditPopoverElement;
     'filter-popover': HTMLFilterPopoverElement;
     'select-album': HTMLSelectAlbumElement;
   }
@@ -114,21 +139,33 @@ declare namespace LocalJSX {
   interface AppAlbums extends JSXBase.HTMLAttributes<HTMLAppAlbumsElement> {}
   interface AppPhoto extends JSXBase.HTMLAttributes<HTMLAppPhotoElement> {
     'albumId'?: string;
+    'decrypt'?: boolean;
     'photoId'?: string;
     'updateCallback'?: any;
   }
   interface AppPhotos extends JSXBase.HTMLAttributes<HTMLAppPhotosElement> {
     'albumId'?: string;
     'photoId'?: string;
+    'sharing'?: boolean;
   }
   interface AppRoot extends JSXBase.HTMLAttributes<HTMLAppRootElement> {}
   interface AppSettings extends JSXBase.HTMLAttributes<HTMLAppSettingsElement> {}
+  interface AppShared extends JSXBase.HTMLAttributes<HTMLAppSharedElement> {
+    'photoId'?: string;
+    'username'?: string;
+  }
   interface AppSignin extends JSXBase.HTMLAttributes<HTMLAppSigninElement> {}
   interface BlockImg extends JSXBase.HTMLAttributes<HTMLBlockImgElement> {
+    'decrypt'?: boolean;
     'photoId'?: string;
     'phototType'?: PhotoType;
     'refresh'?: number;
     'rotate'?: boolean;
+  }
+  interface EditPopover extends JSXBase.HTMLAttributes<HTMLEditPopoverElement> {
+    'deleteCallback'?: any;
+    'rotateCallback'?: any;
+    'selectedPhotos'?: any[];
   }
   interface FilterPopover extends JSXBase.HTMLAttributes<HTMLFilterPopoverElement> {
     'selectedPhotos'?: any[];
@@ -145,8 +182,10 @@ declare namespace LocalJSX {
     'app-photos': AppPhotos;
     'app-root': AppRoot;
     'app-settings': AppSettings;
+    'app-shared': AppShared;
     'app-signin': AppSignin;
     'block-img': BlockImg;
+    'edit-popover': EditPopover;
     'filter-popover': FilterPopover;
     'select-album': SelectAlbum;
   }
