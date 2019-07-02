@@ -140,7 +140,7 @@
     "selenium-standalone": "^6.16.0",
     "tslint": "5.18.0",
     "tslint-ionic-rules": "0.0.21",
-    "workbox-build": "3.4.1"
+    "workbox-build": "4.3.1"
   },
   "browserslist": [
     ">0.2%",
