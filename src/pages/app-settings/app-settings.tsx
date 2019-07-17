@@ -255,7 +255,7 @@ export class AppSettings {
             <ion-label>Read our source code</ion-label>
           </ion-item>
         </ion-card>
-        <p text-center="true">Block Photos - Version 4.2</p>
+        <p text-center="true">Block Photos - Version 5.0</p>
       </ion-content>
     ];
   }

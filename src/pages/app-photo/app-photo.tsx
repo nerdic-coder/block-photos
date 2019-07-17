@@ -35,7 +35,6 @@ export class AppPhoto {
   @Prop() updateCallback: any;
 
   @State() photos: any[];
-  @State() garbage = 1;
   @State() firstTimeLoaded: boolean;
   @State() downloadInProgress: boolean;
   @State() deleteInProgress: boolean;
@@ -275,7 +274,6 @@ export class AppPhoto {
           this.decrypt
         );
         this.photos[this.getPhotoIndex(photoId)].isLoaded = true;
-        this.garbage += 1;
       }
     }
   }
@@ -304,7 +302,6 @@ export class AppPhoto {
           this.getPhotoIndex(photoId)
         ].source = processedPhoto.toDataURL();
         this.photos[this.getPhotoIndex(photoId)].isLoaded = true;
-        this.garbage += 1;
       }
     } else {
       if (index === 0) {
@@ -315,7 +312,6 @@ export class AppPhoto {
       } else {
         this.photos[this.getPhotoIndex(photoId)].source = processedPhoto.src;
         this.photos[this.getPhotoIndex(photoId)].isLoaded = true;
-        this.garbage += 1;
       }
     }
   }

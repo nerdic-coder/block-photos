@@ -51,13 +51,13 @@ export class AppRoot {
       if (await SettingsService.getAnalyticsSetting(true)) {
         Sentry.init({
           dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
-          release: 'block-photos@4.2'
+          release: 'block-photos@5.0'
         });
       }
     } catch (error) {
       Sentry.init({
         dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
-        release: 'block-photos@4.2'
+        release: 'block-photos@5.0'
       });
     }
 
