@@ -1,7 +1,7 @@
-import { Component, State, h } from '@stencil/core';
+import { Component, h } from '@stencil/core';
 import PresentingService from '../../services/presenting-service';
 import AnalyticsService from '../../services/analytics-service';
-import SettingsService from '../../services/settings-service';
+// import SettingsService from '../../services/settings-service';
 import CacheService from '../../services/cache-service';
 
 @Component({
@@ -10,14 +10,14 @@ import CacheService from '../../services/cache-service';
 export class AppSettings {
   private present: PresentingService;
 
-  @State() allowAnalytics: boolean;
+  // @State() allowAnalytics: boolean;
 
   constructor() {
     this.present = new PresentingService();
   }
 
   async componentWillLoad() {
-    this.allowAnalytics = await SettingsService.getAnalyticsSetting();
+    // this.allowAnalytics = await SettingsService.getAnalyticsSetting();
     AnalyticsService.logEvent('settings-page');
   }
 
@@ -104,18 +104,17 @@ export class AppSettings {
     AnalyticsService.logEvent('send-email-link');
   }
 
-  changeAnalyticsSetting() {
-    SettingsService.setAnalyticsSetting(!this.allowAnalytics);
-  }
+  // changeAnalyticsSetting() {
+  //   SettingsService.setAnalyticsSetting(!this.allowAnalytics);
+  // }
 
   async clearCache(event) {
     if (event) {
       event.preventDefault();
     }
-    const actionSheetController = document.querySelector(
+    const actionSheetController: any = document.querySelector(
       'ion-action-sheet-controller'
     );
-    await actionSheetController.componentOnReady();
 
     const buttons = [
       {
@@ -158,7 +157,7 @@ export class AppSettings {
       </ion-header>,
 
       <ion-content>
-        <ion-card>
+        {/* <ion-card>
           <ion-item>
             <ion-label>Share Analytics Data</ion-label>
             <ion-toggle
@@ -175,7 +174,7 @@ export class AppSettings {
               information will be tracked.
             </p>
           </ion-item>
-        </ion-card>
+        </ion-card> */}
         <ion-card>
           <ion-item
             class="pointer"

@@ -1,7 +1,7 @@
 import { Component, Prop, State, h } from '@stencil/core';
 
-// import JSZip from 'jszip';
-// import Downloader from 'js-file-downloader';
+// import * as JSZip from 'jszip';
+import Downloader from 'js-file-downloader';
 
 import AlbumsService from '../../services/albums-service';
 import StorageService from '../../services/storage-service';
@@ -14,6 +14,7 @@ import { Plugins } from '@capacitor/core';
 import SettingsService from '../../services/settings-service';
 
 declare var blockstack;
+declare var JSZip;
 
 @Component({
   tag: 'app-photos',
@@ -292,46 +293,46 @@ export class AppPhotos {
   async downloadZip(event: MouseEvent) {
     event.preventDefault();
     this.downloadInProgress = true;
-    // if (this.checkedItems.length > 0) {
-    //   const zip = new JSZip();
-    //   for (const key in this.checkedItems) {
-    //     if (this.checkedItems.hasOwnProperty(key)) {
-    //       const photoId = this.checkedItems[key];
-    //       const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
-    //         photoId,
-    //         null,
-    //         !this.sharing
-    //       );
-    //       const data: string = await PhotosService.loadPhoto(
-    //         metadata,
-    //         PhotoType.Download,
-    //         false,
-    //         null,
-    //         !this.sharing
-    //       );
-    //       const fetchedData = await fetch(data);
-    //       const arrayBuffer = await fetchedData.arrayBuffer();
+    if (this.checkedItems.length > 0) {
+      const zip = new JSZip();
+      for (const key in this.checkedItems) {
+        if (this.checkedItems.hasOwnProperty(key)) {
+          const photoId = this.checkedItems[key];
+          const metadata: PhotoMetadata = await PhotosService.getPhotoMetaData(
+            photoId,
+            null,
+            !this.sharing
+          );
+          const data: string = await PhotosService.loadPhoto(
+            metadata,
+            PhotoType.Download,
+            false,
+            null,
+            !this.sharing
+          );
+          const fetchedData = await fetch(data);
+          const arrayBuffer = await fetchedData.arrayBuffer();
 
-    //       zip.file(metadata.filename, arrayBuffer);
-    //     }
-    //   }
-    //   zip.generateAsync({ type: 'base64' }).then((base64: string) => {
-    //     new Downloader({
-    //       url: 'data:application/zip;base64,' + base64,
-    //       filename: 'block-photos.zip'
-    //     })
-    //       .then(() => {
-    //         // Called when download ended
-    //         this.downloadInProgress = false;
-    //       })
-    //       .catch(error => {
-    //         // Called when an error occurred
-    //         console.error(error);
-    //         this.downloadInProgress = false;
-    //         this.present.toast('Downloading of the photo failed!');
-    //       });
-    //   });
-    // }
+          zip.file(metadata.filename, arrayBuffer);
+        }
+      }
+      zip.generateAsync({ type: 'base64' }).then((base64: string) => {
+        new Downloader({
+          url: 'data:application/zip;base64,' + base64,
+          filename: 'block-photos.zip'
+        })
+          .then(() => {
+            // Called when download ended
+            this.downloadInProgress = false;
+          })
+          .catch(error => {
+            // Called when an error occurred
+            console.error(error);
+            this.downloadInProgress = false;
+            this.present.toast('Downloading of the photo failed!');
+          });
+      });
+    }
   }
 
   async handlePhotoClick(event: any, photoId: string): Promise<void> {

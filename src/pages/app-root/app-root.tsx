@@ -1,6 +1,5 @@
 import { Component, Listen, State, h } from '@stencil/core';
 import { Plugins } from '@capacitor/core';
-import * as Sentry from '@sentry/browser';
 import localForage from 'localforage';
 
 import AnalyticsService from '../../services/analytics-service';
@@ -14,7 +13,7 @@ declare var blockstack;
   styleUrl: 'app-root.css'
 })
 export class AppRoot {
-  private toastCtrl: HTMLIonToastControllerElement;
+  private toastCtrl: any;
 
   @State() isAuthenticated: boolean;
 
@@ -47,19 +46,6 @@ export class AppRoot {
       storeName: 'blockphotos', // Should be alphanumeric, with underscores.
       description: 'Block Photos Cache'
     });
-    try {
-      if (await SettingsService.getAnalyticsSetting(true)) {
-        Sentry.init({
-          dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
-          release: 'block-photos@5.0'
-        });
-      }
-    } catch (error) {
-      Sentry.init({
-        dsn: 'https://2b0b525209b646f49e438cff86c3e117@sentry.io/1331915',
-        release: 'block-photos@5.0'
-      });
-    }
 
     this.initCapacitor();
 

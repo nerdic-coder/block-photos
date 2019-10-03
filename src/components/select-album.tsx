@@ -49,7 +49,7 @@ export class SelectAlbum {
           this.present.toast('Failed to load local albums. Please try again!');
         } else if (error.errorCode) {
           this.present.toast(
-            'Could not load albums from blockstack. Please try again or create some albums if you have none!'
+            'Could not load albums from Blockstack. Please try again or create some albums if you have none!'
           );
         }
       }

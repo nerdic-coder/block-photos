@@ -708,7 +708,7 @@ export class AppPhoto {
 
   render() {
     return [
-      <web-social-share show="false">
+      <web-social-share show={false}>
         <ion-icon
           name="logo-twitter"
           ariaLabel="Twitter"

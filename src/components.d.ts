@@ -136,41 +136,41 @@ declare global {
 }
 
 declare namespace LocalJSX {
-  interface AppAlbums extends JSXBase.HTMLAttributes<HTMLAppAlbumsElement> {}
-  interface AppPhoto extends JSXBase.HTMLAttributes<HTMLAppPhotoElement> {
+  interface AppAlbums {}
+  interface AppPhoto {
     'albumId'?: string;
     'decrypt'?: boolean;
     'photoId'?: string;
     'updateCallback'?: any;
   }
-  interface AppPhotos extends JSXBase.HTMLAttributes<HTMLAppPhotosElement> {
+  interface AppPhotos {
     'albumId'?: string;
     'photoId'?: string;
     'sharing'?: boolean;
   }
-  interface AppRoot extends JSXBase.HTMLAttributes<HTMLAppRootElement> {}
-  interface AppSettings extends JSXBase.HTMLAttributes<HTMLAppSettingsElement> {}
-  interface AppShared extends JSXBase.HTMLAttributes<HTMLAppSharedElement> {
+  interface AppRoot {}
+  interface AppSettings {}
+  interface AppShared {
     'photoId'?: string;
     'username'?: string;
   }
-  interface AppSignin extends JSXBase.HTMLAttributes<HTMLAppSigninElement> {}
-  interface BlockImg extends JSXBase.HTMLAttributes<HTMLBlockImgElement> {
+  interface AppSignin {}
+  interface BlockImg {
     'decrypt'?: boolean;
     'photoId'?: string;
     'phototType'?: PhotoType;
     'refresh'?: number;
     'rotate'?: boolean;
   }
-  interface EditPopover extends JSXBase.HTMLAttributes<HTMLEditPopoverElement> {
+  interface EditPopover {
     'deleteCallback'?: any;
     'rotateCallback'?: any;
     'selectedPhotos'?: any[];
   }
-  interface FilterPopover extends JSXBase.HTMLAttributes<HTMLFilterPopoverElement> {
+  interface FilterPopover {
     'selectedPhotos'?: any[];
   }
-  interface SelectAlbum extends JSXBase.HTMLAttributes<HTMLSelectAlbumElement> {
+  interface SelectAlbum {
     'endCallback'?: any;
     'selectedPhotos'?: any[];
     'startCallback'?: any;
@@ -196,7 +196,19 @@ export { LocalJSX as JSX };
 
 declare module "@stencil/core" {
   export namespace JSX {
-    interface IntrinsicElements extends LocalJSX.IntrinsicElements {}
+    interface IntrinsicElements {
+      'app-albums': LocalJSX.AppAlbums & JSXBase.HTMLAttributes<HTMLAppAlbumsElement>;
+      'app-photo': LocalJSX.AppPhoto & JSXBase.HTMLAttributes<HTMLAppPhotoElement>;
+      'app-photos': LocalJSX.AppPhotos & JSXBase.HTMLAttributes<HTMLAppPhotosElement>;
+      'app-root': LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
+      'app-settings': LocalJSX.AppSettings & JSXBase.HTMLAttributes<HTMLAppSettingsElement>;
+      'app-shared': LocalJSX.AppShared & JSXBase.HTMLAttributes<HTMLAppSharedElement>;
+      'app-signin': LocalJSX.AppSignin & JSXBase.HTMLAttributes<HTMLAppSigninElement>;
+      'block-img': LocalJSX.BlockImg & JSXBase.HTMLAttributes<HTMLBlockImgElement>;
+      'edit-popover': LocalJSX.EditPopover & JSXBase.HTMLAttributes<HTMLEditPopoverElement>;
+      'filter-popover': LocalJSX.FilterPopover & JSXBase.HTMLAttributes<HTMLFilterPopoverElement>;
+      'select-album': LocalJSX.SelectAlbum & JSXBase.HTMLAttributes<HTMLSelectAlbumElement>;
+    }
   }
 }
 

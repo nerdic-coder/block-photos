@@ -6,7 +6,7 @@ import StorageService from '../../services/storage-service';
 import PresentingService from '../../services/presenting-service';
 import { PhotoType } from '../../models/photo-type';
 import SettingsService from '../../services/settings-service';
-
+// import * as blockstack from 'blockstack';
 declare var blockstack;
 
 @Component({
@@ -108,8 +108,7 @@ export class AppAlbums {
   }
 
   async presentCreateAlbumPrompt() {
-    const alertController = document.querySelector('ion-alert-controller');
-    await alertController.componentOnReady();
+    const alertController: any = document.querySelector('ion-alert-controller');
 
     const alert = await alertController.create({
       header: 'Create a new Album',
@@ -181,10 +180,9 @@ export class AppAlbums {
   }
 
   async deleteAlbum(albumId: string, albumName: string): Promise<void> {
-    const actionSheetController = document.querySelector(
+    const actionSheetController: any = document.querySelector(
       'ion-action-sheet-controller'
     );
-    await actionSheetController.componentOnReady();
 
     const actionSheet = await actionSheetController.create({
       header: 'Delete the album "' + albumName + '"?',
@@ -230,8 +228,7 @@ export class AppAlbums {
     event.preventDefault();
 
     if (!this.editMode) {
-      const router = document.querySelector('ion-router');
-      await router.componentOnReady();
+      const router: any = document.querySelector('ion-router');
       router.push('/album/' + albumId, 'forward');
     }
   }
