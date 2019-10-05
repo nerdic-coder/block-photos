@@ -17,7 +17,6 @@ export class FilterPopover {
 
   async closePopover() {
     const popoverController = document.querySelector('ion-popover-controller');
-    await popoverController.componentOnReady();
     popoverController.dismiss();
     this.selectedPhotos = null;
   }

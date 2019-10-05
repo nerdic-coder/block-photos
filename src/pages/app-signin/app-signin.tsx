@@ -24,7 +24,6 @@ export class AppSignin {
 
   async componentDidLoad() {
     const router: any = document.querySelector('ion-router');
-    await router.componentOnReady();
 
     const appConfig = SettingsService.getAppConfig();
     const userSession = new blockstack.UserSession({ appConfig });

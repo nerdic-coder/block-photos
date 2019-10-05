@@ -60,7 +60,6 @@ export class AppPhoto {
 
   async componentDidLoad() {
     const router: any = document.querySelector('ion-router');
-    await router.componentOnReady();
 
     // Go to signin page if no active session exist
     const appConfig = SettingsService.getAppConfig();
@@ -77,7 +76,6 @@ export class AppPhoto {
     }
 
     this.slides = document.querySelector('ion-slides');
-    await this.slides.componentOnReady();
     this.slides.options = {
       zoom: true,
       loop: false
@@ -94,7 +92,6 @@ export class AppPhoto {
       await this.getPhoto(this.photoId, 1);
 
       this.modalController = document.querySelector('ion-modal-controller');
-      this.modalController.componentOnReady();
 
       document.addEventListener('keydown', this.keydownPressedListener);
 
@@ -462,7 +459,6 @@ export class AppPhoto {
     const popoverController: any = document.querySelector(
       'ion-popover-controller'
     );
-    await popoverController.componentOnReady();
 
     const popover = await popoverController.create({
       component: 'select-album',
@@ -488,7 +484,6 @@ export class AppPhoto {
     const popoverController: any = document.querySelector(
       'ion-popover-controller'
     );
-    await popoverController.componentOnReady();
 
     const popover = await popoverController.create({
       component: 'filter-popover',
@@ -543,7 +538,7 @@ export class AppPhoto {
         // Called when download ended
         this.downloadInProgress = false;
       })
-      .catch(error => {
+      .catch((error: any) => {
         // Called when an error occurred
         console.error(error);
         this.downloadInProgress = false;
@@ -674,7 +669,6 @@ export class AppPhoto {
     const popoverController: any = document.querySelector(
       'ion-popover-controller'
     );
-    await popoverController.componentOnReady();
 
     const componentProps = {
       selectedPhotos: [this.photoId],

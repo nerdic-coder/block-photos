@@ -83,7 +83,6 @@ export class AppPhotos {
 
   async componentDidLoad() {
     this.router = document.querySelector('ion-router');
-    await this.router.componentOnReady();
     // Go to signin page if no active session exist
     const appConfig = SettingsService.getAppConfig();
     const userSession = new blockstack.UserSession({ appConfig });
@@ -110,7 +109,6 @@ export class AppPhotos {
     this.loadPhotosList(true);
 
     this.modalController = document.querySelector('ion-modal-controller');
-    this.modalController.componentOnReady();
 
     this.timestampChecker = setInterval(
       this.checkTimestampUpdate.bind(this),
@@ -431,7 +429,6 @@ export class AppPhotos {
     const popoverController: any = document.querySelector(
       'ion-popover-controller'
     );
-    await popoverController.componentOnReady();
 
     const popover = await popoverController.create({
       component: 'select-album',

@@ -6,7 +6,6 @@ export default class PresentingService {
 
   async loading(message: string, duration?: number): Promise<void> {
     const loadingController = document.querySelector('ion-loading-controller');
-    await loadingController.componentOnReady();
 
     this.loadingElement = await loadingController.create({
       message,
@@ -27,7 +26,6 @@ export default class PresentingService {
 
     if (loadingToolbar) {
       const loadingTitle = loadingToolbar.querySelector('ion-title');
-      await loadingTitle.componentOnReady();
       loadingTitle.innerText = message;
       loadingToolbar.classList.add('show');
     }
@@ -48,7 +46,6 @@ export default class PresentingService {
 
     if (loadingToolbar) {
       const loadingTitle = loadingToolbar.querySelector('ion-title');
-      await loadingTitle.componentOnReady();
       loadingTitle.innerText = '';
       loadingToolbar.classList.remove('show');
     }
@@ -56,7 +53,6 @@ export default class PresentingService {
 
   async toast(message: string): Promise<void> {
     const toastController = document.querySelector('ion-toast-controller');
-    await toastController.componentOnReady();
 
     const toast = await toastController.create({
       message,
@@ -83,7 +79,6 @@ export default class PresentingService {
     const actionSheetController = document.querySelector(
       'ion-action-sheet-controller'
     );
-    await actionSheetController.componentOnReady();
 
     let buttons = [
       {
@@ -177,7 +172,6 @@ export default class PresentingService {
 
   async errorAlert(header: string, message: string): Promise<void> {
     const alertController = document.querySelector('ion-alert-controller');
-    await alertController.componentOnReady();
 
     const alert = await alertController.create({
       header,

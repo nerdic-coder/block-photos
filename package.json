@@ -107,7 +107,7 @@
     "js-file-downloader": "1.1.4",
     "localforage": "1.7.3",
     "uuid": "3.3.3",
-    "web-social-share": "6.2.0"
+    "web-social-share": "6.1.0"
   },
   "devDependencies": {
     "@capacitor/android": "1.2.1",

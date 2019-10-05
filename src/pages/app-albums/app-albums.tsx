@@ -36,7 +36,6 @@ export class AppAlbums {
     const userSession = new blockstack.UserSession({ appConfig });
     if (!userSession.isUserSignedIn()) {
       const router: any = document.querySelector('ion-router');
-      await router.componentOnReady();
       router.push('/', 'root');
       return;
     }

@@ -56,7 +56,6 @@ export class AppRoot {
 
   async componentDidLoad() {
     const router: any = document.querySelector('ion-router');
-    await router.componentOnReady();
     router.addEventListener('ionRouteDidChange', () => {
       const appConfig = SettingsService.getAppConfig();
       const userSession = new blockstack.UserSession({ appConfig });

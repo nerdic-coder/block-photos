@@ -10,7 +10,6 @@ export class EditPopover {
 
   async closePopover() {
     const popoverController = document.querySelector('ion-popover-controller');
-    await popoverController.componentOnReady();
     await popoverController.dismiss();
   }
 
