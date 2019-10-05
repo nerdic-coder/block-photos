@@ -1,4 +1,5 @@
 import { Component, Prop, State, h } from '@stencil/core';
+import { popoverController } from '@ionic/core';
 
 import AlbumsService from '../services/albums-service';
 import PresentingService from '../services/presenting-service';
@@ -80,7 +81,6 @@ export class SelectAlbum {
   }
 
   async closePopover() {
-    const popoverController = document.querySelector('ion-popover-controller');
     popoverController.dismiss();
   }
 

@@ -1,4 +1,5 @@
 import { Component, Prop, h } from '@stencil/core';
+import { popoverController } from '@ionic/core';
 
 @Component({
   tag: 'edit-popover'
@@ -9,7 +10,6 @@ export class EditPopover {
   @Prop() rotateCallback: any;
 
   async closePopover() {
-    const popoverController = document.querySelector('ion-popover-controller');
     await popoverController.dismiss();
   }
 

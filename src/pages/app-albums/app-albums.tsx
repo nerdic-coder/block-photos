@@ -1,4 +1,5 @@
 import { Component, State, h } from '@stencil/core';
+import { actionSheetController, alertController } from '@ionic/core';
 
 import AlbumsService from '../../services/albums-service';
 import AnalyticsService from '../../services/analytics-service';
@@ -107,8 +108,6 @@ export class AppAlbums {
   }
 
   async presentCreateAlbumPrompt() {
-    const alertController: any = document.querySelector('ion-alert-controller');
-
     const alert = await alertController.create({
       header: 'Create a new Album',
       inputs: [
@@ -179,10 +178,6 @@ export class AppAlbums {
   }
 
   async deleteAlbum(albumId: string, albumName: string): Promise<void> {
-    const actionSheetController: any = document.querySelector(
-      'ion-action-sheet-controller'
-    );
-
     const actionSheet = await actionSheetController.create({
       header: 'Delete the album "' + albumName + '"?',
       buttons: [

@@ -1,5 +1,10 @@
 import { Component, Prop, h } from '@stencil/core';
-import { RangeChangeEventDetail, RangeValue } from '@ionic/core';
+
+import {
+  RangeChangeEventDetail,
+  RangeValue,
+  popoverController
+} from '@ionic/core';
 
 declare var Caman;
 // import PresentingService from '../services/presenting-service';
@@ -16,7 +21,6 @@ export class FilterPopover {
   private saturation: RangeValue = 0;
 
   async closePopover() {
-    const popoverController = document.querySelector('ion-popover-controller');
     popoverController.dismiss();
     this.selectedPhotos = null;
   }

@@ -1,4 +1,5 @@
 import { Component, Prop, State, h } from '@stencil/core';
+import { modalController, popoverController } from '@ionic/core';
 
 // import * as JSZip from 'jszip';
 import Downloader from 'js-file-downloader';
@@ -32,7 +33,6 @@ export class AppPhotos {
   private infiniteScroll: any;
   private refresherScroll: any;
   private photosListCached: any[] = [];
-  private modalController: HTMLIonModalControllerElement;
   private appPhotoElement: HTMLAppPhotoElement;
   private album: any;
   private router: HTMLIonRouterElement;
@@ -107,8 +107,6 @@ export class AppPhotos {
     this.refresherScroll = document.getElementById('photos-refresher-scroll');
     this.uploadService.addEventListeners(true);
     this.loadPhotosList(true);
-
-    this.modalController = document.querySelector('ion-modal-controller');
 
     this.timestampChecker = setInterval(
       this.checkTimestampUpdate.bind(this),
@@ -383,7 +381,7 @@ export class AppPhotos {
     // create component to open
     this.appPhotoElement = document.createElement('app-photo');
 
-    const modal = await this.modalController.create({
+    const modal = await modalController.create({
       component: this.appPhotoElement,
       componentProps: {
         photoId,
@@ -426,10 +424,6 @@ export class AppPhotos {
   }
 
   async presentAlbumSelector(event: any) {
-    const popoverController: any = document.querySelector(
-      'ion-popover-controller'
-    );
-
     const popover = await popoverController.create({
       component: 'select-album',
       componentProps: {

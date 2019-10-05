@@ -1,3 +1,10 @@
+import {
+  actionSheetController,
+  alertController,
+  loadingController,
+  toastController
+} from '@ionic/core';
+
 import PhotosService from './photos-service';
 import isElectron from 'is-electron';
 
@@ -5,8 +12,6 @@ export default class PresentingService {
   private loadingElement: HTMLIonLoadingElement;
 
   async loading(message: string, duration?: number): Promise<void> {
-    const loadingController = document.querySelector('ion-loading-controller');
-
     this.loadingElement = await loadingController.create({
       message,
       spinner: 'circles',
@@ -52,8 +57,6 @@ export default class PresentingService {
   }
 
   async toast(message: string): Promise<void> {
-    const toastController = document.querySelector('ion-toast-controller');
-
     const toast = await toastController.create({
       message,
       showCloseButton: true,
@@ -76,9 +79,6 @@ export default class PresentingService {
     if (ids.length === 1) {
       header = 'Delete ' + ids.length + ' photo?';
     }
-    const actionSheetController = document.querySelector(
-      'ion-action-sheet-controller'
-    );
 
     let buttons = [
       {
@@ -171,8 +171,6 @@ export default class PresentingService {
   }
 
   async errorAlert(header: string, message: string): Promise<void> {
-    const alertController = document.querySelector('ion-alert-controller');
-
     const alert = await alertController.create({
       header,
       subHeader: '',

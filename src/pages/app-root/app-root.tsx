@@ -1,5 +1,6 @@
 import { Component, Listen, State, h } from '@stencil/core';
 import { Plugins } from '@capacitor/core';
+import { toastController } from '@ionic/core';
 import localForage from 'localforage';
 
 import AnalyticsService from '../../services/analytics-service';
@@ -13,8 +14,6 @@ declare var blockstack;
   styleUrl: 'app-root.css'
 })
 export class AppRoot {
-  private toastCtrl: any;
-
   @State() isAuthenticated: boolean;
 
   /**
@@ -28,8 +27,7 @@ export class AppRoot {
    */
   @Listen('swUpdate', { target: 'window' })
   async onSWUpdate() {
-    this.toastCtrl = document.querySelector('ion-toast-controller');
-    const toast = await this.toastCtrl.create({
+    const toast = await toastController.create({
       message: 'New version available',
       showCloseButton: true,
       closeButtonText: 'Reload'
@@ -166,12 +164,7 @@ export class AppRoot {
           </ion-menu>
           <ion-router-outlet animated={true} id="menu-content" />
         </ion-split-pane>
-        <ion-alert-controller />
         <ion-action-sheet-controller />
-        <ion-loading-controller />
-        <ion-popover-controller />
-        <ion-toast-controller />
-        <ion-modal-controller />
       </ion-app>
     ];
   }

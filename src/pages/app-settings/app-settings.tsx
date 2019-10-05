@@ -1,4 +1,6 @@
 import { Component, h } from '@stencil/core';
+import { actionSheetController } from '@ionic/core';
+
 import PresentingService from '../../services/presenting-service';
 import AnalyticsService from '../../services/analytics-service';
 // import SettingsService from '../../services/settings-service';
@@ -112,9 +114,6 @@ export class AppSettings {
     if (event) {
       event.preventDefault();
     }
-    const actionSheetController: any = document.querySelector(
-      'ion-action-sheet-controller'
-    );
 
     const buttons = [
       {

@@ -1,4 +1,5 @@
 import { Component, Prop, State, h } from '@stencil/core';
+import { modalController, popoverController } from '@ionic/core';
 import loadImage from 'blueimp-load-image';
 import Downloader from 'js-file-downloader';
 
@@ -19,7 +20,6 @@ declare var navigator;
 })
 export class AppPhoto {
   private present: PresentingService;
-  private modalController: HTMLIonModalControllerElement;
   private slides: HTMLIonSlidesElement;
   private firstSlide = true;
   private slideToOne = false;
@@ -90,8 +90,6 @@ export class AppPhoto {
       await this.setNextAndPreviousPhoto(this.photoId);
       this.updateFromSlide = true;
       await this.getPhoto(this.photoId, 1);
-
-      this.modalController = document.querySelector('ion-modal-controller');
 
       document.addEventListener('keydown', this.keydownPressedListener);
 
@@ -439,7 +437,7 @@ export class AppPhoto {
     // } else {
     setTimeout(() => {
       this.deleteInProgress = false;
-      this.modalController.dismiss();
+      modalController.dismiss();
     }, 1000);
     // }
 
@@ -451,15 +449,11 @@ export class AppPhoto {
   }
 
   async closeModal() {
-    await this.modalController.dismiss();
+    await modalController.dismiss();
     this.photoId = null;
   }
 
   async presentAlbumSelector(event: any) {
-    const popoverController: any = document.querySelector(
-      'ion-popover-controller'
-    );
-
     const popover = await popoverController.create({
       component: 'select-album',
       componentProps: {
@@ -481,10 +475,6 @@ export class AppPhoto {
   }
 
   async presentFilterSelector(event: any) {
-    const popoverController: any = document.querySelector(
-      'ion-popover-controller'
-    );
-
     const popover = await popoverController.create({
       component: 'filter-popover',
       componentProps: {
@@ -666,10 +656,6 @@ export class AppPhoto {
   }
 
   async activateEditor() {
-    const popoverController: any = document.querySelector(
-      'ion-popover-controller'
-    );
-
     const componentProps = {
       selectedPhotos: [this.photoId],
       deleteCallback: this.delete.bind(this),
