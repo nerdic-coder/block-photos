@@ -106,7 +106,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "is-electron": "^2.2.0",
     "js-file-downloader": "^1.1.0",
-    "jszip": "3.2.1",
+    "jszip": "3.7.0",
     "localforage": "1.7.3",
     "uuid": "3.3.2"
   },
