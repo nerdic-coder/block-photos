@@ -112,7 +112,7 @@
   },
   "devDependencies": {
     "@capacitor/android": "1.0.0",
-    "@capacitor/cli": "1.0.0",
+    "@capacitor/cli": "1.5.3",
     "@capacitor/ios": "1.0.0",
     "@electron-forge/cli": "6.0.0-beta.39",
     "@electron-forge/maker-appx": "6.0.0-beta.39",
@@ -131,7 +131,7 @@
     "husky": "2.4.0",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
-    "nightwatch": "1.1.11",
+    "nightwatch": "1.7.13",
     "prettier": "1.17.1",
     "pretty-quick": "1.11.0",
     "puppeteer": "1.17.0",
